@@ -1,0 +1,1578 @@
+Attempting to perform the InitializeDefaultDrives operation on the 'FileSystem' provider failed.
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clusterização de clientes | Disman</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js">
+document.addEventListener('DOMContentLoaded',()=>{setTimeout(applyHelp,100);let t;new MutationObserver(()=>{clearTimeout(t);t=setTimeout(applyHelp,80)}).observe(document.body,{childList:true,subtree:true});});
+
+</script>
+<style>
+:root{
+  --bg:#07101d;--bg2:#0a1423;--panel:#0e1a2b;--panel2:#122239;--panel3:#162942;
+  --line:#213650;--line2:#2a4465;--txt:#f4f7fb;--muted:#8ea2bb;--soft:#b8c5d6;
+  --primary:#61d4b3;--blue:#6ca8ff;--cyan:#57c8e8;--warn:#f3c969;--bad:#f47d91;--good:#55d6a7;
+  --shadow:0 16px 45px rgba(0,0,0,.24);--radius:18px;--radius-sm:12px
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+  radial-gradient(circle at 17% -10%,rgba(64,105,170,.22),transparent 28%),
+  radial-gradient(circle at 90% 5%,rgba(39,146,134,.10),transparent 23%),
+  linear-gradient(180deg,var(--bg),#08111e 52%,#060d18);
+  color:var(--txt);font:14px Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,select,input{font:inherit}
+.app{display:grid;grid-template-columns:226px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:18px 13px;border-right:1px solid rgba(80,110,150,.20);
+  background:rgba(7,15,27,.86);backdrop-filter:blur(18px);z-index:20}
+.brandbox{padding:11px 12px 20px;border-bottom:1px solid rgba(70,102,143,.18);margin-bottom:16px}
+.brand{font-size:18px;font-weight:850;letter-spacing:-.45px}.brand span{color:var(--primary)}
+.brandtag{font-size:10px;color:var(--muted);margin-top:5px;text-transform:uppercase;letter-spacing:1.3px}
+.nav{display:grid;gap:6px}
+.nav button{all:unset;display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;color:var(--muted);
+  cursor:pointer;font-weight:700;transition:.16s}
+.nav button:before{content:attr(data-icon);display:grid;place-items:center;width:28px;height:28px;border:1px solid transparent;
+  border-radius:9px;background:rgba(255,255,255,.035);font-size:11px;color:var(--soft)}
+.nav button:hover{background:rgba(94,132,183,.09);color:#eaf1fb}
+.nav button.active{background:linear-gradient(90deg,rgba(76,149,186,.18),rgba(70,190,154,.08));color:#fff;box-shadow:inset 3px 0 0 var(--primary)}
+.nav button.active:before{border-color:rgba(97,212,179,.24);color:var(--primary)}
+.sidefoot{position:absolute;left:14px;right:14px;bottom:18px;padding:12px;border-top:1px solid rgba(70,102,143,.18);color:var(--muted);font-size:11px}
+.main{padding:24px 28px 40px;min-width:0;max-width:1800px;width:100%;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:18px}
+.top h1{margin:0;font-size:25px;letter-spacing:-.65px;font-weight:850}.sub{color:var(--muted);margin-top:5px;font-size:12px}
+.topright{display:flex;gap:9px;align-items:center}.pill{border:1px solid var(--line);background:rgba(15,27,45,.82);padding:8px 11px;border-radius:999px;color:var(--muted);font-size:11px}
+.statusdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--primary);margin-right:7px;box-shadow:0 0 12px rgba(97,212,179,.55)}
+.tab{display:none}.tab.active{display:block;animation:fade .16s ease}@keyframes fade{from{opacity:.5;transform:translateY(2px)}to{opacity:1;transform:none}}
+.hero{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:14px;padding:16px 18px;border:1px solid var(--line);
+  background:linear-gradient(110deg,rgba(21,42,68,.88),rgba(12,28,45,.90));border-radius:var(--radius);box-shadow:var(--shadow)}
+.hero h2{margin:0;font-size:16px}.hero p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.health{display:flex;gap:8px;flex-wrap:wrap}.healthchip{padding:7px 10px;border:1px solid var(--line);background:rgba(6,15,27,.38);border-radius:999px;font-size:11px;color:var(--soft)}
+.healthchip strong{color:#fff}
+.grid{display:grid;gap:12px}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kpigrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+.card{background:linear-gradient(180deg,rgba(17,33,54,.95),rgba(11,23,39,.95));border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
+.card.flat{box-shadow:none}.card h3{margin:0;font-size:13px;letter-spacing:.05px}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.cardhead .meta{color:var(--muted);font-size:10px}
+.kpi{position:relative;overflow:hidden;min-height:106px}.kpi:after{content:"";position:absolute;right:-24px;top:-30px;width:82px;height:82px;border-radius:50%;background:rgba(93,161,207,.055)}
+.kpi .label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.7px;font-weight:750}.kpi .val{font-size:25px;font-weight:850;margin-top:8px;letter-spacing:-.65px}
+.kpi .hint{font-size:10px;color:var(--muted);margin-top:5px}.kpi .tinybar{height:3px;background:#0b1627;border-radius:999px;margin-top:10px;overflow:hidden}.kpi .tinybar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--primary))}
+.kpi.good .val{color:#83e8c9}.kpi.warn .val{color:#f6d784}.kpi.bad .val{color:#ff9caf}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.btn{border:1px solid transparent;border-radius:11px;padding:9px 13px;font-weight:780;cursor:pointer;transition:.15s;background:var(--primary);color:#05231a}
+.btn:hover{filter:brightness(1.05);transform:translateY(-1px)}.btn.secondary{background:#172a43;color:#dfe9f7;border-color:var(--line)}.btn.danger{background:#2e1721;color:#ffc5ce;border-color:#613144}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(10,22,38,.72)}
+.filters:before{content:"FILTROS";font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:800;margin:0 3px 0 2px}
+select,input{background:#091524;border:1px solid var(--line);color:#edf4fc;border-radius:9px;padding:8px 10px;outline:none;min-height:34px}
+select:focus,input:focus{border-color:#4777a6;box-shadow:0 0 0 2px rgba(79,131,184,.11)}.filters select,.filters input{min-width:130px}
+.sectiontitle{font-size:14px;font-weight:800;margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between}.sectiontitle small{font-size:10px;color:var(--muted);font-weight:500}
+.tablecard{border:1px solid var(--line);border-radius:15px;background:rgba(10,22,38,.72);overflow:hidden}
+.tablemeta{padding:9px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;color:var(--muted);font-size:10px}
+.tablewrap{max-height:560px;overflow:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px}
+th{text-align:left;color:#93a8c2;font-weight:750;padding:10px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0d1c30;z-index:2;white-space:nowrap;cursor:default}
+td{padding:9px 10px;border-bottom:1px solid rgba(38,60,87,.48);white-space:nowrap;color:#dce6f2}tbody tr:hover td{background:rgba(79,132,182,.065)}
+.badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;background:#20324a;color:#cbd7e6;border:1px solid rgba(90,120,156,.18)}
+.badge.winner{background:rgba(66,190,148,.10);color:#81e5c4;border-color:rgba(66,190,148,.22)}.badge.grower{background:rgba(93,160,241,.10);color:#98c4ff;border-color:rgba(93,160,241,.22)}
+.badge.alto-volume{background:rgba(88,201,228,.10);color:#91deee;border-color:rgba(88,201,228,.22)}.badge.basic{background:rgba(243,201,105,.09);color:#f1d893;border-color:rgba(243,201,105,.18)}
+.badge.low-sales{background:rgba(174,187,203,.08);color:#b7c4d4}.badge.excesso{background:rgba(244,125,145,.10);color:#ffabb9;border-color:rgba(244,125,145,.2)}
+.badge.oportunidade{background:rgba(85,214,167,.10);color:#86e7c4;border-color:rgba(85,214,167,.2)}
+.badge.adequado{background:rgba(108,168,255,.09);color:#9fc7ff;border-color:rgba(108,168,255,.18)}
+.ok,.pos{color:#7fe2c1}.bad,.neg{color:#ff9eaf}.warn{color:#f3d589}.neutral,.muted{color:var(--muted)}
+.progress{height:7px;background:#07111e;border-radius:999px;overflow:hidden;border:1px solid rgba(46,73,105,.55)}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--primary));transition:.2s}
+.importrow{display:grid;grid-template-columns:minmax(220px,1.5fr) .65fr .4fr .62fr;gap:10px;align-items:center;padding:9px 3px;border-bottom:1px solid rgba(42,65,94,.52)}
+.paramrow{display:grid;grid-template-columns:1fr 105px;gap:12px;align-items:center;padding:8px 0}
+.empty{padding:34px;text-align:center;color:var(--muted);font-size:11px}.note{padding:10px 12px;border:1px solid rgba(72,112,151,.42);background:rgba(18,43,65,.55);border-radius:11px;color:#bad1e8;font-size:11px}
+.chartbox{min-height:250px}.bars{display:grid;gap:10px}.barrow{display:grid;grid-template-columns:100px 1fr 70px;gap:9px;align-items:center;font-size:11px}.bartrack{height:8px;background:#081522;border-radius:999px;overflow:hidden}.barfill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--blue),var(--primary))}
+.actionitem{padding:9px 0;border-bottom:1px solid rgba(42,65,94,.5)}.actionitem:last-child{border-bottom:0}.actiontitle{font-weight:750;color:#edf4fc}.actionmeta{font-size:10px;color:var(--muted);margin-top:3px}.actioncall{font-size:10px;font-weight:800;margin-top:4px}
+.matrix{display:grid;grid-template-columns:120px repeat(3,1fr);border:1px solid var(--line);border-radius:12px;overflow:hidden}.matrix>div{padding:9px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:10px}.matrix .head{background:#0c1a2c;color:var(--muted);font-weight:750}.matrix .cell{text-align:center;font-weight:800}
+.scatter{width:100%;height:240px;display:block}.scatter text{fill:#7f95af;font-size:9px}.scatter .axis{stroke:#29435f;stroke-width:1}.scatter circle{opacity:.72}
+.tooltip{cursor:help;border-bottom:1px dotted #7188a2}
+.metricline{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.metricline strong{font-size:12px}
+@media(max-width:1100px){.app{grid-template-columns:78px minmax(0,1fr)}.side{padding:16px 9px}.brandbox{padding:10px 5px}.brand{font-size:0}.brand:after{content:"PDV";font-size:14px;color:var(--primary)}.brandtag,.nav button span,.sidefoot{display:none}.nav button{justify-content:center;padding:9px}.nav button:before{margin:0}.main{padding:20px}.g4,.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.app{display:block}.side{position:static;height:auto;display:flex;align-items:center;border-right:0;border-bottom:1px solid var(--line)}.brandbox{border:0;margin:0;padding:4px 10px}.nav{display:flex;overflow:auto}.main{padding:14px}.top{align-items:flex-start}.g4,.g3,.g2{grid-template-columns:1fr}.hero{align-items:flex-start;flex-direction:column}.filters{overflow:auto;flex-wrap:nowrap}.kpigrid{grid-template-columns:repeat(2,minmax(140px,1fr))}}
+
+.service-combo .bar{cursor:pointer}
+.service-combo .bar:hover{opacity:.95;stroke:#d8ecff;stroke-width:2}
+.service-combo .bar.selected{stroke:#ffffff;stroke-width:3;opacity:1}
+.chart-hover-tip{
+ position:fixed;z-index:1000000;display:none;pointer-events:none;
+ min-width:210px;max-width:280px;padding:10px 12px;border-radius:10px;
+ border:1px solid #31506d;background:#071625;color:#eaf5ff;
+ box-shadow:0 12px 32px rgba(0,0,0,.45);font-size:12px;line-height:1.45
+}
+.chart-hover-tip .t{font-weight:800;margin-bottom:6px}
+.chart-hover-tip .r{display:flex;justify-content:space-between;gap:16px}
+.chart-hover-tip .r span:first-child{color:#9fbad2}
+.service-combo .line-label-if{fill:#c6b5ff;font-weight:800;font-size:10px}
+.service-combo .line-label-ot{fill:#ffc39a;font-weight:800;font-size:10px}
+
+
+.filter-field{display:flex;flex-direction:column;gap:6px;min-width:162px}
+.filter-field.filter-search{min-width:225px;flex:1 1 225px}
+.filter-label{display:flex;align-items:center;justify-content:center;min-height:17px;padding-left:0;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:none;color:#8fb4d5;line-height:1;text-align:center}
+.filter-label .info-tip{width:15px;height:15px;margin-left:6px;font-size:9px;flex:0 0 15px}
+#clusterFilters,#analysisFilters{align-items:flex-end}
+#clusterFilters select,#clusterFilters input,#analysisFilters select,#analysisFilters input{width:100%}
+
+
+.dev-footer{
+  margin:28px 28px 18px;
+  padding:22px 16px 12px;
+  border-top:1px solid rgba(120,160,195,.18);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+}
+.dev-signature{
+  font-size:12px;
+  font-weight:600;
+  color:#8fb4d5;
+  letter-spacing:.01em;
+}
+.dev-footer-logo{
+  display:block;
+  width:118px;
+  max-height:48px;
+  object-fit:contain;
+  opacity:.92;
+}
+
+</style>
+<style id="disman-theme">
+/* Identidade visual Disman, alinhada ao painel de Ouvidoria. */
+:root{
+  --bg:#f3f5fb;--bg2:#eef1fb;--panel:#fff;--panel2:#fafbff;--panel3:#f6f7fd;
+  --line:#e6e9f4;--line2:#d9def0;--txt:#161c3a;--muted:#6b7392;--soft:#46506f;
+  --primary:#1020e6;--blue:#4b57f0;--cyan:#2d6cdf;--warn:#f08a1c;--bad:#e04458;--good:#12a07a;
+  --shadow:0 18px 50px rgba(16,32,230,.10);--radius:20px;--radius-sm:13px;
+  --font:'Plus Jakarta Sans',Inter,'Segoe UI',Arial,sans-serif
+}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);-webkit-font-smoothing:antialiased}
+.app{grid-template-columns:276px minmax(0,1fr);background:var(--bg)}
+.side{background:linear-gradient(185deg,#0b1245 0%,#070b2e 100%);border-right:0;padding:22px 16px 18px;box-shadow:10px 0 34px rgba(10,16,64,.08)}
+.side:before{content:"";position:absolute;width:320px;height:320px;left:-140px;top:-140px;border-radius:50%;background:radial-gradient(circle,rgba(40,60,255,.35),transparent 65%);pointer-events:none}
+.brandbox{position:relative;padding:6px 8px 20px;border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:4px}
+.brand{color:#fff;font-size:18px;letter-spacing:-.4px}.brand span{color:#ffc233}.brandtag{color:#8e99d8;letter-spacing:.14em;font-weight:700}
+.nav{position:relative;gap:4px}.nav button{color:#b9c3ec;padding:11px 12px;border-radius:12px;font-size:13.5px}.nav button:hover{background:rgba(255,255,255,.07);color:#fff}.nav button.active{background:linear-gradient(90deg,rgba(60,80,255,.38),rgba(60,80,255,.12));color:#fff;box-shadow:none}.nav button.active:before{border:0;background:#ffc233;width:4px;height:auto;left:-16px;top:9px;bottom:9px;border-radius:0 4px 4px 0;color:transparent}
+.nav button:before{background:rgba(255,255,255,.06);color:#c9d0ff;border:0}
+.sidefoot{color:#9ba6dc;border-top:1px solid rgba(255,255,255,.09)}
+.main{background:var(--bg);padding:0 30px 30px;max-width:none}
+.top{position:sticky;top:0;z-index:8;margin:0 -30px 24px;padding:0 30px;height:76px;background:rgba(255,255,255,.86);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.top h1{font-size:20px;color:#0c1233}.sub{color:var(--muted)}
+.pill{background:#f0f2fb;border:0;color:#3d4672;font-weight:700}.statusdot{background:#12a07a;box-shadow:0 0 12px rgba(18,160,122,.35)}
+.hero{background:linear-gradient(120deg,#0000fe 0%,#1022d8 45%,#0a1480 100%);border:0;border-radius:24px;box-shadow:0 22px 50px rgba(10,20,200,.28);padding:30px 34px}
+.card,.tablecard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 2px 10px rgba(12,18,51,.05),0 8px 24px rgba(12,18,51,.04)}
+.card h3{color:#0c1233}.cardhead .meta,.meta,.muted{color:var(--muted)}
+.kpi{background:#fff;border:1px solid var(--line);box-shadow:0 2px 10px rgba(12,18,51,.05),0 8px 24px rgba(12,18,51,.04)}.kpi .label{color:var(--muted)}.kpi .val{color:#0c1233}.kpi.good .val{color:#0b7f60}.kpi.warn .val{color:#c76a08}.kpi.bad .val{color:#c8283d}
+.btn{border-radius:13px}.btn:not(.secondary):not(.danger):not(.ghost){background:linear-gradient(135deg,#1020e6,#0a14a8);color:#fff;box-shadow:0 8px 20px rgba(16,32,230,.22)}.btn.secondary{background:#eceeff;color:#1b2a9c;border-color:transparent}.btn.ghost{background:transparent;color:#46506f;border-color:var(--line)}
+.filters{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 2px 10px rgba(12,18,51,.03)}.filters:before{color:var(--brand,#1020e6)}
+select,input{background:#fff;color:var(--txt);border:1.5px solid var(--line);border-radius:12px}select:focus,input:focus{border-color:#4b57f0;box-shadow:0 0 0 4px rgba(16,32,230,.08)}
+.tablecard{overflow:hidden}.tablemeta{background:#fff;border-bottom:1px solid var(--line)}.tablewrap{background:#fff}
+table{font-size:12px}th{text-align:center!important;background:#f6f7fd;color:#5b6486;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.07em;font-size:10px;font-weight:800;padding:13px 14px}td{color:#161c3a;border-bottom:1px solid #eef0f8;padding:14px}.tablewrap tbody tr:hover td{background:#fafbff}
+.badge{border:0}.badge.winner{background:#e3f7ef;color:#0b7f60}.badge.grower{background:#eceeff;color:#2231c4}.badge.alto-volume{background:#e7f0ff;color:#2d6cdf}.badge.basic{background:#fff1de;color:#a35c0b}.badge.low-sales{background:#eff1f6;color:#586280}.badge.excesso{background:#ffe9ec;color:#b32a3d}.badge.oportunidade{background:#e3f7ef;color:#0b7f60}.badge.adequado{background:#eceeff;color:#2231c4}
+.importrow{background:#fff;border-bottom-color:#eef0f8}.importrow>div:nth-child(n+2){text-align:center}.sectiontitle{color:#0c1233}.sectiontitle small{color:var(--muted)}
+.matrix{border-color:var(--line);background:#fff}.matrix>div{border-color:var(--line);color:#161c3a}.matrix .head{background:#f6f7fd;color:#5b6486;text-align:center}
+.dev-footer{border-top:1px solid var(--line);color:var(--muted)}
+@media(max-width:1100px){.main{padding-left:20px;padding-right:20px}.top{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}
+@media(max-width:720px){.main{padding:0 14px 24px}.top{margin-left:-14px;margin-right:-14px;padding:0 14px;height:auto;min-height:70px}.top h1{font-size:17px}}
+</style>
+<style>
+#clusterParamsTable { table-layout: fixed; width: 100%; }
+#clusterParamsTable th,
+#clusterParamsTable td { text-align: center !important; vertical-align: middle; }
+#clusterParamsTable th { white-space: normal; line-height: 1.25; padding-left: 8px; padding-right: 8px; }
+#clusterParamsTable th:first-child,
+#clusterParamsTable td:first-child { text-align: center !important; }
+#clusterParamsTable input {
+  display: block;
+  width: min(182px, 88%);
+  margin: 0 auto;
+  text-align: center !important;
+  box-sizing: border-box;
+}
+#clusterParamsTable td:first-child b {
+  display: block;
+  text-align: center;
+}
+</style>
+
+
+<style>
+.info-tip{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;margin-left:7px;border:1px solid #55708c;border-radius:50%;font-size:11px;font-weight:800;color:#8fc7ff;cursor:help;vertical-align:middle}
+#floatingHelpTip{position:fixed;z-index:999999;width:320px;max-width:calc(100vw - 24px);padding:11px 13px;border:1px solid #294762;border-radius:9px;background:#071625;color:#dcecff;font-size:12px;font-weight:500;line-height:1.45;box-shadow:0 12px 32px rgba(0,0,0,.45);text-align:left;pointer-events:none;display:none}
+th[data-help],.label[data-help],.cardhead h3[data-help],.sectiontitle span[data-help]{cursor:help}
+</style>
+
+
+<style>
+.service-exec{display:grid;grid-template-columns:245px minmax(0,1fr);gap:10px;margin-top:10px}
+.service-side{display:flex;flex-direction:column;gap:12px}
+.service-main{display:grid;grid-template-rows:auto auto;gap:10px}.service-main .chartbox{padding:14px 16px}.service-main .cardhead{margin-bottom:6px}
+.service-rank .rankrow{display:grid;grid-template-columns:minmax(90px,1fr) 70px;gap:8px;align-items:center;padding:9px 8px;border-bottom:1px solid rgba(120,160,195,.14);border-radius:8px}.service-rank .cluster-filter-row{cursor:pointer}.service-rank .cluster-filter-row:hover{background:rgba(100,168,255,.08)}
+.service-rank .rankrow:last-child{border-bottom:0}
+.service-rank .rankbar{height:7px;background:#071827;border-radius:999px;overflow:hidden;margin-top:5px}
+.service-rank .rankbar i{display:block;height:100%;background:linear-gradient(90deg,#64a8ff,#63d6bd);border-radius:999px}
+.combo-legend{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12px;color:#a9c2dc;margin-bottom:8px}
+.combo-legend span{display:inline-flex;align-items:center;gap:6px}
+.combo-legend i{width:10px;height:10px;border-radius:3px;display:inline-block;background:#68a8ff}
+.combo-legend .if i{height:3px;border-radius:99px;background:#9d7cff}
+.combo-legend .ot i{height:3px;border-radius:99px;background:#f39a62}
+.service-combo{width:100%;min-height:205px}
+.service-combo svg{width:100%;height:auto;display:block;overflow:visible}
+.service-combo .axis{stroke:#29435b;stroke-width:1}
+.service-combo .gridline{stroke:#20384e;stroke-width:1;stroke-dasharray:3 4}
+.service-combo .bar{fill:#5e9cf5;opacity:.78}
+.service-combo .line-if{fill:none;stroke:#9d7cff;stroke-width:3}
+.service-combo .line-ot{fill:none;stroke:#f39a62;stroke-width:3}
+.service-combo .dot-if{fill:#9d7cff}
+.service-combo .dot-ot{fill:#f39a62}
+.service-combo text{fill:#9fbad2;font-size:11px}
+.service-combo .value{fill:#ffffff;font-weight:800;font-size:11px;paint-order:stroke;stroke:#3f73b8;stroke-width:2px}
+@media(max-width:1050px){.service-exec{grid-template-columns:1fr}.service-side{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.service-side{grid-template-columns:1fr}}
+</style>
+
+
+<style>
+.service-hero{margin-bottom:10px}
+.service-filters{margin-bottom:10px}
+.service-kpis{margin-bottom:10px}
+
+.service-layout-primary{
+  display:grid;
+  grid-template-columns:minmax(0,1.85fr) minmax(280px,.75fr);
+  gap:12px;
+  align-items:stretch;
+}
+.service-month-card,
+.service-cluster-rank-card{min-height:0}
+.service-combo-month{min-height:250px}
+.service-cluster-rank-card .service-rank{padding-top:2px}
+
+.service-layout-diagnostic{
+  display:grid;
+  grid-template-columns:minmax(280px,.72fr) minmax(0,1.55fr);
+  gap:12px;
+  margin-top:12px;
+  align-items:start;
+}
+.service-priority-card,
+.service-cluster-table-card{min-height:0}
+
+.service-priority-card #servicePriority .card{
+  margin-bottom:8px !important;
+  padding:14px;
+}
+.service-priority-card #servicePriority table th,
+.service-priority-card #servicePriority table td{
+  padding:7px 8px;
+  font-size:12px;
+}
+.service-cluster-table-card #serviceByCluster table th,
+.service-cluster-table-card #serviceByCluster table td{
+  padding:8px 9px;
+  font-size:12px;
+}
+.service-cluster-table-card .tinybar{height:4px}
+
+.service-secondary{padding:14px 16px}
+.service-secondary[open] summary{margin-bottom:12px}
+.service-layout-secondary{
+  display:grid;
+  grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+  gap:12px;
+}
+.service-layout-secondary .chartbox{min-height:210px}
+
+#service .sectiontitle{margin-top:14px}
+#service .tablewrap{max-height:430px}
+
+@media(max-width:1200px){
+  .service-layout-primary{grid-template-columns:minmax(0,1.55fr) minmax(250px,.8fr)}
+  .service-layout-diagnostic{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .service-layout-primary{grid-template-columns:1fr}
+  .service-layout-secondary{grid-template-columns:1fr}
+}
+</style>
+
+<style id="disman-theme-final">
+body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Segoe UI',Arial,sans-serif}
+.app{grid-template-columns:276px minmax(0,1fr);background:#f3f5fb}
+.side{background:linear-gradient(185deg,#0b1245 0%,#070b2e 100%);border-right:0;box-shadow:10px 0 34px rgba(10,16,64,.08)}
+.brandbox{border-bottom-color:rgba(255,255,255,.09)}.brand{color:#fff}.brand span{color:#ffc233}.brandtag,.sidefoot{color:#8e99d8}.nav button{color:#b9c3ec}.nav button:hover{background:rgba(255,255,255,.07);color:#fff}.nav button.active{background:linear-gradient(90deg,rgba(60,80,255,.38),rgba(60,80,255,.12));color:#fff;box-shadow:none}.nav button.active:before{background:#ffc233;border:0;color:transparent}
+.main{background:#f3f5fb;padding:0 30px 30px;max-width:none}.top{position:sticky;top:0;z-index:8;margin:0 -30px 24px;padding:0 30px;height:76px;background:rgba(255,255,255,.86);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid #e6e9f4}.top h1{font-size:20px;color:#0c1233}.sub{color:#6b7392}.pill{background:#f0f2fb;border:0;color:#3d4672;font-weight:700}.statusdot{background:#12a07a}
+.hero{background:linear-gradient(120deg,#0000fe 0%,#1022d8 45%,#0a1480 100%);border:0;border-radius:24px;box-shadow:0 22px 50px rgba(10,20,200,.28)}
+.card,.tablecard,.kpi{background:#fff;border:1px solid #e6e9f4;border-radius:20px;box-shadow:0 2px 10px rgba(12,18,51,.05),0 8px 24px rgba(12,18,51,.04)}.card h3,.sectiontitle{color:#0c1233}.cardhead .meta,.meta,.muted{color:#6b7392}
+.btn:not(.secondary):not(.danger):not(.ghost){background:linear-gradient(135deg,#1020e6,#0a14a8);color:#fff}.btn.secondary{background:#eceeff;color:#1b2a9c;border-color:transparent}.btn.ghost{background:transparent;color:#46506f;border-color:#e6e9f4}
+.filters{background:#fff;border-color:#e6e9f4}.filters:before{color:#1020e6}select,input{background:#fff;color:#161c3a;border-color:#e6e9f4;border-radius:12px}select:focus,input:focus{border-color:#4b57f0;box-shadow:0 0 0 4px rgba(16,32,230,.08)}
+.tablemeta,.tablewrap{background:#fff}.tablemeta{border-bottom-color:#e6e9f4}th{text-align:center!important;background:#f6f7fd!important;color:#5b6486!important;border-bottom-color:#e6e9f4!important;text-transform:uppercase;letter-spacing:.07em;font-size:10px;font-weight:800}td{color:#161c3a;border-bottom-color:#eef0f8}.tablewrap tbody tr:hover td{background:#fafbff}.importrow>div:nth-child(n+2){text-align:center}.matrix .head{text-align:center}
+.dev-footer{border-top-color:#e6e9f4;color:#6b7392}
+@media(max-width:1100px){.main{padding-left:20px;padding-right:20px}.top{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}}@media(max-width:720px){.main{padding:0 14px 24px}.top{margin-left:-14px;margin-right:-14px;padding:0 14px;height:auto;min-height:70px}}
+</style>
+</head>
+<body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
+<aside class="side">
+<div class="brandbox"><div class="brand" style="padding:18px 14px 22px">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYoAAACeCAMAAAAbkL0bAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAMUExURQAAAP////7+/gAAAHb+gMoAAAAEdFJOU////wBAKqn0AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAMZUlEQVR4Xu3Z4bLkqA2G4Wzt/d/zgngBSYCwu33OuDI8P9qgT9DeVrKTmvzv3+Mlzihe44ziNc4oXuOM4jXOKF7jjOI1zihe44ziNc4oXuOM4jXOKF7jjOI1zigW/vmHxSiIvnFGMfVPwtILou+cUUzkX3vxewfRt84oBuXXnv7eJGcUv4IfO6HQUU8oPOuMwuK3zqhUVAWlZ51RaPzSBbWCGig+64yi43euqApKFdVnnVFU/Mod9YRCR/1ZZxQFv7FGEkWPOqPI+IWtbfSwM4qMX9jaRg87o8j4ha1t9LAzioxf2NpGDzujyPiFrW30sDOKjF/Y2kYPO6PI+IWtbfSwM4qMX9jaRg87o8j4ha1t9LAzioxf2NpGDzujyPiFrW30sDOKjF/Y2kYPO6PI+IWtbfSwM4qMX9jaRg87o8j4ha1t9LAzioxf2NpGDzujyPiFrW30sCuj+KGvfhF+YWsbPWw/iuGr5WUEBYewovqb+ObrX02/tY0W6Kmo7m1H4a6TrUK5ouqRKgQO4RQtDmFDWSFIKBjrZB/N0OAQxjajcFex7aiD4gwdDWWHcIYOjxQUvSBdJ/toQDpFSyAcBbcEb1UCQWWNvoKaRzpBg0eaUZlaNkgwP7qNHLIl2paCUXBD5veNBIJChE5BySOdoMEhzKgsrDrk6PzsNjJIQrQuLEfB6cLvq9KasN+hO6PiEI7IPdIrLzDvCU5vI41gg+a5xSg4Wq2+iu6LL5LQn1DwSAfEHumlF5g2Bce3UUf5Ag7MzEfBuWb1XYv2CEdWhwgHxA7hrRewgvPbqKF6CUcmZqPg0AU324WcSdg6hB6pF6dXBBdso4riRRwajaPgxBV3+ws5tTxH6hA6YXhNcMM2ArXLODYYRkH/JXf7Id+zOknoEDpRdlFwxTYqKN3AQe/bUbC6J/qmkjlkXpRdJFfM79hGgsotHHX+yCiif8rpexI5UXZVcMc2yijcxGHrm1Hc69airyqZReQE0WVyx/ySbZSwv43jxnejYHFf8FUSWSROEF0nl8xv2UYJ+9s4bnw1Cp4j7sqoeEEmkUHgBNF1csn8lm0UfDt5QsEj1b4YxdWvoWqtk8lbEjjr5Aa5P3jFKFp+O3FF1SJTvhkFT4+LFAJjGYznqTtBJCQXFKaCjm0UvZhBYBApj4+CaywybVVPJFIoO+skk4MNxYkg/yxy31wQGUTdN39WzHCLR6otyomcUChb6ySTVKE8CuJvIo9QI+lujoKmJPqLzgGpsQz8JVSdIJq9BsEgSHcRa0uSEalB1NwaBS2gaBBZZN46klMNRWedTN+CZBCku4i1IcGA0CFs7oyCDlA0iAyi0TqVpKForZP5W8S9bKxdxFqTukc2Iq9ujIKGiqpGopFMLXM5WVFzgmj2GpteNtYmYmnICYtkho7q+ijIG8oaSUd9Yd0iCShZ62TyFgWpE2SbiKUmBwyCOXqqy6MgbihrJA3lpXWTJKBkrZPxNUDqBNkmYqnJAYXyEm34uVFQXAvaSiSoOLtogtgJsk3EUpH+juoSbc3VUZB21DUSQWmNvkUnWULBCqLxTUHsBFkcsdLKAVBbok35mVFQWKMvo2KRJRSsIBrftCK3Po5YaeWAoLJEm3FxFIQKgUKwfw93G0WDaHFXlE1eFeTWxxErrRxI2C/R5jw/CnZr9DWULbIwZOcQjsitjyNWWjmweK2OtsGDo5Amlmty2CCwyMKQnUM4Irc+jlhp635FmqaeHQWLNQ5bZEYQtUvYWmQTNFgfR6y0VbciVy48OYotjnqk1jbahCMarI8jVveUKxd+cRQcnKDB2CUJe4tsggbr44jVHeXCpV8bBcemaDGWQb+JvUM4Irc+jlhdV64L/NIoOLRAkxUGgr1DOCK3Po5YXVUuC/3KKDiyRp8R1QsKDuGI3Po4YnVNuWrjF0bBgQidxqKsrqPgEA6InSCLI1ZXlIu2fnwUtG/QbKyqDRWHcEDsBFkcsdor11zww6OgeYt2Y1VtqDiEA2InyDYRyw2545ofHQWtF3DAmBcVSh6pR+oE2SZiGZIbrvp4FPtXoe8azmzRLih5pA6hF4SbiGVAzl/3Y6Og6ypObdFeUPNILTIvCDcRyyU5fccPjYIeZfdqHNygGRQHxAaRF4S7iPWcdGjTlzJ+ZBR0aItyJwe3aAbFAbFGMgjSXcR6RnJrXtU+H8XyVYiNdVKVjg16K6oj8o76KIh3EeuRpM46aX5gFLNmkuhd6AjR2lCeoAEUJ4L8sygpqUEyi5ovRrF8laGbsqA0Ig/R2lCeoiWhMBV0fBZlJVaoZ1QmfmQUrp0iKI7IAzR21JeudCzv2UbB5TQU1Cqqg29GEbyKOkBBIfBIAzQqBJ8LrtlG4bfTMmsi8H5qFDHOW2Rr9Gkknwuu2Uaffz3Hra9G8fkvwXmLbIk2g+hjwS3b6OF//u9G8fG7cNwiW6LNIPpYcMs2StjfxnHjz4yC0x7pAk0O4aeCS7ZRRuEmDltfjuKzV+HsgHiBJofwU8El20hQuYez1rej+ORVODkin6NnQPyh4I5tJKjcwlHn61HcfxfOzdAxRcuI/DPBFduooHQDB73vR3H3XTg1RcsULRM0fCS4YRuB2mUcGzwwinvvwpkFmiZomKJlY9oWXLCNKooXcWj0xCjuvAsnVuiaoGGOntC8Kzi/jTrKF3Bg5pFRXH8X2pdoG5Gv0BVYNAXHt5FCfYv2qYdGce1d6I3QOSBeom1p1SOH56e3kUawQfPcU6O48DL0xegdEAdonFt2SDA/u40sogCNK8+NYvMy9GzR7hDG6B0F+TrZRx7hAk1rwyi+wreOyH8a32YQ/Q6+c0AcenYUGV/eUf8tfGtB7TfxzQrBzvOjwPVX+P90Ywb4sVEcd51RvMYZxWucUbzGGcVrnFG8xhnFa5xRvMYZxWucUbzGGcVrnFG8xhnFa5xRvMYZBeSvtP/o3+ufURT5/17I2P4JZxRFGsIfnsQZxTeenZwbhfyXNLO7tJUPyLIEWa0Im5Wa0GtBS0Iho1JLLFSRZaG20lf6qeiSICyb2sUuM2uw1XrNpXnLMRI2iWxKMSkFZzUKaWWZyCaXBPuqVsSYFXpdlIaMQkYlYWuKep3N+ynokiBk3cg+6SsdU1DmJ9hxioR1UvPCHsQwCv00J/pmuLmWyqp+yLM1qSWGQuZOymc72k60hS/JJzX7SFTo3lfMXlbVqllbVjZUSHSuu029WoyiLOwJm9kwfQ1bearWVjb92VDI1Mn26Wp64UvyWWuqJFTYi416Q5XOXlv1mca8qZXyVHnSdrZcPTiKspdHz+oqPXux8HvhTvYPw3X1helXJdHDXutSrZZ17FtVW1r0lHUtlGePs7az5erGKOrWPoq04bXkU2W9WRWF34telBUfvtN19QX9eekeSQ97rcklyib1raovP/2Svf4xuhbKw5uPot1USM3fRNZrZd0/irL01awcH4os9JGhzXXJk86yLnLF9/YPS9VtOtnVUnryLflBhFxtO9m0c21vjaNQh8uyn5RV3ZLVzvGjYO+qWTmesBd9p4/4RtOlQ3lQSFpJENYPQ/fadLLjZtmUZVuV781KGXkj+/oxMR9F3xnmJhOWTf40PYneq3Jid+hFfTBT7+W6/BvXXSm3TIW9VpWKP5GZHRv9yB9tUZP01LtqWqwm/4Jy/2BKTuZh2bS8Z2zLvpczu8NwsmyKtlt22e0y7DWYNzSpbdVtrTvruxzURdtVqVC/ajD7s6L1zm/q646NeSvBtilVYTZVK5Ze26NCFmXV72VbNm5X/heEq0HeTZSdFIVppScr21psu95ud0iFoVZN/9iu3ZOb+FpZs8j6CVmpprJtSlmYTaVOtk9X04vWRkGets3uzKcoPZ1sJclKoSodomyp9kdrt7umHp2YjsI9FHWRCdumNNSt3elVYjZVP9kf7UvbibboffVZP+RZdqal7eRBue1Y1TN9IdROVmz1o3XYXWMvNFajkGd6QKqJXUI2pciKIGmlQi1dE6jUWr0AUkvGFU950JxQAzt52KZaTMqSKJEifNsk5VRSSlXeZWrpzUfBCblElGqiVo1sSjHRB0uhZ25dUcio1FK7Qhf1Na5TPulWkdrNqq2WsFZp5/tsLjvOkbBOZJuZI4Ybxd/F/pR/2l88Cvuf1j/vjOI1/u5/QfF8h796FO9yRvEaZxSvcUbxGmcUr3FG8RpnFK9xRvEaZxSvcUbxGmcUr3FG8RL//vsfrmFGS16DXHMAAAAASUVORK5CYII=" alt="Revalle" style="display:block;width:190px;max-width:100%;height:auto;object-fit:contain">
+</div>
+<div class="nav">
+<button class="active" data-tab="import" data-icon="01"><span>Importação e Configurações</span></button>
+<button data-tab="cluster" data-icon="02"><span>Clusterização</span></button>
+<button data-tab="analysis" data-icon="03"><span>Análise de Entregas</span></button>
+<button data-tab="service" data-icon="04"><span>Nível de Serviço</span></button>
+<button data-tab="action" data-icon="05"><span>Plano de Ação</span></button>
+</div>
+<div class="sidefoot">Dados processados localmente no navegador</div>
+</aside>
+<main class="main"><div class="top"><div style="display:flex;align-items:center;gap:20px;min-width:0">
+<img src="data:image/png;base64,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" alt="Revalle" style="width:150px;height:auto;object-fit:contain;flex:0 0 auto">
+<div><h1 id="pageTitle">Clusterização de clientes</h1><div class="sub" id="pageSub">Inteligência de clientes, entregas e nível de serviço</div></div>
+</div><div class="topright"><div class="pill"><span class="statusdot"></span><span id="dataStatus">Painel pronto</span></div><div class="pill" id="lastUpdate">Sem atualização</div></div></div>
+
+<section id="import" class="tab active">
+<div class="hero"><div><h2>Central de dados</h2><p>Importe a pasta completa. As fontes são reconhecidas pela estrutura e conciliadas pelo código do PDV.</p></div><div class="health" id="importHealth"><span class="healthchip">Aguardando importação</span></div></div>
+<div class="toolbar"><button class="btn" id="pickFolder">Selecionar pasta</button><button class="btn secondary" id="refreshFolder">Atualizar bases</button><button class="btn danger" id="clearData">Limpar dados</button></div>
+<div class="card flat"><div class="cardhead"><h3>Processamento</h3><span id="progText" class="meta">Aguardando</span></div><div class="progress"><i id="progBar"></i></div></div>
+<div class="kpigrid" style="margin-top:12px">
+<div class="card kpi"><div class="label tooltip" title="Arquivos reconhecidos e carregados sem erro">Arquivos reconhecidos</div><div class="val" id="kFiles">0</div><div class="hint">Fontes válidas</div></div>
+<div class="card kpi"><div class="label tooltip" title="PDVs ativos com setor iniciado entre 0 e 8">PDVs válidos</div><div class="val" id="kPdvs">0</div><div class="hint">População analisada</div></div>
+<div class="card kpi"><div class="label tooltip" title="Tipos distintos de bases conectadas ao painel">Bases conectadas</div><div class="val" id="kBases">0</div><div class="hint">Estruturas reconhecidas</div></div>
+<div class="card kpi"><div class="label tooltip" title="Arquivos não reconhecidos, incompletos ou com erro">Alertas</div><div class="val" id="kAlerts">0</div><div class="hint">Pontos de atenção</div></div>
+</div>
+<div class="sectiontitle"><span>Validação por arquivo</span><small>status, fonte, unidade e registros</small></div>
+<details class="card">
+<summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center">Arquivos importados <span class="meta">clique para expandir</span></summary>
+<div style="margin-top:12px"><div class="card flat" id="fileList"><div class="empty">Nenhum arquivo importado.</div></div></div>
+</details>
+<div class="sectiontitle"><span>Parâmetros operacionais</span><small>configurações persistidas no navegador</small></div>
+<div class="grid g2">
+<div class="card"><div class="cardhead"><h3>Entregas recomendadas por cluster</h3><span class="meta">por semana</span></div><div id="deliveryParams"></div></div>
+<div class="card"><div class="cardhead"><h3>Configurações analíticas</h3><span class="meta">ajustes gerais</span></div><div class="paramrow"><span>Proximidade de mudança de cluster</span><input id="nearPct" type="number" min="1" max="50" step="1"></div><div class="paramrow"><span>Ano padrão dos arquivos mensais</span><input id="monthlyYear" type="number" min="2020" max="2100"></div><div class="note" style="margin-top:9px">O mês do nível de serviço é identificado pelo nome do arquivo. O ano utilizado pode ser ajustado aqui.</div></div>
+</div>
+
+<details class="card" style="margin-top:12px">
+<summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center">
+Como funciona a clusterização
+<span class="meta">clique para expandir</span>
+</summary>
+<div style="padding-top:14px;line-height:1.6">
+  <p><b>1. População analisada.</b> O painel considera os PDVs válidos do cadastro. PDVs sem volume no período podem ser exibidos ou ocultados e, quando não possuem dados suficientes, ficam como <b>Sem dados de volume</b> em vez de Low Sales.</p>
+  <p><b>2. Indicador principal.</b> O volume usado na classificação é <b>HL/Pedido = volume total do semestre ÷ quantidade total de pedidos do semestre</b>.</p>
+  <p><b>3. Evolução semestral.</b> O painel compara o HL/Pedido do semestre selecionado com o semestre imediatamente anterior. Exemplo: 2º semestre de 2025 contra 1º semestre de 2025.</p>
+  <p><b>4. Relevância.</b> Quando a regra do cluster possui Relevância mínima, o PDV precisa atingir esse valor para atender a condição. O valor <b>-9999</b> significa que o critério não restringe a classificação.</p>
+  <p><b>5. Crescimento.</b> Quando existe Crescimento mínimo, o PDV precisa atingir a evolução definida contra o semestre anterior. Exemplo: <b>0,25 = crescimento mínimo de 25%</b>. O valor <b>-9999</b> significa sem exigência.</p>
+  <p><b>6. Prioridade.</b> As regras são avaliadas da maior prioridade para a menor. Com a configuração padrão: <b>Winner → Grower → Alto volume → Basic → Low sales</b>. Assim que o PDV atende uma regra, essa classificação prevalece sobre as de prioridade inferior.</p>
+  <p><b>7. Atualização durante o semestre.</b> O cluster é recalculado quando as bases são atualizadas. Portanto, o PDV pode mudar de cluster ainda durante o semestre caso passe a atender outra regra de maior prioridade.</p>
+  <p><b>8. Parâmetros editáveis.</b> Volume mínimo/máximo, Relevância mínima, Crescimento mínimo e Prioridade podem ser alterados na tabela abaixo. Após salvar, a clusterização é recalculada usando as novas regras.</p>
+  <div class="meta" style="margin-top:12px"><b>Importante:</b> em semestre ainda aberto, HL/Pedido e crescimento podem variar conforme novos pedidos e volumes são incorporados à base.</div>
+</div>
+</details>
+
+<div class="card" style="margin-top:12px">
+  <div class="cardhead"><h3>Parâmetros de definição dos clusters</h3><span class="meta">editáveis e salvos no navegador</span></div>
+  <div class="tablewrap">
+    <table id="clusterParamsTable">
+      <thead><tr><th>Cluster</th><th>Volume mínimo (HL/Pedido)</th><th>Volume máximo (HL/Pedido)</th><th>Relevância mínima</th><th>Crescimento mínimo</th><th>Prioridade de classificação</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="toolbar" style="margin-top:10px"><button class="btn" id="saveClusterParams">Salvar parâmetros</button></div>
+</div>
+
+</section>
+
+<section id="cluster" class="tab">
+<div class="hero"><div><h2>Visão de cluster</h2><p>Classificação por HL/pedido, evolução semestral, relevância e prioridade das regras.</p></div><div class="health"><span class="healthchip" id="clusterPeriodChip">Período</span><span class="healthchip" id="clusterBaseChip">0 PDVs</span></div></div>
+<div class="filters" id="clusterFilters"></div><div class="toolbar" style="margin-top:8px"><button class="btn" id="exportClusterXlsx">Exportar PDVs clusterizados em Excel</button></div>
+<div class="kpigrid" id="clusterKpis"></div>
+<div class="grid g2" style="margin-top:12px">
+<div class="card chartbox"><div class="cardhead"><h3>Distribuição por cluster</h3><span class="meta">participação na base filtrada</span></div><div id="clusterDistribution"></div></div>
+<div class="card chartbox"><div class="cardhead"><h3>Top oportunidades de evolução</h3><span class="meta">PDVs mais próximos do próximo cluster</span></div><div id="clusterOpportunities"></div></div>
+</div>
+<div class="sectiontitle"><span>PDVs classificados</span><small id="clusterTableCount">—</small></div>
+<div class="tablecard"><div class="tablemeta"><span>Detalhamento operacional</span><span>até 500 linhas exibidas</span></div><div class="tablewrap"><table id="clusterTable"></table></div></div>
+</section>
+
+<section id="analysis" class="tab">
+<div class="hero"><div><h2>Decisão de frequência</h2><p>Identifica onde reduzir entregas, onde manter e onde existe oportunidade de ampliar atendimento.</p></div><div class="health"><span class="healthchip" id="analysisScopeChip">Base filtrada</span></div></div>
+<div class="filters" id="analysisFilters"></div><div class="meta delivery-rule-note" style="margin:8px 2px 12px">Regra de janelas: a quantidade do cluster define a recomendação semanal, porém PDV marcado como <b>não rentável</b> fica limitado a <b>1 entrega por semana</b> e entra automaticamente nas orientações de janelas.</div><div class="toolbar" style="margin:0 0 12px"><button class="btn" id="exportDeliveryXlsx">Exportar orientações de entrega em Excel</button></div>
+<div class="kpigrid" id="analysisKpis"></div>
+<div class="grid g2" style="margin-top:12px">
+<div class="card"><div class="cardhead"><h3>PDVs com excesso de entregas</h3><span class="meta">ação: reduzir</span></div><div id="excessDeliveryList"></div></div>
+<div class="card"><div class="cardhead"><h3>Oportunidades de atendimento</h3><span class="meta">ação: avaliar aumento</span></div><div id="opportunity"></div></div>
+</div>
+<div class="card" style="margin-top:12px"><div class="cardhead"><h3>Distribuição das orientações</h3><span class="meta">situação da base filtrada</span></div><div id="deliveryOrientationChart"></div></div>
+<div class="sectiontitle"><span>Plano de ação por PDV</span><small id="analysisTableCount">—</small></div>
+<div class="tablecard"><div class="tablemeta"><span>Orientação prática por PDV</span><span>ordenado por necessidade de ação</span></div><div class="tablewrap"><table id="analysisTable"></table></div></div>
+</section>
+
+
+<section id="service" class="tab">
+<div class="hero service-hero"><div><h2>Nível de serviço</h2><p>Leitura executiva de On Time, In Full, OTIF e Rating com foco em prioridade de atuação por cluster.</p></div><div class="health"><span class="healthchip" id="serviceScopeChip">Todos os meses</span></div></div>
+
+<div class="filters service-filters" id="serviceFilters"></div>
+
+<div class="kpigrid service-kpis" id="serviceKpis"></div>
+
+<div class="service-layout-primary">
+  <div class="card chartbox service-month-card">
+    <div class="cardhead">
+      <h3>OTIF, In Full e On Time por mês</h3>
+      <span class="meta">evolução mensal</span>
+    </div>
+    <div id="serviceMonthCombo" class="service-combo service-combo-month"></div>
+  </div>
+
+  <div class="card chartbox service-cluster-rank-card">
+    <div class="cardhead">
+      <h3>OTIF por cluster</h3>
+      <span class="meta">clique para filtrar</span>
+    </div>
+    <div id="otifClusterRank" class="service-rank"></div>
+  </div>
+</div>
+
+<div class="service-layout-diagnostic">
+  <div class="card service-priority-card">
+    <div class="cardhead">
+      <h3>Onde agir primeiro</h3>
+      <span class="meta">menor OTIF + Rating</span>
+    </div>
+    <div id="servicePriority"></div>
+  </div>
+
+  <div class="card service-cluster-table-card">
+    <div class="cardhead">
+      <h3>Indicadores por cluster</h3>
+      <span class="meta">OT · IF · OTIF · Rating</span>
+    </div>
+    <div id="serviceByCluster"></div>
+  </div>
+</div>
+
+<details class="card service-secondary" style="margin-top:12px">
+  <summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center">
+    Diagnósticos complementares
+    <span class="meta">Rating e faixas de OTIF · clique para expandir</span>
+  </summary>
+  <div class="service-layout-secondary">
+    <div class="chartbox">
+      <div class="cardhead">
+        <h3>Rating por classificação</h3>
+        <span class="meta">volume de avaliações</span>
+      </div>
+      <div id="ratingSplit"></div>
+    </div>
+    <div class="chartbox">
+      <div class="cardhead">
+        <h3>Cluster × OTIF</h3>
+        <span class="meta">faixas de nível de serviço</span>
+      </div>
+      <div id="serviceMatrix"></div>
+    </div>
+  </div>
+</details>
+
+<div class="sectiontitle"><span>Nível de serviço por PDV</span><small id="serviceTableCount">—</small></div>
+<div class="tablecard">
+  <div class="tablemeta"><span>OT, IF, OTIF e Rating</span><span>até 500 linhas exibidas</span></div>
+  <div class="tablewrap"><table id="serviceTable"></table></div>
+</div>
+</section>
+
+
+<section id="action" class="tab">
+<div class="hero"><div><h2>Plano de ação automático</h2><p>Prioriza ações mensais para recuperar nível de serviço por cluster e corrigir frequência/janelas de atendimento.</p></div><div class="health"><span class="healthchip" id="actionScopeChip">Plano mensal</span></div></div>
+<div class="filters" id="actionFilters"></div>
+<div class="toolbar"><button class="btn" id="exportActionXlsx">Exportar plano em Excel</button></div>
+<div class="kpigrid" id="actionKpis"></div>
+<div class="grid g2" style="margin-top:12px">
+<div class="card chartbox"><div class="cardhead"><h3>Prioridade por cluster</h3><span class="meta">ações críticas e altas primeiro</span></div><div id="actionByCluster"></div></div>
+<div class="card chartbox"><div class="cardhead"><h3>Principais frentes de ação</h3><span class="meta">causa predominante</span></div><div id="actionByType"></div></div>
+</div>
+<div class="sectiontitle"><span>Plano mensal priorizado</span><small id="actionTableCount">—</small></div>
+<div class="tablecard"><div class="tablemeta"><span>Gerado automaticamente a partir de OT, IF, OTIF, Rating e frequência de entrega</span><span>ordenado por mês e prioridade</span></div><div class="tablewrap"><table id="actionTable"></table></div></div>
+</section>
+</main></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const DB='pdv-intelligence-v1', STORE='kv'; let db, state={files:[],data:{},params:{deliveries:{Winner:3,Grower:2,"Alto volume":2,Basic:1,"Low sales":1},nearPct:10,monthlyYear:2026,actionStatus:{}},folderHandle:null,lastUpdate:null};
+const CACHE={pdvByPeriod:new Map(),service:null,lastUpdate:null};
+const DISPLAY_LIMIT=500;
+function resetCache(){CACHE.pdvByPeriod.clear();CACHE.service=null;CACHE.lastUpdate=state.lastUpdate}
+function fmtInt(v){return Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0})}
+function latestPeriod(){let ys=periods();let y=ys.at(-1)||2025,s=2;return {y,s}}
+
+function badgeClass(v){return norm(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}
+function monthName(n){return Object.entries(MONTHS).find(([k,v])=>v==n&&k!=='marco')?.[0]?.replace(/^./,c=>c.toUpperCase())||('Mês '+n)}
+function addClearFilter(box,renderFn){if(!box.querySelector('.clearfilters')){let b=document.createElement('button');b.className='btn ghost clearfilters';b.type='button';b.textContent='Limpar filtros';b.onclick=()=>{box.querySelectorAll('select').forEach(s=>s.selectedIndex=0);box.querySelectorAll('input').forEach(i=>i.value='');let sem=box.querySelector('.fs');if(sem)sem.value='2';renderFn()};box.appendChild(b)}}
+function barsHTML(items){let max=Math.max(1,...items.map(x=>x.value));return `<div class="bars">${items.map(x=>`<div class="barrow"><span>${x.label}</span><div class="bartrack"><div class="barfill" style="width:${Math.max(2,x.value/max*100)}%"></div></div><b>${fmtInt(x.value)}</b></div>`).join('')}</div>`}
+function scatterSVG(rows){
+ let pts=rows.filter(x=>isFinite(x.growth)&&x.avgCur>0).slice(0,350); if(!pts.length)return '<div class="empty">Sem dados suficientes para o gráfico.</div>';
+ let maxX=Math.max(1,...pts.map(x=>x.avgCur)),gvals=pts.map(x=>x.growth).filter(isFinite),minY=Math.max(-1,Math.min(...gvals,0)),maxY=Math.min(3,Math.max(...gvals,.2)); if(maxY<=minY)maxY=minY+1;
+ let W=680,H=230,p=28, sx=x=>p+(Math.min(x,maxX)/maxX)*(W-p*2), sy=y=>H-p-((Math.max(minY,Math.min(maxY,y))-minY)/(maxY-minY))*(H-p*2);
+ let color=c=>({'Winner':'#55d6a7','Grower':'#6ca8ff','Alto volume':'#57c8e8','Basic':'#f3c969','Low sales':'#8294aa'}[c]||'#8294aa');
+ return `<svg class="scatter" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line class="axis" x1="${p}" y1="${H-p}" x2="${W-p}" y2="${H-p}"/><line class="axis" x1="${p}" y1="${p}" x2="${p}" y2="${H-p}"/><text x="${W-90}" y="${H-8}">HL/Pedido</text><text x="6" y="15">Evolução</text>${pts.map(x=>`<circle cx="${sx(x.avgCur).toFixed(1)}" cy="${sy(x.growth).toFixed(1)}" r="3" fill="${color(x.cluster)}"><title>${x.code} • ${x.name} | ${x.cluster} | HL/Ped ${fmt(x.avgCur)} | ${pct(x.growth)}</title></circle>`).join('')}</svg>`;
+}
+
+const MONTHS={janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+const norm=s=>String(s??'').trim(); const num=v=>{if(typeof v==='number')return v; let s=norm(v).replace(/\s/g,''); if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.'); else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.'); let n=parseFloat(s);return isFinite(n)?n:0}
+const code=v=>{let s=norm(v).replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/,'');return s||'0'}; const pct=v=>isFinite(v)?(v*100).toFixed(1)+'%':'—'; const fmt=v=>Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:2});
+function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
+function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
+function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
+async function persist(){await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate}); if(state.folderHandle) try{await put('folder',state.folderHandle)}catch(e){}}
+async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);state.folderHandle=await get('folder');renderTab('import');updateHeader()}
+$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade']};$('#pageTitle').textContent='Clusterização de clientes';$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
+async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
+function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
+function monthFromName(n){let l=n.toLowerCase();for(let k in MONTHS)if(l.includes(k))return MONTHS[k];return null}
+async function parseFile(file){let ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){let ab=await file.arrayBuffer();let bytes=new Uint8Array(ab),txt='';try{txt=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(e){txt=new TextDecoder('windows-1252').decode(bytes)}txt=txt.replace(/^\uFEFF/,'').replace(/\u0000/g,'');let lines=txt.split(/\r?\n/).filter(x=>x.trim()!=='');if(!lines.length)return {sheets:{CSV:[]}};let sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';let rows=lines.map(l=>csvLine(l,sep));let rawHeads=rows[0].map(norm),seen={};let heads=rawHeads.map(h=>{seen[h]=(seen[h]||0)+1;return seen[h]===1?h:h+'__'+seen[h]});return {sheets:{CSV:rows.slice(1).map(r=>Object.fromEntries(heads.map((h,i)=>[h,r[i]??''])) )}}}let ab=await file.arrayBuffer();let wb=XLSX.read(ab,{type:'array',cellDates:true});let sheets={};for(let s of wb.SheetNames)sheets[s]=XLSX.utils.sheet_to_json(wb.Sheets[s],{defval:''});return {sheets}}
+function csvLine(s,sep){let a=[],c='',q=false;for(let i=0;i<s.length;i++){let x=s[i];if(x==='"'){if(q&&s[i+1]==='"'){c+='"';i++}else q=!q}else if(x===sep&&!q){a.push(c);c=''}else c+=x}a.push(c);return a}
+function canonHeader(s){return norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9%?]+/g,'')}
+function detect(p,name){let all=Object.entries(p.sheets);for(let [sn,rows] of all){if(!rows.length)continue;let h=Object.keys(rows[0]).map(norm),hc=h.map(canonHeader);let has=(...x)=>x.every(y=>h.includes(y)),hasc=(...x)=>x.every(y=>hc.includes(canonHeader(y)));
+if(has('Codigo Cliente','Status do Cliente','Cod. Setor','Nome Fantasia'))return {type:'Cadastro',rows};
+if(hc.some(x=>x==='codcliente'||x.startsWith('codcliente'))&&hc.includes('data')&&hc.includes('volume')&&hc.includes('pedidos'))return {type:'Volume',rows};
+if(has('Cliente','Rentável?','Diferença Remuneração (Total)'))return {type:'Rentabilidade',rows};
+if(has('ERP_POC_ID','Mon','Tue','Wed','Thu','Fri','Sat','Sun'))return {type:'Entregas',rows};
+if(has('Código','Relevância','GV','Setor'))return {type:'Relevância',rows};
+if(has('Cluster','Vol Min (HL)','Vol Max (HL)','Rel Min','Cresc Min','Prioridade'))return {type:'Parâmetros',rows};
+if(has('Cliente','Visita','Visita OT','Visita IF'))return {type:'Nível mensal',rows,month:monthFromName(name)};
+if(has('Data da Avaliação','Avaliação','Classificação','Cod PDV'))return {type:'Rating',rows};
+}return {type:null,rows:[]}}
+async function importFolder(handle){state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImport();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImport()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
+async function importFileList(fileList){state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImport();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImport()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
+const folderInput=$('#folderInput');
+folderInput.onchange=async e=>{if(e.target.files?.length)await importFileList(e.target.files);e.target.value=''};
+async function chooseFolder(){if(window.showDirectoryPicker){try{let h=await window.showDirectoryPicker({mode:'read'});await importFolder(h);return}catch(e){if(e&&e.name==='AbortError')return}}folderInput.click()}
+$('#pickFolder').onclick=chooseFolder;
+$('#refreshFolder').onclick=async()=>{if(state.folderHandle&&window.showDirectoryPicker){try{let p=await state.folderHandle.queryPermission({mode:'read'});if(p!=='granted')p=await state.folderHandle.requestPermission({mode:'read'});if(p==='granted'){await importFolder(state.folderHandle);return}}catch(e){}}folderInput.click()};
+$('#clearData').onclick=async()=>{if(confirm('Remover todas as bases salvas deste painel?')){state.files=[];state.data={};state.lastUpdate=null;resetCache();await persist();renderAll()}};
+function validPdvs(){let out=new Map();for(let src of state.data.Cadastro||[])for(let r of src.rows){let st=norm(r['Status do Cliente']).toUpperCase(),set=norm(r['Cod. Setor']).replace(/\D/g,'');if(st==='A'&&set&&Number(set[0])<9){let c=code(r['Codigo Cliente']);if(c)out.set(c,{code:c,unit:src.unit,name:norm(r['Nome Fantasia']),bairro:norm(r['Bairro']),cidade:norm(r['Cidade']),setor:norm(r['Cod. Setor'])})}}return out}
+function isNonProfitable(v){
+ let s=String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ if(!s)return false;
+ return s==='nao'||s==='n'||s==='false'||s==='0'||s==='não rentável'||s==='nao rentavel'||s.includes('nao rent');
+}
+function buildPDVs(refYear=2025,refSem=2){
+let cacheKey=refYear+'|'+refSem+'|'+JSON.stringify(state.params.deliveries)+'|'+(state.lastUpdate||'');
+if(CACHE.pdvByPeriod.has(cacheKey))return CACHE.pdvByPeriod.get(cacheKey);
+let pdvs=validPdvs(), prevSem=refSem===1?2:1,prevYear=refSem===1?refYear-1:refYear;let rel=new Map(),rent=new Map(),del=new Map();
+for(let s of state.data.Relevância||[])for(let r of s.rows)rel.set(code(r['Código']),num(r['Relevância']));
+for(let s of state.data.Rentabilidade||[])for(let r of s.rows)rent.set(code(r.Cliente),{rent:norm(r['Rentável?']),diff:num(r['Diferença Remuneração (Total)'])});
+for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>norm(r[k]).toUpperCase()==='FREE').map(x=>x[1]);del.set(code(r.ERP_POC_ID),days)}
+let vol=new Map();for(let s of state.data.Volume||[])for(let r of s.rows){let c=code(r['Cód. Cliente']);if(!pdvs.has(c))continue;let ds=norm(r['Data']||r['Data      ']);let m=ds.match(/(\d{2})\/(\d{2})\/(\d{4})/);if(!m)continue;let y=+m[3],mo=+m[2],sem=mo<=6?1:2,k=c+'|'+y+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=num(r.Volume);v.p+=num(r.Pedidos);vol.set(k,v)}
+let params=getClusterParams();let arr=[];for(let p of pdvs.values()){let a=vol.get(p.code+'|'+prevYear+'|'+prevSem)||{v:0,p:0},b=vol.get(p.code+'|'+refYear+'|'+refSem)||{v:0,p:0},hasVolume=b.v>0&&b.p>0,avgA=a.p?a.v/a.p:0,avgB=b.p?b.v/b.p:0,growth=avgA?(avgB/avgA-1):(avgB>0?Infinity:0),relevance=rel.get(p.code)||0,cl=hasVolume?classify(avgB,growth,relevance,params):'Sem dados de volume',rr=rent.get(p.code)||{rent:'',diff:0},days=del.get(p.code)||[],clusterAllowed=hasVolume?(state.params.deliveries[cl]??0):0,nonProfitable=isNonProfitable(rr.rent),allowed=hasVolume?(nonProfitable?1:Number(clusterAllowed||0)):0;allowed=Number.isFinite(allowed)?allowed:0;arr.push({...p,hasVolume,relevance,avgPrev:avgA,avgCur:avgB,growth,volume:b.v,orders:b.p,cluster:cl,rent:rr.rent,diff:rr.diff,days,deliveryCount:days.length,clusterAllowed,nonProfitable,allowed,deliveryGap:days.length-allowed})}CACHE.pdvByPeriod.set(cacheKey,arr);return arr}
+function getClusterParams(){let out=[];for(let s of state.data.Parâmetros||[])for(let r of s.rows)out.push({cluster:norm(r.Cluster),min:num(r['Vol Min (HL)']),max:num(r['Vol Max (HL)']),rel:num(r['Rel Min']),growth:num(r['Cresc Min']),priority:num(r.Prioridade)});if(!out.length)out=[{cluster:'Winner',min:2.016,max:99999,rel:3,growth:-9999,priority:5},{cluster:'Grower',min:2.016,max:99999,rel:-9999,growth:.25,priority:4},{cluster:'Alto volume',min:12.096,max:9999999,rel:-9999,growth:-9999,priority:3},{cluster:'Basic',min:2.016,max:12.096,rel:-9999,growth:-9999,priority:2},{cluster:'Low sales',min:0,max:2.016,rel:-9999,growth:-9999,priority:1}];return out.sort((a,b)=>b.priority-a.priority)}
+function classify(v,g,r,ps){for(let p of ps)if(v>=p.min&&v<=p.max&&(p.rel<=-9999||r>=p.rel)&&(p.growth<=-9999||g>=p.growth))return p.cluster;return 'Sem cluster'}
+function periods(){let ys=new Set();for(let s of state.data.Volume||[])for(let r of s.rows){let m=norm(r['Data']||r['Data      ']).match(/(\d{4})/);if(m)ys.add(+m[1])}return [...ys].sort()}
+function filterControls(id){
+ let box=$(id),ys=periods(),oldY=box.querySelector('.fy')?.value,oldS=box.querySelector('.fs')?.value||'2',oldC=box.querySelector('.fc')?.value||'',oldQ=box.querySelector('.fq')?.value||'',y=(oldY&&ys.includes(+oldY))?+oldY:(ys.at(-1)||2025);
+ let oldZ=box.querySelector('.fz')?.value||'hide';
+ let controls=`
+ <label class="filter-field"><span class="filter-label">Ano</span><select class="fy">${ys.length?ys.map(x=>`<option value="${x}" ${x===y?'selected':''}>${x}</option>`).join(''):`<option value="${y}">${y}</option>`}</select></label>
+ <label class="filter-field"><span class="filter-label">Semestre</span><select class="fs"><option value="1" ${oldS==='1'?'selected':''}>1º semestre</option><option value="2" ${oldS==='2'?'selected':''}>2º semestre</option></select></label>
+ <label class="filter-field"><span class="filter-label">Cluster</span><select class="fc"><option value="">Todos os clusters</option>${['Winner','Grower','Alto volume','Basic','Low sales','Sem dados de volume'].map(x=>`<option ${x===oldC?'selected':''}>${x}</option>`).join('')}</select></label>
+ <label class="filter-field"><span class="filter-label">Volume zerado</span><select class="fz"><option value="hide" ${oldZ==='hide'?'selected':''}>Ocultar volume zerado</option><option value="show" ${oldZ==='show'?'selected':''}>Mostrar volume zerado</option></select></label>
+ <label class="filter-field filter-search"><span class="filter-label">Buscar PDV</span><input class="fq" placeholder="Código, fantasia, cidade ou bairro..." value="${oldQ.replace(/"/g,'&quot;')}"></label>`;
+ box.innerHTML=controls;
+ box.querySelectorAll('select,input').forEach(x=>x.oninput=()=>id==='#clusterFilters'?renderCluster():renderAnalysis());
+ box.dataset.years=ys.join(',');
+ applyHelp();
+}
+function currentFiltered(id){let box=$(id);if(!box||!box.querySelector('.fy'))return[];let y=+box.querySelector('.fy').value,s=+box.querySelector('.fs').value,c=box.querySelector('.fc').value,z=box.querySelector('.fz')?.value||'hide',q=box.querySelector('.fq').value.toLowerCase();return buildPDVs(y,s).filter(p=>(z==='show'||p.hasVolume)&&(!c||p.cluster===c)&&(!q||(p.code+' '+p.name+' '+p.cidade+' '+p.bairro).toLowerCase().includes(q)))}
+
+function renderClusterParamsConfig(){
+ let table=$('#clusterParamsTable'),tb=table?table.querySelector('tbody'):null; if(!tb)return;
+ state.params=state.params||{};state.params.actionStatus=state.params.actionStatus||{};
+ let p=getClusterParams();
+ tb.innerHTML=p.map(x=>`<tr data-cluster="${x.cluster}">
+   <td><b>${x.cluster}</b></td>
+   <td><input class="cmin" type="number" step="0.001" value="${x.min}"></td>
+   <td><input class="cmax" type="number" step="0.001" value="${x.max}"></td>
+   <td><input class="crel" type="number" step="0.001" value="${x.rel}"></td>
+   <td><input class="cgrowth" type="number" step="0.01" value="${x.growth}"></td>
+   <td><input class="cprio" type="number" step="1" value="${x.priority}"></td>
+ </tr>`).join('');
+ let btn=$('#saveClusterParams'); if(btn)btn.onclick=async()=>{
+   let rows=[...tb.querySelectorAll('tr')].map(tr=>({
+     cluster:tr.dataset.cluster,
+     min:+tr.querySelector('.cmin').value,
+     max:+tr.querySelector('.cmax').value,
+     rel:+tr.querySelector('.crel').value,
+     growth:+tr.querySelector('.cgrowth').value,
+     priority:+tr.querySelector('.cprio').value
+   }));
+   state.params.clusterRules=rows;
+   resetCache(); await persist();
+   renderClusterParamsConfig();
+ };
+}
+function renderImport(){
+ let f=state.files, imported=f.filter(x=>x.status==='Importado').length, alerts=f.filter(x=>x.status!=='Importado').length, pdvCount=validPdvs().size, baseCount=Object.keys(state.data).length;
+ $('#kFiles').textContent=fmtInt(imported);$('#kPdvs').textContent=fmtInt(pdvCount);$('#kBases').textContent=fmtInt(baseCount);$('#kAlerts').textContent=fmtInt(alerts);
+ $('#importHealth').innerHTML=f.length?`<span class="healthchip"><strong>${imported}/${f.length}</strong> arquivos OK</span><span class="healthchip"><strong>${fmtInt(pdvCount)}</strong> PDVs válidos</span><span class="healthchip"><strong>${alerts}</strong> alertas</span>`:'<span class="healthchip">Aguardando importação</span>';
+ $('#fileList').innerHTML=f.length?f.map(x=>`<div class="importrow"><div><b>${x.name}</b><div class="muted">${x.type||'—'}</div></div><div>${x.unit||'—'}</div><div>${fmtInt(x.rows)} reg.</div><div class="${x.status==='Importado'?'ok':x.status==='Erro'?'bad':'warn'}"><b>${x.status}</b><div class="muted">${x.time}</div></div></div>`).join(''):'<div class="empty">Nenhum arquivo importado.</div>';
+ $('#deliveryParams').innerHTML=Object.entries(state.params.deliveries).map(([k,v])=>`<div class="paramrow"><span><span class="badge ${badgeClass(k)}">${k}</span></span><input data-cl="${k}" type="number" min="0" max="7" value="${v}"></div>`).join('');
+ $('#deliveryParams').querySelectorAll('input').forEach(x=>x.onchange=async()=>{state.params.deliveries[x.dataset.cl]=+x.value;resetCache();await persist();renderImport()});
+ $('#nearPct').value=state.params.nearPct;$('#monthlyYear').value=state.params.monthlyYear;
+ $('#nearPct').onchange=async e=>{state.params.nearPct=+e.target.value;resetCache();await persist()};
+ $('#monthlyYear').onchange=async e=>{state.params.monthlyYear=+e.target.value;resetCache();await persist()};
+
+ renderClusterParamsConfig();
+}
+
+function exportClusterizedXlsx(){
+ let box=$('#clusterFilters');
+ if(!box){alert('Filtros de cluster não encontrados.');return}
+ let y=+box.querySelector('.fy').value,
+     s=+box.querySelector('.fs').value,
+     c=box.querySelector('.fc').value,
+     z=box.querySelector('.fz')?.value||'hide',
+     q=box.querySelector('.fq').value.toLowerCase();
+
+ let d=buildPDVs(y,s).filter(p=>
+   (z==='show'||p.hasVolume)&&
+   (!c||p.cluster===c)&&
+   (!q||(p.code+' '+p.name+' '+p.cidade+' '+p.bairro).toLowerCase().includes(q))
+ );
+
+ if(!d.length){alert('Não há PDVs clusterizados para exportar no filtro atual.');return}
+
+ const wb=XLSX.utils.book_new();
+ const generated=new Date().toLocaleString('pt-BR');
+
+ const data=[
+   ['PDVs CLUSTERIZADOS'],
+   ['Período',`${s}º semestre de ${y}`],
+   ['Cluster',c||'Todos os clusters'],
+   ['Volume zerado',z==='show'?'Incluído':'Ocultado'],
+   ['Busca',q||'Sem filtro de busca'],
+   ['Quantidade de PDVs',d.length],
+   ['Gerado em',generated],
+   [],
+   ['Código do PDV','Fantasia','Cluster','Volume (HL)'],
+   ...d.map(p=>[p.code,p.name||'',p.cluster,Number(p.volume||0)])
+ ];
+
+ const ws=XLSX.utils.aoa_to_sheet(data);
+
+ // Paleta padronizada com o painel
+ const COLORS={
+   navy:'0B1F33',
+   navy2:'112A43',
+   teal:'64D6BD',
+   blue:'64A8FF',
+   white:'FFFFFF',
+   text:'DCEBFA',
+   muted:'9FBAD2',
+   line:'294762',
+   light:'EAF3FA',
+   zebra:'F5F9FC',
+   darkText:'1C2D3D',
+   winner:'D9F6EC',
+   grower:'E5F2FF',
+   high:'FFF1D6',
+   basic:'F0ECFF',
+   low:'FDE8E8'
+ };
+
+ const thin={style:'thin',color:{rgb:'D7E1EA'}};
+ const border={top:thin,bottom:thin,left:thin,right:thin};
+
+ // Título
+ ws['!merges']=[XLSX.utils.decode_range('A1:D1')];
+ ws['A1'].s={
+   fill:{fgColor:{rgb:COLORS.navy}},
+   font:{bold:true,color:{rgb:COLORS.white},sz:16},
+   alignment:{horizontal:'left',vertical:'center'}
+ };
+
+ // Bloco de informações
+ for(let r=2;r<=7;r++){
+   let a=ws['A'+r],b=ws['B'+r];
+   if(a)a.s={
+     fill:{fgColor:{rgb:COLORS.navy2}},
+     font:{bold:true,color:{rgb:COLORS.text}},
+     alignment:{horizontal:'left',vertical:'center'},
+     border:{bottom:{style:'thin',color:{rgb:COLORS.line}}}
+   };
+   if(b)b.s={
+     fill:{fgColor:{rgb:'F7FAFC'}},
+     font:{color:{rgb:COLORS.darkText}},
+     alignment:{horizontal:'left',vertical:'center'},
+     border:{bottom:{style:'thin',color:{rgb:'DDE6EE'}}}
+   };
+ }
+
+ // Cabeçalho da tabela
+ for(let col of ['A','B','C','D']){
+   let cell=ws[col+'9'];
+   if(cell)cell.s={
+     fill:{fgColor:{rgb:COLORS.navy}},
+     font:{bold:true,color:{rgb:COLORS.white}},
+     alignment:{horizontal:'center',vertical:'center'},
+     border
+   };
+ }
+
+ const clusterFill={
+   'Winner':COLORS.winner,
+   'Grower':COLORS.grower,
+   'Alto volume':COLORS.high,
+   'Basic':COLORS.basic,
+   'Low sales':COLORS.low,
+   'Sem dados de volume':'EEF2F6'
+ };
+
+ // Corpo padronizado e sem excesso de cores
+ for(let r=10;r<=data.length;r++){
+   let zebra=(r%2===0)?'FFFFFF':COLORS.zebra;
+   for(let col of ['A','B','C','D']){
+     let cell=ws[col+r];
+     if(!cell)continue;
+     cell.s={
+       fill:{fgColor:{rgb:zebra}},
+       font:{color:{rgb:COLORS.darkText}},
+       alignment:{horizontal:col==='D'?'right':(col==='B'?'left':'center'),vertical:'center'},
+       border
+     };
+   }
+   let cl=String(ws['C'+r]?.v||'');
+   if(ws['C'+r] && clusterFill[cl]){
+     ws['C'+r].s={
+       ...ws['C'+r].s,
+       fill:{fgColor:{rgb:clusterFill[cl]}},
+       font:{bold:true,color:{rgb:COLORS.darkText}},
+       alignment:{horizontal:'center',vertical:'center'}
+     };
+   }
+   if(ws['D'+r]){
+     ws['D'+r].t='n';
+     ws['D'+r].z='#,##0.00';
+   }
+ }
+
+ if(ws['B6']){ws['B6'].t='n';ws['B6'].z='#,##0';}
+
+ ws['!cols']=[{wch:18},{wch:38},{wch:24},{wch:18}];
+ ws['!rows']=[
+   {hpt:30},
+   {hpt:21},{hpt:21},{hpt:21},{hpt:21},{hpt:21},{hpt:21},
+   {hpt:8},
+   {hpt:25}
+ ];
+ ws['!autofilter']={ref:`A9:D${data.length}`};
+ ws['!freeze']={xSplit:0,ySplit:9,topLeftCell:'A10',activePane:'bottomLeft',state:'frozen'};
+
+ wb.Props={
+   Title:'PDVs Clusterizados',
+   Subject:`Clusterização de clientes - ${s}º semestre de ${y}`,
+   Author:'Clusterização de Clientes',
+   CreatedDate:new Date()
+ };
+ XLSX.utils.book_append_sheet(wb,ws,'PDVs Clusterizados');
+
+ // Resumo
+ let clusters=[...new Set(d.map(p=>p.cluster))];
+ let resumo=[
+   ['RESUMO DA CLUSTERIZAÇÃO'],
+   ['Período',`${s}º semestre de ${y}`],
+   [],
+   ['Cluster','PDVs','% da base','Volume total (HL)']
+ ];
+ let total=d.length,totalVol=d.reduce((acc,p)=>acc+Number(p.volume||0),0);
+ let summaryRows=clusters
+   .map(cl=>({
+     cl,
+     qtd:d.filter(p=>p.cluster===cl).length,
+     vol:d.filter(p=>p.cluster===cl).reduce((acc,p)=>acc+Number(p.volume||0),0)
+   }))
+   .sort((a,b)=>b.qtd-a.qtd);
+ summaryRows.forEach(x=>resumo.push([x.cl,x.qtd,total?x.qtd/total:0,x.vol]));
+ resumo.push([]);
+ resumo.push(['TOTAL',total,1,totalVol]);
+
+ let wr=XLSX.utils.aoa_to_sheet(resumo);
+ wr['!merges']=[XLSX.utils.decode_range('A1:D1')];
+ wr['!cols']=[{wch:24},{wch:14},{wch:14},{wch:22}];
+ wr['!rows']=[{hpt:30},{hpt:21},{hpt:8},{hpt:25}];
+ wr['!autofilter']={ref:`A4:D${4+summaryRows.length}`};
+
+ wr['A1'].s={
+   fill:{fgColor:{rgb:COLORS.navy}},
+   font:{bold:true,color:{rgb:COLORS.white},sz:16},
+   alignment:{horizontal:'left',vertical:'center'}
+ };
+ wr['A2'].s={
+   fill:{fgColor:{rgb:COLORS.navy2}},
+   font:{bold:true,color:{rgb:COLORS.text}},
+   border:{bottom:{style:'thin',color:{rgb:COLORS.line}}}
+ };
+ wr['B2'].s={
+   fill:{fgColor:{rgb:'F7FAFC'}},
+   font:{color:{rgb:COLORS.darkText}},
+   border:{bottom:{style:'thin',color:{rgb:'DDE6EE'}}}
+ };
+
+ for(let col of ['A','B','C','D']){
+   let cell=wr[col+'4'];
+   if(cell)cell.s={
+     fill:{fgColor:{rgb:COLORS.navy}},
+     font:{bold:true,color:{rgb:COLORS.white}},
+     alignment:{horizontal:'center',vertical:'center'},
+     border
+   };
+ }
+
+ for(let r=5;r<=4+summaryRows.length;r++){
+   let zebra=(r%2===0)?'FFFFFF':COLORS.zebra;
+   for(let col of ['A','B','C','D']){
+     let cell=wr[col+r];
+     if(!cell)continue;
+     cell.s={
+       fill:{fgColor:{rgb:zebra}},
+       font:{color:{rgb:COLORS.darkText}},
+       alignment:{horizontal:col==='A'?'left':'right',vertical:'center'},
+       border
+     };
+   }
+   let cl=String(wr['A'+r]?.v||'');
+   if(wr['A'+r] && clusterFill[cl]){
+     wr['A'+r].s={
+       ...wr['A'+r].s,
+       fill:{fgColor:{rgb:clusterFill[cl]}},
+       font:{bold:true,color:{rgb:COLORS.darkText}}
+     };
+   }
+   if(wr['B'+r])wr['B'+r].z='#,##0';
+   if(wr['C'+r])wr['C'+r].z='0.0%';
+   if(wr['D'+r])wr['D'+r].z='#,##0.00';
+ }
+
+ let totalRow=resumo.length;
+ for(let col of ['A','B','C','D']){
+   let cell=wr[col+totalRow];
+   if(cell)cell.s={
+     fill:{fgColor:{rgb:COLORS.navy2}},
+     font:{bold:true,color:{rgb:COLORS.white}},
+     alignment:{horizontal:col==='A'?'left':'right',vertical:'center'},
+     border
+   };
+ }
+ if(wr['B'+totalRow])wr['B'+totalRow].z='#,##0';
+ if(wr['C'+totalRow])wr['C'+totalRow].z='0.0%';
+ if(wr['D'+totalRow])wr['D'+totalRow].z='#,##0.00';
+
+ XLSX.utils.book_append_sheet(wb,wr,'Resumo');
+
+ XLSX.writeFile(wb,`PDVs_Clusterizados_${y}_S${s}.xlsx`,{compression:true});
+}
+function renderCluster(){
+ let yrs=periods().join(',');if(!$('#clusterFilters').children.length||$('#clusterFilters').dataset.years!==yrs)filterControls('#clusterFilters');
+ addClearFilter($('#clusterFilters'),renderCluster);
+ let a=currentFiltered('#clusterFilters'),box=$('#clusterFilters'),showZero=box.querySelector('.fz')?.value==='show',cs=['Winner','Grower','Alto volume','Basic','Low sales'],y=box.querySelector('.fy')?.value||'—',s=box.querySelector('.fs')?.value||'—';if(showZero)cs.push('Sem dados de volume');
+ $('#clusterPeriodChip').innerHTML=`<strong>${s}º sem.</strong> ${y}`;$('#clusterBaseChip').innerHTML=`<strong>${fmtInt(a.length)}</strong> PDVs`;
+ let cards=[['Total PDVs',a.length,a.length?1:0,'tooltip','PDVs válidos dentro dos filtros selecionados'],...cs.map(c=>[c,a.filter(x=>x.cluster===c).length,a.length?a.filter(x=>x.cluster===c).length/a.length:0,badgeClass(c),'Participação desse cluster na base filtrada'])];
+ $('#clusterKpis').innerHTML=cards.map((x,i)=>`<div class="card kpi ${i===0?'':'flat'}"><div class="label tooltip" title="${x[4]}">${x[0]}</div><div class="val">${fmtInt(x[1])}</div><div class="hint">${i===0?'Base filtrada':pct(x[2])+' da base'}</div><div class="tinybar"><i style="width:${i===0?100:Math.min(100,x[2]*100)}%"></i></div></div>`).join('');
+ let clusterDist=cs.map(c=>({label:c,value:a.filter(x=>x.cluster===c).length})),clusterBase=Math.max(1,a.length),clusterMax=Math.max(1,...clusterDist.map(i=>i.value));$('#clusterDistribution').innerHTML=`<div class="bars">${clusterDist.map(x=>`<div class="barrow" style="grid-template-columns:125px minmax(180px,1fr) 72px 68px;gap:10px;align-items:center"><span>${x.label}</span><div class="bartrack"><div class="barfill" style="width:${Math.max(2,x.value/clusterMax*100)}%"></div></div><b style="text-align:right">${fmtInt(x.value)}</b><span class="meta" style="text-align:right;font-weight:700">${(x.value/clusterBase*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})}%</span></div>`).join('')}</div>`;
+ 
+ let ps=getClusterParams(),prio=new Map(ps.map(p=>[p.cluster,p.priority]));
+ let opp=a.map(p=>{
+   let curP=prio.get(p.cluster)||0;
+   let candidates=ps.filter(x=>x.priority>curP).sort((x,y)=>x.priority-y.priority);
+   if(!candidates.length)return null;
+   let next=candidates[0], blockers=[],distAbs=0,distPct=0;
+   if(p.avgCur<next.min){distAbs=next.min-p.avgCur;distPct=next.min?distAbs/next.min:0}
+   else if(p.avgCur>next.max){blockers.push('fora da faixa de HL/Pedido')}
+   if(next.rel>-9999 && p.relevance<next.rel)blockers.push(`relevância ${fmtInt(p.relevance)} de ${fmtInt(next.rel)}`);
+   if(next.growth>-9999 && p.growth<next.growth)blockers.push(`evolução ${p.growth===Infinity?'Novo':pct(p.growth)} de ${pct(next.growth)}`);
+   if(blockers.length && distAbs===0)return null;
+   return {...p,nextCluster:next.cluster,distAbs,distPct,blockers};
+ }).filter(Boolean).sort((x,y)=>x.distPct-y.distPct||x.distAbs-y.distAbs||y.avgCur-x.avgCur).slice(0,10);
+
+ $('#clusterOpportunities').innerHTML=opp.length
+ ? `<div class="tablecard"><div class="tablewrap" style="max-height:260px"><table><thead><tr><th>PDV</th><th>Cluster atual</th><th>Próximo cluster</th><th>Falta</th><th>% distância</th></tr></thead><tbody>${
+    opp.map(x=>`<tr>
+      <td>${x.code} • ${x.name}</td>
+      <td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td>
+      <td><span class="badge ${badgeClass(x.nextCluster)}">${x.nextCluster}</span></td>
+      <td>${x.distAbs>0?fmt(x.distAbs)+' HL/ped.':(x.blockers.length?x.blockers.join(' · '):'Próximo')}</td>
+      <td><b class="${x.distPct<=.05?'pos':x.distPct<=.10?'warn':'neutral'}">${x.distAbs>0?pct(x.distPct):'—'}</b></td>
+    </tr>`).join('')
+   }</tbody></table></div></div>`
+ : '<div class="empty">Nenhuma oportunidade de evolução identificada no filtro atual.</div>';
+
+ $('#clusterTableCount').textContent=`${fmtInt(a.length)} PDVs encontrados`;
+ let cols=['Código','Fantasia','Cidade','Relevância','HL/Ped. ant.','HL/Ped. atual','Evolução','Volume','Pedidos','Rentável','Dif. remuneração','Dias entrega','Qtd.','Permitido','Cluster'];
+ $('#clusterTable').innerHTML='<thead><tr>'+cols.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+a.slice(0,DISPLAY_LIMIT).map(p=>`<tr><td>${p.code}</td><td>${p.name}</td><td>${p.cidade}</td><td>${fmtInt(p.relevance)}</td><td>${fmt(p.avgPrev)}</td><td><b>${fmt(p.avgCur)}</b></td><td class="${p.growth>0?'pos':p.growth<0?'neg':'neutral'}">${p.growth===Infinity?'Novo':pct(p.growth)}</td><td>${fmt(p.volume)}</td><td>${fmtInt(p.orders)}</td><td>${p.rent||'—'}</td><td class="${p.diff<0?'neg':'pos'}">${fmt(p.diff)}</td><td>${p.days.join(', ')||'—'}</td><td>${fmtInt(p.deliveryCount)}</td><td>${fmtInt(p.allowed)}${p.nonProfitable&&Number(p.clusterAllowed||0)>1?'<div class="meta">não rentável: limite 1</div>':''}</td><td><span class="badge ${badgeClass(p.cluster)}">${p.cluster}</span></td></tr>`).join('')+'</tbody>';
+
+ let ex=$('#exportClusterXlsx');if(ex)ex.onclick=exportClusterizedXlsx;
+}
+
+function exportDeliveryOrientationsXlsx(){
+ let af=$('#analysisFilters');
+ if(!af){alert('Filtros da análise de entregas não encontrados.');return}
+
+ let y=+af.querySelector('.fy').value,
+     s=+af.querySelector('.fs').value,
+     cluster=af.querySelector('.fc')?.value||'',
+     zero=af.querySelector('.fz')?.value||'hide',
+     q=(af.querySelector('.fq')?.value||'').trim().toLowerCase(),
+     orientation=af.querySelector('.fo')?.value||'';
+
+ let base=currentFiltered('#analysisFilters');
+
+ let reduzir=base.filter(x=>x.deliveryGap>0);
+ let aumentar=base.filter(x=>x.deliveryGap<0);
+
+ // Respeita o filtro de orientação quando o usuário escolhe Reduzir ou Aumentar.
+ if(orientation==='excesso') aumentar=[];
+ if(orientation==='oportunidade') reduzir=[];
+ if(orientation==='adequado'){
+   alert('O filtro atual está em “Manter frequência”. Esta exportação é exclusiva para orientações de reduzir ou aumentar entregas.');
+   return;
+ }
+
+ let exportRows=[
+   ...reduzir.map(x=>({...x,tipoExport:'Reduzir',acaoExport:`Reduzir ${x.deliveryGap} entrega${x.deliveryGap>1?'s':''}/semana`})),
+   ...aumentar.map(x=>({...x,tipoExport:'Aumentar',acaoExport:`Avaliar +${Math.abs(x.deliveryGap)} entrega${Math.abs(x.deliveryGap)>1?'s':''}/semana`}))
+ ];
+
+ if(!exportRows.length){
+   alert('Não há orientações de reduzir ou aumentar entregas para exportar no filtro atual.');
+   return;
+ }
+
+ const wb=XLSX.utils.book_new();
+ const generated=new Date().toLocaleString('pt-BR');
+
+ const COLORS={
+   navy:'0B1F33',
+   navy2:'112A43',
+   teal:'64D6BD',
+   blue:'64A8FF',
+   white:'FFFFFF',
+   text:'DCEBFA',
+   line:'294762',
+   zebra:'F5F9FC',
+   darkText:'1C2D3D',
+   reduce:'FDE8E8',
+   increase:'D9F6EC',
+   winner:'D9F6EC',
+   grower:'E5F2FF',
+   high:'FFF1D6',
+   basic:'F0ECFF',
+   low:'FDE8E8'
+ };
+ const thin={style:'thin',color:{rgb:'D7E1EA'}};
+ const border={top:thin,bottom:thin,left:thin,right:thin};
+ const clusterFill={
+   'Winner':COLORS.winner,
+   'Grower':COLORS.grower,
+   'Alto volume':COLORS.high,
+   'Basic':COLORS.basic,
+   'Low sales':COLORS.low,
+   'Sem dados de volume':'EEF2F6'
+ };
+
+ function applySheetStyle(ws, dataLen){
+   ws['!merges']=[XLSX.utils.decode_range('A1:K1')];
+   ws['A1'].s={
+     fill:{fgColor:{rgb:COLORS.navy}},
+     font:{bold:true,color:{rgb:COLORS.white},sz:16},
+     alignment:{horizontal:'left',vertical:'center'}
+   };
+
+   for(let r=2;r<=8;r++){
+     let a=ws['A'+r],b=ws['B'+r];
+     if(a)a.s={
+       fill:{fgColor:{rgb:COLORS.navy2}},
+       font:{bold:true,color:{rgb:COLORS.text}},
+       alignment:{horizontal:'left',vertical:'center'},
+       border:{bottom:{style:'thin',color:{rgb:COLORS.line}}}
+     };
+     if(b)b.s={
+       fill:{fgColor:{rgb:'F7FAFC'}},
+       font:{color:{rgb:COLORS.darkText}},
+       alignment:{horizontal:'left',vertical:'center'},
+       border:{bottom:{style:'thin',color:{rgb:'DDE6EE'}}}
+     };
+   }
+
+   for(let col of ['A','B','C','D','E','F','G','H','I','J','K']){
+     let cell=ws[col+'10'];
+     if(cell)cell.s={
+       fill:{fgColor:{rgb:COLORS.navy}},
+       font:{bold:true,color:{rgb:COLORS.white}},
+       alignment:{horizontal:'center',vertical:'center',wrapText:true},
+       border
+     };
+   }
+
+   for(let r=11;r<=dataLen;r++){
+     let zebra=(r%2===0)?'FFFFFF':COLORS.zebra;
+     for(let col of ['A','B','C','D','E','F','G','H','I','J','K']){
+       let cell=ws[col+r];
+       if(!cell)continue;
+       cell.s={
+         fill:{fgColor:{rgb:zebra}},
+         font:{color:{rgb:COLORS.darkText}},
+         alignment:{
+           horizontal:(col==='B'||col==='K')?'left':(['E','F','G','H','I'].includes(col)?'right':'center'),
+           vertical:'center',
+           wrapText:col==='K'
+         },
+         border
+       };
+     }
+
+     let cl=String(ws['C'+r]?.v||'');
+     if(ws['C'+r] && clusterFill[cl]){
+       ws['C'+r].s={
+         ...ws['C'+r].s,
+         fill:{fgColor:{rgb:clusterFill[cl]}},
+         font:{bold:true,color:{rgb:COLORS.darkText}}
+       };
+     }
+
+     let tipo=String(ws['J'+r]?.v||'');
+     if(ws['J'+r]){
+       ws['J'+r].s={
+         ...ws['J'+r].s,
+         fill:{fgColor:{rgb:tipo==='Reduzir'?COLORS.reduce:COLORS.increase}},
+         font:{bold:true,color:{rgb:COLORS.darkText}}
+       };
+     }
+
+     if(ws['E'+r])ws['E'+r].z='#,##0.00';
+     if(ws['F'+r])ws['F'+r].z='#,##0.00';
+     if(ws['G'+r])ws['G'+r].z='#,##0';
+     if(ws['H'+r])ws['H'+r].z='#,##0';
+     if(ws['I'+r])ws['I'+r].z='0';
+   }
+
+   ws['!cols']=[
+     {wch:16},{wch:34},{wch:20},{wch:14},{wch:16},{wch:16},
+     {wch:18},{wch:18},{wch:12},{wch:14},{wch:34}
+   ];
+   ws['!rows']=[
+     {hpt:30},{hpt:21},{hpt:21},{hpt:21},{hpt:21},{hpt:21},{hpt:21},{hpt:21},
+     {hpt:8},{hpt:30}
+   ];
+   ws['!autofilter']={ref:`A10:K${dataLen}`};
+   ws['!freeze']={xSplit:0,ySplit:10,topLeftCell:'A11',activePane:'bottomLeft',state:'frozen'};
+ }
+
+ const dados=[
+   ['ORIENTAÇÕES DE ENTREGA'],
+   ['Período',`${s}º semestre de ${y}`],
+   ['Cluster',cluster||'Todos os clusters'],
+   ['Volume zerado',zero==='show'?'Incluído':'Ocultado'],
+   ['Busca',q||'Sem filtro de busca'],
+   ['Orientação',orientation==='excesso'?'Reduzir entregas':orientation==='oportunidade'?'Aumentar entregas':'Reduzir e aumentar'],
+   ['Quantidade de PDVs',exportRows.length],
+   ['Gerado em',generated],
+   [],
+   ['Código do PDV','Fantasia','Cluster','Rentável','Volume (HL)','HL/Pedido','Entregas atuais','Recomendado','Diferença','Orientação','Ação recomendada'],
+   ...exportRows.map(x=>[
+     x.code,
+     x.name||'',
+     x.cluster,
+     x.rent||'—',
+     Number(x.volume||0),
+     Number(x.avgCur||0),
+     Number(x.deliveryCount||0),
+     Number(x.allowed||0),
+     Number(x.deliveryGap||0),
+     x.tipoExport,
+     x.acaoExport+(x.nonProfitable&&Number(x.clusterAllowed||0)>1?' — Não rentável: limite de 1 entrega/semana':'')
+   ])
+ ];
+
+ const ws=XLSX.utils.aoa_to_sheet(dados);
+ applySheetStyle(ws,dados.length);
+ XLSX.utils.book_append_sheet(wb,ws,'Orientações');
+
+ // Aba Resumo no mesmo padrão da exportação de clusterização.
+ const resumo=[
+   ['RESUMO DAS ORIENTAÇÕES'],
+   ['Período',`${s}º semestre de ${y}`],
+   [],
+   ['Orientação','PDVs','% das orientações','Impacto semanal']
+ ];
+
+ const nRed=reduzir.length,nAum=aumentar.length,total=exportRows.length;
+ const impactRed=reduzir.reduce((a,x)=>a+Number(x.deliveryGap||0),0);
+ const impactAum=aumentar.reduce((a,x)=>a+Math.abs(Number(x.deliveryGap||0)),0);
+
+ if(nRed)resumo.push(['Reduzir',nRed,total?nRed/total:0,`Remover ${impactRed} entrega(s)/semana`]);
+ if(nAum)resumo.push(['Aumentar',nAum,total?nAum/total:0,`Avaliar +${impactAum} entrega(s)/semana`]);
+ resumo.push([]);
+ resumo.push(['TOTAL',total,1,`${nRed?'Reduzir '+impactRed:''}${nRed&&nAum?' | ':''}${nAum?'Aumentar '+impactAum:''}`]);
+
+ const wr=XLSX.utils.aoa_to_sheet(resumo);
+ wr['!merges']=[XLSX.utils.decode_range('A1:D1')];
+ wr['!cols']=[{wch:20},{wch:14},{wch:20},{wch:34}];
+ wr['!rows']=[{hpt:30},{hpt:21},{hpt:8},{hpt:25}];
+
+ wr['A1'].s={
+   fill:{fgColor:{rgb:COLORS.navy}},
+   font:{bold:true,color:{rgb:COLORS.white},sz:16},
+   alignment:{horizontal:'left',vertical:'center'}
+ };
+ wr['A2'].s={
+   fill:{fgColor:{rgb:COLORS.navy2}},
+   font:{bold:true,color:{rgb:COLORS.text}},
+   border:{bottom:{style:'thin',color:{rgb:COLORS.line}}}
+ };
+ wr['B2'].s={
+   fill:{fgColor:{rgb:'F7FAFC'}},
+   font:{color:{rgb:COLORS.darkText}},
+   border:{bottom:{style:'thin',color:{rgb:'DDE6EE'}}}
+ };
+
+ for(let col of ['A','B','C','D']){
+   let cell=wr[col+'4'];
+   if(cell)cell.s={
+     fill:{fgColor:{rgb:COLORS.navy}},
+     font:{bold:true,color:{rgb:COLORS.white}},
+     alignment:{horizontal:'center',vertical:'center'},
+     border
+   };
+ }
+
+ let summaryEnd=3+(nRed?1:0)+(nAum?1:0)+1;
+ for(let r=5;r<=4+(nRed?1:0)+(nAum?1:0);r++){
+   let tipo=String(wr['A'+r]?.v||'');
+   for(let col of ['A','B','C','D']){
+     let cell=wr[col+r];
+     if(!cell)continue;
+     cell.s={
+       fill:{fgColor:{rgb:tipo==='Reduzir'?COLORS.reduce:COLORS.increase}},
+       font:{color:{rgb:COLORS.darkText},bold:col==='A'},
+       alignment:{horizontal:col==='A'||col==='D'?'left':'right',vertical:'center'},
+       border
+     };
+   }
+   if(wr['B'+r])wr['B'+r].z='#,##0';
+   if(wr['C'+r])wr['C'+r].z='0.0%';
+ }
+
+ let totalRow=resumo.length;
+ for(let col of ['A','B','C','D']){
+   let cell=wr[col+totalRow];
+   if(cell)cell.s={
+     fill:{fgColor:{rgb:COLORS.navy2}},
+     font:{bold:true,color:{rgb:COLORS.white}},
+     alignment:{horizontal:col==='A'||col==='D'?'left':'right',vertical:'center'},
+     border
+   };
+ }
+ if(wr['B'+totalRow])wr['B'+totalRow].z='#,##0';
+ if(wr['C'+totalRow])wr['C'+totalRow].z='0.0%';
+
+ XLSX.utils.book_append_sheet(wb,wr,'Resumo');
+
+ wb.Props={
+   Title:'Orientações de Entrega',
+   Subject:`Redução e aumento de janelas - ${s}º semestre de ${y}`,
+   Author:'Clusterização de Clientes',
+   CreatedDate:new Date()
+ };
+
+ XLSX.writeFile(wb,`Orientacoes_de_Entrega_${y}_S${s}.xlsx`,{compression:true});
+}
+function renderAnalysis(){
+ let yrs=periods().join(',');if(!$('#analysisFilters').children.length||$('#analysisFilters').dataset.years!==yrs)filterControls('#analysisFilters');
+ let af=$('#analysisFilters');
+ if(!af.querySelector('.fo')){
+   let wrap=document.createElement('label');
+   wrap.className='filter-field';
+   wrap.innerHTML='<span class="filter-label">Orientação</span><select class="fo"><option value="">Todas as orientações</option><option value="excesso">Reduzir entregas</option><option value="adequado">Manter frequência</option><option value="oportunidade">Oportunidade de aumentar</option></select>';
+   let searchField=af.querySelector('.fq')?.closest('.filter-field');
+   if(searchField)af.insertBefore(wrap,searchField);else af.appendChild(wrap);
+   wrap.querySelector('.fo').oninput=renderAnalysis;
+   applyHelp();
+ }
+ addClearFilter(af,renderAnalysis);
+ let base=currentFiltered('#analysisFilters'),orientation=af.querySelector('.fo')?.value||'';
+ let allExcess=base.filter(x=>x.deliveryGap>0).sort((x,y)=>y.deliveryGap-x.deliveryGap||y.avgCur-x.avgCur);
+ let allAdequate=base.filter(x=>x.deliveryGap===0);
+ let allOpp=base.filter(x=>x.deliveryGap<0).sort((x,y)=>{let sx=(x.rent.toLowerCase().includes('sim')?2:0)+(x.growth>0?1:0)+(x.avgCur>0?1:0),sy=(y.rent.toLowerCase().includes('sim')?2:0)+(y.growth>0?1:0)+(y.avgCur>0?1:0);return sy-sx||x.deliveryGap-y.deliveryGap||y.avgCur-x.avgCur});
+ let excess=orientation&&orientation!=='excesso'?[]:allExcess,adequate=orientation&&orientation!=='adequado'?[]:allAdequate,opportunities=orientation&&orientation!=='oportunidade'?[]:allOpp;
+ let visible=orientation==='excesso'?allExcess:orientation==='adequado'?allAdequate:orientation==='oportunidade'?allOpp:base;
+ $('#analysisScopeChip').innerHTML=`<strong>${fmtInt(visible.length)}</strong> PDVs no filtro`;
+ $('#analysisKpis').innerHTML=[
+  ['Reduzir entregas',allExcess.length,base.length?allExcess.length/base.length:0,'bad','PDVs acima da frequência recomendada'],
+  ['Manter frequência',allAdequate.length,base.length?allAdequate.length/base.length:0,'','PDVs alinhados ao recomendado'],
+  ['Oportunidades',allOpp.length,base.length?allOpp.length/base.length:0,'good','PDVs abaixo da frequência recomendada'],
+  ['Base analisada',base.length,1,'','Total de PDVs dentro dos filtros']
+ ].map(x=>`<div class="card kpi ${x[3]}"><div class="label tooltip" title="${x[4]}">${x[0]}</div><div class="val">${fmtInt(x[1])}</div><div class="hint">${x[0]==='Base analisada'?'Base filtrada':pct(x[2])+' da base'}</div><div class="tinybar"><i style="width:${Math.min(100,x[2]*100)}%"></i></div></div>`).join('');
+ $('#excessDeliveryList').innerHTML=excess.length?excess.slice(0,12).map(x=>`<div class="actionitem"><div class="actiontitle">${x.code} • ${x.name}</div><div class="actionmeta"><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span> &nbsp; atual ${x.deliveryCount} · recomendado ${x.allowed}${x.nonProfitable&&Number(x.clusterAllowed||0)>1?' · não rentável: limite 1/semana':''}</div><div class="actioncall neg">Reduzir ${x.deliveryGap} entrega${x.deliveryGap>1?'s':''}/semana</div></div>`).join(''):'<div class="empty">Nenhum PDV com excesso no filtro atual.</div>';
+ $('#opportunity').innerHTML=opportunities.length?opportunities.slice(0,12).map(x=>{let falta=Math.abs(x.deliveryGap),why=[];if(x.rent.toLowerCase().includes('sim'))why.push('rentável');if(x.growth>0)why.push('crescimento positivo');if(x.avgCur>0)why.push('volume ativo');return `<div class="actionitem"><div class="actiontitle">${x.code} • ${x.name}</div><div class="actionmeta"><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span> &nbsp; atual ${x.deliveryCount} · recomendado ${x.allowed}${x.nonProfitable&&Number(x.clusterAllowed||0)>1?' · não rentável: limite 1/semana':''}${why.length?' · '+why.join(' · '):''}</div><div class="actioncall ok">Avaliar +${falta} entrega${falta>1?'s':''}/semana</div></div>`}).join(''):'<div class="empty">Nenhuma oportunidade no filtro atual.</div>';
+ $('#deliveryOrientationChart').innerHTML=barsHTML([{label:'Reduzir',value:allExcess.length},{label:'Manter',value:allAdequate.length},{label:'Oportunidade',value:allOpp.length}]);
+ let rows=[...excess.map(x=>({...x,acao:`Reduzir ${x.deliveryGap} entrega${x.deliveryGap>1?'s':''}/semana`,tipo:'Excesso'})),...opportunities.map(x=>({...x,acao:`Avaliar +${Math.abs(x.deliveryGap)} entrega${Math.abs(x.deliveryGap)>1?'s':''}/semana`,tipo:'Oportunidade'})),...adequate.map(x=>({...x,acao:'Manter frequência atual',tipo:'Adequado'}))];
+ $('#analysisTableCount').textContent=`${fmtInt(rows.length)} PDVs na orientação selecionada`;
+ $('#analysisTable').innerHTML='<thead><tr><th>PDV</th><th>Cluster</th><th>HL/Pedido</th><th>Evolução</th><th>Entregas atuais</th><th>Recomendado</th><th>Dif.</th><th>Situação</th><th>Orientação</th></tr></thead><tbody>'+rows.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${x.code} • ${x.name}</td><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${fmt(x.avgCur)}</td><td class="${x.growth>0?'pos':x.growth<0?'neg':'neutral'}">${x.growth===Infinity?'Novo':pct(x.growth)}</td><td>${fmtInt(x.deliveryCount)}</td><td>${fmtInt(x.allowed)}${x.nonProfitable&&Number(x.clusterAllowed||0)>1?'<div class="meta">cluster '+fmtInt(x.clusterAllowed)+' → limite 1</div>':''}</td><td class="${x.deliveryGap>0?'neg':x.deliveryGap<0?'ok':'neutral'}">${x.deliveryGap>0?'+':''}${x.deliveryGap}</td><td><span class="badge ${badgeClass(x.tipo)}">${x.tipo}</span></td><td class="${x.tipo==='Excesso'?'neg':x.tipo==='Oportunidade'?'ok':'neutral'}"><b>${x.acao}</b></td></tr>`).join('')+'</tbody>';
+ let ex=$('#exportDeliveryXlsx');if(ex)ex.onclick=exportDeliveryOrientationsXlsx;
+}
+
+function serviceComboChart(rows,mode){
+ if(!rows.length)return '<div class="empty">Sem dados para o filtro atual.</div>';
+ let W=1000,H=245,L=46,R=18,T=28,B=46,iw=W-L-R,ih=H-T-B,n=rows.length,step=iw/n,bw=Math.min(64,step*.52);
+ let y=v=>T+(1-Math.max(0,Math.min(1,v||0)))*ih, x=i=>L+step*i+step/2;
+ let grid=[0,.25,.5,.75,1].map(v=>`<line class="gridline" x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}%</text>`).join('');
+ let bars=rows.map((d,i)=>{let yy=y(d.otif),xx=x(i)-bw/2,hh=T+ih-yy,ly=yy+hh/2+4;
+   let tip=`${d.label}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
+   return `<g class="combo-item" data-mode="${mode}" data-key="${d.key??d.label}" data-tip="${tip}">
+    <rect class="bar" x="${xx}" y="${yy}" width="${bw}" height="${hh}" rx="5"></rect>
+    <text class="value" x="${x(i)}" y="${ly}" text-anchor="middle">${pct(d.otif)}</text>
+    <text x="${x(i)}" y="${H-B+18}" text-anchor="middle">${d.label}</text>
+   </g>`}).join('');
+ let ptsIF=rows.map((d,i)=>`${x(i)},${y(d.iff)}`).join(' ');
+ let ptsOT=rows.map((d,i)=>`${x(i)},${y(d.ot)}`).join(' ');
+ let linePts=rows.map((d,i)=>{
+   let xi=x(i), yi=y(d.iff), yo=y(d.ot), close=Math.abs(yi-yo)<18;
+   let ifY=close?yi-10:yi-8, otY=close?yo+15:yo+14;
+   let tip=`${d.label}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
+   return `<g class="combo-point" data-tip="${tip}">
+      <circle class="dot-if" cx="${xi}" cy="${yi}" r="4.5"></circle>
+      <text class="line-label-if" x="${xi}" y="${ifY}" text-anchor="middle">${pct(d.iff)}</text>
+      <circle class="dot-ot" cx="${xi}" cy="${yo}" r="4.5"></circle>
+      <text class="line-label-ot" x="${xi}" y="${otY}" text-anchor="middle">${pct(d.ot)}</text>
+    </g>`;
+ }).join('');
+ return `<div class="combo-legend"><span><i></i>OTIF</span><span class="if"><i></i>In Full</span><span class="ot"><i></i>On Time</span><span style="margin-left:auto">clique na barra para filtrar · passe o mouse para detalhes</span></div>
+ <svg viewBox="0 0 ${W} ${H}" role="img">
+   <line class="axis" x1="${L}" y1="${T+ih}" x2="${W-R}" y2="${T+ih}"/>
+   ${grid}${bars}
+   <polyline class="line-if" points="${ptsIF}"/>
+   <polyline class="line-ot" points="${ptsOT}"/>
+   ${linePts}
+ </svg>`;
+}
+function serviceData(){
+let ck=(state.lastUpdate||'')+'|'+state.params.monthlyYear;
+if(CACHE.service&&CACHE.service.key===ck)return CACHE.service.rows;
+let lp=latestPeriod(),clMap=new Map(buildPDVs(lp.y,lp.s).map(x=>[x.code,x.cluster]));
+let m=new Map();for(let s of state.data['Nível mensal']||[])for(let r of s.rows){let c=code(r.Cliente);if(!c)continue;let k=c+'|'+s.month+'|'+state.params.monthlyYear,v=m.get(k)||{code:c,name:norm(r['Nome Cliente']),month:s.month,year:state.params.monthlyYear,vis:0,ot:0,iff:0};v.vis+=num(r.Visita);v.ot+=num(r['Visita OT']);v.iff+=num(r['Visita IF']);m.set(k,v)}let ratings=new Map();for(let s of state.data.Rating||[])for(let r of s.rows){let c=code(r['Cod PDV']);if(!c)continue;let d=new Date(r['Data da Avaliação']);if(isNaN(d))continue;let k=c+'|'+d.getFullYear()+'|'+(d.getMonth()+1),v=ratings.get(k)||{sum:0,n:0,classes:{}};v.sum+=num(r.Avaliação);v.n++;let cl=norm(r.Classificação)||'Sem classificação';v.classes[cl]=(v.classes[cl]||0)+1;ratings.set(k,v)}let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.vis?x.ot/x.vis:0,ifPct:x.vis?x.iff/x.vis:0,otif:x.vis?Math.min(x.ot,x.iff)/x.vis:0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});CACHE.service={key:ck,rows};return rows}
+
+function ensureChartHoverTip(){
+ let t=$('#chartHoverTip');
+ if(!t){t=document.createElement('div');t.id='chartHoverTip';t.className='chart-hover-tip';document.body.appendChild(t)}
+ return t;
+}
+function showChartHoverTip(el,ev){
+ let raw=el.dataset.tip;if(!raw)return;
+ let [label,otif,iff,ot]=raw.split('|'),t=ensureChartHoverTip();
+ t.innerHTML=`<div class="t">${label}</div>
+ <div class="r"><span>OTIF</span><b>${otif}</b></div>
+ <div class="r"><span>In Full</span><b>${iff}</b></div>
+ <div class="r"><span>On Time</span><b>${ot}</b></div>`;
+ t.style.display='block';
+ let w=t.offsetWidth,h=t.offsetHeight,x=ev.clientX+14,y=ev.clientY+14;
+ if(x+w>window.innerWidth-10)x=ev.clientX-w-14;
+ if(y+h>window.innerHeight-10)y=ev.clientY-h-14;
+ t.style.left=Math.max(10,x)+'px';t.style.top=Math.max(10,y)+'px';
+}
+function hideChartHoverTip(){let t=$('#chartHoverTip');if(t)t.style.display='none'}
+function bindServiceChartInteractions(){
+ $$('.service-combo [data-tip]').forEach(el=>{
+   el.onmousemove=e=>showChartHoverTip(el,e);
+   el.onmouseleave=hideChartHoverTip;
+ });
+ $$('.service-combo .combo-item').forEach(el=>{
+   el.onclick=()=>{
+     let mode=el.dataset.mode,key=el.dataset.key;
+     if(mode==='cluster'){
+       let s=$('#serviceFilters .sc');if(s){s.value=(s.value===key?'':key);renderService()}
+     }else if(mode==='month'){
+       let s=$('#serviceFilters .sm');if(s){s.value=(s.value===key?'':key);renderService()}
+     }
+   };
+ });
+ $$('#otifClusterRank .cluster-filter-row').forEach(el=>{
+   el.onclick=()=>{
+     let s=$('#serviceFilters .sc'),key=el.dataset.cluster;
+     if(s){s.value=(s.value===key?'':key);renderService()}
+   };
+ });
+}
+
+function renderService(){
+ let d=serviceData();
+ if(!$('#serviceFilters').children.length){$('#serviceFilters').innerHTML=`<select class="sm"><option value="">Todos os meses</option>${Object.entries(MONTHS).filter(([k])=>k!=='marco').map(([k,v])=>`<option value="${v}">${k[0].toUpperCase()+k.slice(1)}</option>`).join('')}</select><select class="sc"><option value="">Todos os clusters</option>${['Winner','Grower','Alto volume','Basic','Low sales','Sem dados de volume','Sem cluster'].map(x=>`<option>${x}</option>`).join('')}</select><input class="sq" placeholder="Buscar PDV...">`;$('#serviceFilters').querySelectorAll('select,input').forEach(x=>x.oninput=renderService)}
+ addClearFilter($('#serviceFilters'),renderService);
+ let mo=$('#serviceFilters .sm').value,cl=$('#serviceFilters .sc').value,q=$('#serviceFilters .sq').value.toLowerCase();
+ d=d.filter(x=>(!mo||x.month==mo)&&(!cl||x.cluster===cl)&&(!q||(x.code+' '+x.name).toLowerCase().includes(q)));
+ let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),iff=d.reduce((s,x)=>s+x.iff,0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
+ let otv=vis?ot/vis:null,ifv=vis?iff/vis:null,otifv=vis?Math.min(ot,iff)/vis:null,rat=rn?rs/rn:null;
+ $('#serviceScopeChip').innerHTML=`<strong>${mo?monthName(mo):'Todos os meses'}</strong>${cl?' · '+cl:''}`;
+ $('#serviceKpis').innerHTML=[
+  ['On Time',otv===null?'—':pct(otv),otv,'Entregas realizadas dentro do prazo: Visita OT ÷ Visita'],
+  ['In Full',ifv===null?'—':pct(ifv),ifv,'Entregas completas: Visita IF ÷ Visita'],
+  ['OTIF',otifv===null?'—':pct(otifv),otifv,'OTIF: mínimo entre Visita OT e Visita IF ÷ Visita'],
+  ['Rating médio',rat===null?'—':rat.toFixed(2),null,`${fmtInt(rn)} avaliações no filtro`]
+ ].map((x,i)=>`<div class="card kpi ${i===2&&otifv!==null?(otifv>=.95?'good':otifv<.85?'bad':'warn'):''}"><div class="label tooltip" title="${x[3]}">${x[0]}</div><div class="val">${x[1]}</div><div class="hint">${i<3?fmtInt(vis)+' visitas consideradas':fmtInt(rn)+' avaliações'}</div>${x[2]!==null?`<div class="tinybar"><i style="width:${Math.min(100,x[2]*100)}%"></i></div>`:''}</div>`).join('');
+ let months={};for(let x of d){let z=months[x.month]||(months[x.month]={vis:0,ot:0,iff:0});z.vis+=x.vis;z.ot+=x.ot;z.iff+=x.iff}
+ let monthChart=Object.entries(months).sort((a,b)=>a[0]-b[0]).map(([m,x])=>({key:String(m),label:monthName(m).slice(0,3),otif:x.vis?Math.min(x.ot,x.iff)/x.vis:0,ot:x.vis?x.ot/x.vis:0,iff:x.vis?x.iff/x.vis:0}));
+ $('#serviceMonthCombo').innerHTML=serviceComboChart(monthChart,'month');
+ let cls={};for(let x of d)for(let [k,v] of Object.entries(x.classes))cls[k]=(cls[k]||0)+v;
+ $('#ratingSplit').innerHTML=Object.keys(cls).length?barsHTML(Object.entries(cls).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Sem ratings no período.</div>';
+ let clusters=['Winner','Grower','Alto volume','Basic','Low sales'];
+ let byCluster=clusters.map(c=>{let r=d.filter(x=>x.cluster===c),v=r.reduce((s,x)=>s+x.vis,0),o=r.reduce((s,x)=>s+x.ot,0),f=r.reduce((s,x)=>s+x.iff,0),rnC=r.reduce((s,x)=>s+x.ratingN,0),rsC=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);return {cluster:c,pdvs:new Set(r.map(x=>x.code)).size,vis:v,ot:v?o/v:null,iff:v?f/v:null,otif:v?Math.min(o,f)/v:null,rating:rnC?rsC/rnC:null,ratingN:rnC}}).filter(x=>x.vis>0||x.ratingN>0);
+ let rank=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif);
+ $('#otifClusterRank').innerHTML=rank.length?rank.map((x,i)=>`<div class="rankrow cluster-filter-row" data-cluster="${x.cluster}" title="Clique para filtrar o painel por ${x.cluster}"><div><b>${i===0?'⚠ ':''}${x.cluster}</b><div class="rankbar"><i style="width:${Math.min(100,x.otif*100)}%"></i></div></div><b style="text-align:right" class="${x.otif<.85?'neg':x.otif<.95?'warn':'pos'}">${pct(x.otif)}</b></div>`).join(''):'<div class="empty">Sem dados por cluster.</div>';
+ $('#serviceByCluster').innerHTML=byCluster.length?`<div style="overflow:auto"><table><thead><tr><th>Cluster</th><th>PDVs</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>${byCluster.map(x=>`<tr><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${fmtInt(x.pdvs)}</td><td>${x.ot===null?'—':pct(x.ot)}</td><td>${x.iff===null?'—':pct(x.iff)}</td><td>${x.otif===null?'—':`<b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b><div class="tinybar" style="margin-top:5px"><i style="width:${Math.min(100,x.otif*100)}%"></i></div>`}</td><td><b>${x.rating===null?'—':x.rating.toFixed(2)}</b></td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sem dados por cluster.</div>';
+ let priority=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif||((a.rating??99)-(b.rating??99))||b.vis-a.vis),worst=priority[0];
+ $('#servicePriority').innerHTML=priority.length?`<div class="card ${worst.otif<.85?'bad':worst.otif<.95?'warn':'good'}" style="margin-bottom:10px"><div class="label">Cluster que precisa de mais atenção</div><div class="val" style="font-size:24px">${worst.cluster}</div><div class="hint">OTIF ${pct(worst.otif)} · Rating ${worst.rating===null?'—':worst.rating.toFixed(2)} · ${fmtInt(worst.pdvs)} PDVs · ${fmtInt(worst.vis)} visitas</div></div><div style="overflow:auto"><table><thead><tr><th>#</th><th>Cluster</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>${priority.slice(0,3).map((x,i)=>`<tr><td><b>${i+1}º</b></td><td>${x.cluster}</td><td><b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b></td><td>${x.rating===null?'—':x.rating.toFixed(2)}</td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')}</tbody></table></div><div class="meta" style="margin-top:10px">Prioridade: menor OTIF primeiro; em empate, menor Rating e depois maior volume de visitas.</div>`:'<div class="empty">Sem dados para priorização.</div>';
+ let bands=[['≥95%',x=>x.otif>=.95],['85–94,9%',x=>x.otif>=.85&&x.otif<.95],['<85%',x=>x.otif<.85]];
+ $('#serviceMatrix').innerHTML='<div class="matrix"><div class="head">Cluster</div>'+bands.map(x=>`<div class="head">${x[0]}</div>`).join('')+clusters.map(c=>`<div class="head">${c}</div>${bands.map(b=>`<div class="cell">${fmtInt(d.filter(x=>x.cluster===c&&b[1](x)).length)}</div>`).join('')}`).join('')+'</div>';
+ $('#serviceTableCount').textContent=`${fmtInt(d.length)} linhas encontradas`;
+ $('#serviceTable').innerHTML='<thead><tr><th>PDV</th><th>Cluster</th><th>Mês</th><th>Visitas</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${x.code} • ${x.name}</td><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${monthName(x.month)}/${x.year}</td><td>${fmtInt(x.vis)}</td><td>${pct(x.otPct)}</td><td>${pct(x.ifPct)}</td><td><b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b></td><td>${x.rating===null?'—':x.rating.toFixed(2)}</td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')+'</tbody>';
+
+ bindServiceChartInteractions();
+}
+
+
+function actionDefaultStatus(year,month){
+ let n=new Date(),cy=n.getFullYear(),cm=n.getMonth()+1;
+ if(year<cy||(year===cy&&month<cm))return 'Concluído';
+ if(year===cy&&month===cm)return 'Em andamento';
+ return 'Planejado';
+}
+function actionStatus(id,year,month){return state.params.actionStatus?.[id]||actionDefaultStatus(year,month)}
+function actionPlanData(){
+ let svc=serviceData(),lp=latestPeriod(),pdvMap=new Map(buildPDVs(lp.y,lp.s).map(x=>[x.code,x]));
+ let groups=new Map();
+ for(let x of svc){
+   if(!['Winner','Grower','Alto volume','Basic','Low sales'].includes(x.cluster))continue;
+   let k=x.year+'|'+x.month+'|'+x.cluster,g=groups.get(k)||{year:x.year,month:x.month,cluster:x.cluster,rows:[]};
+   g.rows.push(x);groups.set(k,g);
+ }
+ let out=[];
+ const pushAction=(g,type,priority,score,affected,current,target,plan,details)=>{
+   let id=[g.year,g.month,g.cluster,type].join('|');
+   out.push({id,year:g.year,month:g.month,cluster:g.cluster,type,priority,score,affected,current,target,plan,details,status:actionStatus(id,g.year,g.month)});
+ };
+ for(let g of groups.values()){
+   let r=g.rows,vis=r.reduce((s,x)=>s+x.vis,0),ot=r.reduce((s,x)=>s+x.ot,0),iff=r.reduce((s,x)=>s+x.iff,0);
+   let otPct=vis?ot/vis:null,ifPct=vis?iff/vis:null,otif=vis?Math.min(ot,iff)/vis:null;
+   let rn=r.reduce((s,x)=>s+x.ratingN,0),rs=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0),rating=rn?rs/rn:null;
+   let otBad=r.filter(x=>x.vis>0&&x.otPct<.95).sort((a,b)=>a.otPct-b.otPct);
+   let ifBad=r.filter(x=>x.vis>0&&x.ifPct<.95).sort((a,b)=>a.ifPct-b.ifPct);
+   let ratingBad=r.filter(x=>x.ratingN>0&&x.rating<4).sort((a,b)=>a.rating-b.rating);
+   let codes=a=>a.slice(0,5).map(x=>x.code).join(', ')+(a.length>5?' +'+(a.length-5):'');
+   if(otPct!==null&&otPct<.95){
+     let pr=otPct<.85?'Crítica':otPct<.90?'Alta':'Média',score=Math.round((.95-otPct)*1000)+otBad.length;
+     pushAction(g,'Janela / On Time',pr,score,otBad.length,pct(otPct),'≥ 95%',
+       `Reprogramar janelas e sequência de rota dos ${otBad.length} PDVs abaixo de 95% de OT; validar horário acordado, chegada real e aderência por rota.`,
+       `Começar por: ${codes(otBad)}.`);
+   }
+   if(ifPct!==null&&ifPct<.95){
+     let pr=ifPct<.85?'Crítica':ifPct<.90?'Alta':'Média',score=Math.round((.95-ifPct)*1000)+ifBad.length;
+     pushAction(g,'In Full / Abastecimento',pr,score,ifBad.length,pct(ifPct),'≥ 95%',
+       `Tratar os ${ifBad.length} PDVs abaixo de 95% de IF; revisar cortes, indisponibilidade, montagem e divergências do pedido antes da saída.`,
+       `Começar por: ${codes(ifBad)}.`);
+   }
+   if(otif!==null&&otif<.90 && otPct>=.95 && ifPct>=.95){
+     let bad=r.filter(x=>x.otif<.90).sort((a,b)=>a.otif-b.otif);
+     pushAction(g,'OTIF combinado','Alta',Math.round((.90-otif)*1000)+bad.length,bad.length,pct(otif),'≥ 95%',
+       `Atuar nos ${bad.length} PDVs com OTIF abaixo de 90%, cruzando falhas de prazo e completude por visita para eliminar recorrências.`,
+       `Começar por: ${codes(bad)}.`);
+   }
+   if(rating!==null&&rating<4){
+     let pr=rating<3?'Crítica':rating<3.5?'Alta':'Média',score=Math.round((4-rating)*100)+ratingBad.length;
+     pushAction(g,'Experiência / Rating',pr,score,ratingBad.length,rating.toFixed(2),'≥ 4,00',
+       `Tratar os ${ratingBad.length} PDVs com Rating abaixo de 4,00; revisar motivo/comentário das avaliações e fechar causa recorrente com responsável definido.`,
+       `Começar por: ${codes(ratingBad)}.`);
+   }
+   let del=r.map(x=>({x,p:pdvMap.get(x.code)})).filter(z=>z.p&&z.p.hasVolume);
+   let excess=del.filter(z=>z.p.deliveryGap>0),lack=del.filter(z=>z.p.deliveryGap<0);
+   if(excess.length){
+     let total=excess.reduce((s,z)=>s+z.p.deliveryGap,0),pr=excess.length>=10?'Alta':'Média';
+     pushAction(g,'Frequência / Excesso',pr,excess.length*5+total,excess.length,
+       `${total} entrega(s)/sem acima`,'Aderente ao cluster',
+       `Reduzir frequência em ${excess.length} PDVs com excesso, removendo ${total} entrega(s)/semana no total e preservando as janelas de maior aderência.`,
+       `Começar por: ${excess.slice(0,5).map(z=>z.x.code).join(', ')}${excess.length>5?' +'+(excess.length-5):''}.`);
+   }
+   if(lack.length){
+     let total=lack.reduce((s,z)=>s+Math.abs(z.p.deliveryGap),0),pr=lack.length>=10?'Alta':'Média';
+     pushAction(g,'Frequência / Oportunidade',pr,lack.length*4+total,lack.length,
+       `${total} entrega(s)/sem abaixo`,'Aderente ao cluster',
+       `Avaliar aumento de frequência em ${lack.length} PDVs abaixo da recomendação do cluster, priorizando rentabilidade, crescimento e capacidade de janela.`,
+       `Começar por: ${lack.slice(0,5).map(z=>z.x.code).join(', ')}${lack.length>5?' +'+(lack.length-5):''}.`);
+   }
+ }
+ let po={Crítica:1,Alta:2,Média:3,Baixa:4};
+ return out.sort((a,b)=>a.year-b.year||a.month-b.month||po[a.priority]-po[b.priority]||b.score-a.score||a.cluster.localeCompare(b.cluster));
+}
+function renderAction(){
+ let all=actionPlanData();
+ if(!$('#actionFilters').children.length){
+   let months=[...new Set(all.map(x=>x.month))].sort((a,b)=>a-b);
+   $('#actionFilters').innerHTML=`<select class="am"><option value="">Todos os meses</option>${months.map(m=>`<option value="${m}">${monthName(m)}</option>`).join('')}</select><select class="ap"><option value="">Todas as prioridades</option>${['Crítica','Alta','Média','Baixa'].map(x=>`<option>${x}</option>`).join('')}</select><select class="ac"><option value="">Todos os clusters</option>${['Winner','Grower','Alto volume','Basic','Low sales'].map(x=>`<option>${x}</option>`).join('')}</select><select class="as"><option value="">Todos os status</option>${['Planejado','Em andamento','Concluído'].map(x=>`<option>${x}</option>`).join('')}</select><input class="aq" placeholder="Buscar cluster/frente...">`;
+   $('#actionFilters').querySelectorAll('select,input').forEach(x=>x.oninput=renderAction);
+ }
+ addClearFilter($('#actionFilters'),renderAction);
+ let mo=$('#actionFilters .am').value,pr=$('#actionFilters .ap').value,cl=$('#actionFilters .ac').value,st=$('#actionFilters .as').value,q=$('#actionFilters .aq').value.toLowerCase();
+ let d=all.filter(x=>(!mo||x.month==mo)&&(!pr||x.priority===pr)&&(!cl||x.cluster===cl)&&(!st||x.status===st)&&(!q||(x.cluster+' '+x.type+' '+x.plan).toLowerCase().includes(q)));
+ $('#actionScopeChip').innerHTML=`<strong>${mo?monthName(mo):'Todos os meses'}</strong>${pr?' · '+pr:''}${cl?' · '+cl:''}`;
+ let critical=d.filter(x=>x.priority==='Crítica').length,high=d.filter(x=>x.priority==='Alta').length,progress=d.filter(x=>x.status==='Em andamento').length,done=d.filter(x=>x.status==='Concluído').length;
+ $('#actionKpis').innerHTML=[
+  ['Planos gerados',fmtInt(d.length),'Ações consolidadas por cluster e frente'],
+  ['Críticos + altos',fmtInt(critical+high),'Prioridade de execução'],
+  ['Em andamento',fmtInt(progress),'Ações do mês atual ou ajustadas'],
+  ['Concluídos',fmtInt(done),'Meses anteriores ou status alterado']
+ ].map((x,i)=>`<div class="card kpi ${i===1&&(critical+high)?'bad':i===2&&progress?'warn':i===3&&done?'good':''}"><div class="label">${x[0]}</div><div class="val">${x[1]}</div><div class="hint">${x[2]}</div></div>`).join('');
+ let bc={};for(let x of d){let z=bc[x.cluster]||(bc[x.cluster]={total:0,urgent:0});z.total++;if(x.priority==='Crítica'||x.priority==='Alta')z.urgent++}
+ $('#actionByCluster').innerHTML=Object.keys(bc).length?barsHTML(Object.entries(bc).sort((a,b)=>b[1].urgent-a[1].urgent||b[1].total-a[1].total).map(([k,v])=>({label:k,value:v.urgent}))):'<div class="empty">Sem ações no filtro.</div>';
+ let bt={};for(let x of d)bt[x.type]=(bt[x.type]||0)+1;
+ $('#actionByType').innerHTML=Object.keys(bt).length?barsHTML(Object.entries(bt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Sem ações no filtro.</div>';
+ $('#actionTableCount').textContent=`${fmtInt(d.length)} planos encontrados`;
+ $('#actionTable').innerHTML='<thead><tr><th>Mês</th><th>Prioridade</th><th>Cluster</th><th>Frente</th><th>PDVs impactados</th><th>Atual</th><th>Meta</th><th>Plano de ação</th><th>Status</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${monthName(x.month)}/${x.year}</td><td><span class="badge ${badgeClass(x.priority)}">${x.priority}</span></td><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${x.type}</td><td>${fmtInt(x.affected)}</td><td><b>${x.current}</b></td><td>${x.target}</td><td><b>${x.plan}</b><div class="meta" style="margin-top:4px">${x.details}</div></td><td><select class="action-status" data-id="${x.id}" data-year="${x.year}" data-month="${x.month}">${['Planejado','Em andamento','Concluído'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')+'</tbody>';
+ $('#actionTable').querySelectorAll('.action-status').forEach(sel=>sel.onchange=async e=>{state.params.actionStatus=state.params.actionStatus||{};state.params.actionStatus[e.target.dataset.id]=e.target.value;await persist();renderAction()});
+ $('#exportActionXlsx').onclick=exportActionPlan;
+}
+function exportActionPlan(){
+ let d=actionPlanData();
+ let mo=$('#actionFilters .am')?.value||'',pr=$('#actionFilters .ap')?.value||'',cl=$('#actionFilters .ac')?.value||'',st=$('#actionFilters .as')?.value||'',q=($('#actionFilters .aq')?.value||'').toLowerCase();
+ d=d.filter(x=>(!mo||x.month==mo)&&(!pr||x.priority===pr)&&(!cl||x.cluster===cl)&&(!st||x.status===st)&&(!q||(x.cluster+' '+x.type+' '+x.plan).toLowerCase().includes(q)));
+ if(!d.length){alert('Não há planos para exportar no filtro atual.');return}
+ let rows=d.map(x=>({'Mês':monthName(x.month),'Ano':x.year,'Prioridade':x.priority,'Cluster':x.cluster,'Frente':x.type,'PDVs impactados':x.affected,'Resultado atual':x.current,'Meta':x.target,'Plano de ação':x.plan,'Detalhamento/Prioridade inicial':x.details,'Status':x.status}));
+ let ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();
+ ws['!cols']=[{wch:12},{wch:8},{wch:12},{wch:16},{wch:26},{wch:16},{wch:18},{wch:16},{wch:75},{wch:55},{wch:16}];
+ XLSX.utils.book_append_sheet(wb,ws,'Plano de Ação');
+ let resumo=[];
+ for(let m of [...new Set(d.map(x=>x.month))].sort((a,b)=>a-b))for(let c of [...new Set(d.filter(x=>x.month===m).map(x=>x.cluster))]){
+   let r=d.filter(x=>x.month===m&&x.cluster===c);
+   resumo.push({'Mês':monthName(m),'Cluster':c,'Planos':r.length,'Críticos':r.filter(x=>x.priority==='Crítica').length,'Altos':r.filter(x=>x.priority==='Alta').length,'Em andamento':r.filter(x=>x.status==='Em andamento').length,'Concluídos':r.filter(x=>x.status==='Concluído').length});
+ }
+ let ws2=XLSX.utils.json_to_sheet(resumo);XLSX.utils.book_append_sheet(wb,ws2,'Resumo Mensal');
+ XLSX.writeFile(wb,`plano-acao-pdv-${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+const HELP={
+ 'Distribuição por cluster':'Mostra quantos PDVs pertencem a cada cluster e sua participação percentual na base filtrada.',
+ 'Top oportunidades de evolução':'Ranking dos PDVs mais próximos de atender a regra do próximo cluster. A distância mostra quanto falta para alcançar o limite aplicável.',
+ 'Análise de entregas':'Compara a frequência atual de entrega com a frequência recomendada para o cluster e orienta reduzir, manter ou avaliar aumento.',
+ 'Evolução do OTIF':'Mostra a evolução mensal do OTIF. OTIF representa entregas realizadas no prazo e completas, calculado pelo menor resultado entre OT e IF sobre as visitas.',
+ 'Rating por classificação':'Distribuição das avaliações dos PDVs pelas classificações registradas na base de Rating.',
+ 'Indicadores por cluster':'Compara OT, IF, OTIF, Rating e quantidade de avaliações entre os clusters.',
+ 'Média OTIF por cluster':'Ranking do OTIF médio de cada cluster no filtro atual. Os menores percentuais indicam maior necessidade de atenção.',
+ 'OTIF, In Full e On Time por cluster':'Compara os três indicadores por cluster. As barras representam OTIF e as linhas mostram In Full e On Time.',
+ 'OTIF, In Full e On Time por mês':'Mostra a evolução mensal de OTIF, In Full e On Time. As barras representam OTIF e as linhas mostram In Full e On Time.',
+ 'Onde agir primeiro':'Ordena os clusters que exigem atenção. O menor OTIF vem primeiro; em empate, considera menor Rating e depois maior volume de visitas.',
+ 'Cluster × OTIF':'Distribui os PDVs de cada cluster nas faixas de OTIF: abaixo de 85%, entre 85% e 94,9% e a partir de 95%.',
+ 'Prioridade por cluster':'Mostra em quais clusters se concentram os planos de ação de prioridade crítica e alta.',
+ 'Principais frentes de ação':'Mostra quais tipos de problema geram mais ações: janela/On Time, In Full, Rating ou frequência de entrega.',
+ 'Plano mensal priorizado':'Planos automáticos consolidados por mês, cluster e frente, ordenados por prioridade.',
+ 'Parâmetros de definição dos clusters':'Regras usadas para classificar os PDVs. Os valores podem ser editados e ficam salvos no navegador.',
+ 'Volume mínimo (HL/Pedido)':'Menor HL por pedido necessário para o PDV atender esta regra de cluster.',
+ 'Volume máximo (HL/Pedido)':'Maior HL por pedido permitido nesta regra de cluster.',
+ 'Relevância mínima':'Relevância mínima exigida. O valor -9999 significa que este critério não limita a classificação.',
+ 'Crescimento mínimo':'Crescimento mínimo do HL/Pedido contra o semestre anterior. 0,25 equivale a 25%. -9999 significa sem exigência.',
+ 'Prioridade de classificação':'Ordem em que as regras são testadas. Quanto maior o número, antes o cluster é avaliado.',
+ 'On Time':'Percentual de visitas realizadas dentro do prazo: Visita OT dividido por Visita.',
+ 'In Full':'Percentual de visitas entregues completas: Visita IF dividido por Visita.',
+ 'OTIF':'Indicador combinado de prazo e completude: mínimo entre Visita OT e Visita IF dividido por Visita.',
+ 'Rating médio':'Média das avaliações de Rating existentes no filtro atual.',
+ 'Total PDVs':'Quantidade de PDVs considerados após os filtros aplicados.',
+ 'Winner':'PDVs que atendem à regra Winner configurada, priorizando relevância conforme os parâmetros.',
+ 'Grower':'PDVs que atendem à regra Grower configurada, principalmente pelo crescimento mínimo definido.',
+ 'Alto volume':'PDVs que atingem a faixa de HL/Pedido definida para Alto volume e não foram classificados antes como Winner ou Grower.',
+ 'Basic':'PDVs dentro da faixa intermediária configurada e que não atendem clusters de maior prioridade.',
+ 'Low sales':'PDVs com HL/Pedido abaixo do limite mínimo do Basic, conforme os parâmetros atuais.',
+ 'Reduzir':'PDVs cuja frequência atual está acima da recomendada para o cluster.',
+ 'Manter':'PDVs cuja frequência atual está igual à recomendada para o cluster.',
+ 'Oportunidades':'PDVs cuja frequência atual está abaixo da recomendada e pode ser avaliada para aumento.',
+ 'Base analisada':'Quantidade de PDVs considerados na análise após os filtros.',
+ 'Ações geradas':'Quantidade de planos automáticos encontrados no filtro.',
+ 'Planos gerados':'Quantidade de planos consolidados por cluster e frente de ação.',
+ 'Críticos + altos':'Quantidade de planos classificados como prioridade crítica ou alta.',
+ 'Em andamento':'Planos com status em andamento; por padrão, o mês atual recebe este status.',
+ 'Concluídos':'Planos concluídos; por padrão, meses anteriores recebem este status.',
+ 'Ano':'Define o ano usado para calcular volume, pedidos, HL/Pedido e a clusterização do período selecionado.',
+ 'Semestre':'Seleciona o semestre analisado. O HL/Pedido do período é comparado com o semestre anterior para calcular a evolução.',
+ 'Cluster':'Filtra o painel para um cluster específico. “Todos os clusters” mantém a visão completa.',
+ 'Volume zerado':'Define se PDVs sem volume encontrado no semestre ficam ocultos ou aparecem na análise.',
+ 'Buscar PDV':'Localiza PDVs dentro da base filtrada por código, nome fantasia, cidade ou bairro.',
+ 'Orientação':'Filtra os PDVs pela ação recomendada: reduzir entregas, manter a frequência atual ou avaliar aumento de atendimento.'
+};
+function escAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function applyHelp(){
+ document.querySelectorAll('.info-tip').forEach(x=>x.remove());
+ document.querySelectorAll('.cardhead h3,.sectiontitle span,#clusterParamsTable th,.kpi .label,.filter-label').forEach(el=>{
+   let key=el.textContent.trim(),tip=HELP[key];
+   if(!tip)return;
+   el.setAttribute('data-help','1');
+   let i=document.createElement('span');i.className='info-tip';i.textContent='i';i.setAttribute('data-tip',tip);i.setAttribute('aria-label',tip);el.appendChild(i);
+ });
+ document.querySelectorAll('[title]').forEach(el=>{
+   let t=el.getAttribute('title'); if(t&&!el.dataset.nativeHelp){el.dataset.nativeHelp=t}
+ });
+}
+function ensureFloatingHelp(){
+ let tip=$('#floatingHelpTip');
+ if(!tip){tip=document.createElement('div');tip.id='floatingHelpTip';document.body.appendChild(tip)}
+ return tip;
+}
+function placeFloatingHelp(el){
+ let tip=ensureFloatingHelp(),text=el.getAttribute('data-tip')||'';
+ if(!text)return;
+ tip.textContent=text;tip.style.display='block';
+ let r=el.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight,gap=10;
+ let left=Math.min(window.innerWidth-tw-12,Math.max(12,r.left+r.width/2-tw/2));
+ let top=r.top-th-gap;
+ if(top<12)top=Math.min(window.innerHeight-th-12,r.bottom+gap);
+ tip.style.left=left+'px';tip.style.top=top+'px';
+}
+function hideFloatingHelp(){let tip=$('#floatingHelpTip');if(tip)tip.style.display='none'}
+document.addEventListener('mouseover',e=>{let el=e.target.closest?.('.info-tip');if(el)placeFloatingHelp(el)});
+document.addEventListener('mouseout',e=>{let el=e.target.closest?.('.info-tip');if(el&&!el.contains(e.relatedTarget))hideFloatingHelp()});
+document.addEventListener('focusin',e=>{let el=e.target.closest?.('.info-tip');if(el)placeFloatingHelp(el)});
+document.addEventListener('focusout',e=>{if(e.target.closest?.('.info-tip'))hideFloatingHelp()});
+window.addEventListener('scroll',hideFloatingHelp,true);
+window.addEventListener('resize',hideFloatingHelp);
+
+
+function updateHeader(){
+ $('#lastUpdate').textContent=state.lastUpdate?'Atualizado '+new Date(state.lastUpdate).toLocaleString('pt-BR'):'Sem atualização';
+ $('#dataStatus').textContent=state.files?.length?`${Object.keys(state.data||{}).length} bases conectadas`:'Painel pronto';
+}
+function renderTab(tab){
+ if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='action')renderAction();
+ updateHeader();
+
+ setTimeout(applyHelp,0);
+}
+function renderAll(){let tab=document.querySelector('.nav button.active')?.dataset.tab||'import';renderTab(tab)}
+init();
+</script>
+<footer class="dev-footer">
+  <div class="dev-signature">Desenvolvido por José Vitor - Gerente de operações</div>
+  <img class="dev-footer-logo" src="data:image/png;base64,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" alt="Revalle">
+</footer>
+
+<script>
+// Marca e logo institucionais do painel.
+document.querySelectorAll('img[alt="Revalle"]').forEach(img=>{
+  img.alt='Disman';
+  img.src=img.classList.contains('dev-footer-logo')
+    ? 'https://raw.githubusercontent.com/jvitorbimi-collab/painel-ouvidoria-disman/main/assets/logo.png'
+    : 'https://raw.githubusercontent.com/jvitorbimi-collab/painel-ouvidoria-disman/main/assets/logo-branca.png';
+  img.removeAttribute('style');
+  img.classList.add('disman-logo');
+});
+document.title='Clusterização de clientes | Disman';
+</script>
+</body></html>
+
