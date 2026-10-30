@@ -575,7 +575,7 @@ function beesExpectedDate(orderDate,days){
 }
 function operationData(){
  let schedules=new Map();
- for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>norm(r[k]).toUpperCase()==='FREE').map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
+ for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
  let m=new Map();
  for(let s of state.data['Operação 03.01.47.01']||[])for(let r of s.rows){
   let c=code(r.Cliente),pedido=norm(r.Pedido),ddc=code(r['Cod Puxada']);if(!c||c==='0'||!pedido)continue;
@@ -596,7 +596,7 @@ let cacheKey=refYear+'|'+refSem+'|'+JSON.stringify(state.params.deliveries)+'|'+
 if(CACHE.pdvByPeriod.has(cacheKey))return CACHE.pdvByPeriod.get(cacheKey);
 let pdvs=validPdvs(),prevSem=refSem===1?2:1,prevYear=refSem===1?refYear-1:refYear,rel=new Map(),del=new Map();
 for(let s of state.data.Relevância||[])for(let r of s.rows)rel.set(code(r['Código']),num(r['Relevância']));
-for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>norm(r[k]).toUpperCase()==='FREE').map(x=>x[1]);del.set(code(r.ERP_POC_ID),days)}
+for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);del.set(code(r.ERP_POC_ID),days)}
 let vol=new Map();
 for(let x of operationData()){let mth=x.month,sem=mth<=6?1:2,k=x.code+'|'+x.year+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=x.deliveredVolume;v.p++;vol.set(k,v)}
 for(let s of state.data.Volume||[])for(let r of s.rows){let c=code(r['Cód. Cliente']);if(!pdvs.has(c))continue;let ds=norm(r['Data']||r['Data      ']),m=ds.match(new RegExp('([0-9]{2})/([0-9]{2})/([0-9]{4})'));if(!m)continue;let y=+m[3],mo=+m[2],sem=mo<=6?1:2,k=c+'|'+y+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=num(r.Volume);v.p+=num(r.Pedidos);vol.set(k,v)}
