@@ -141,6 +141,24 @@ td{padding:9px 10px;border-bottom:1px solid rgba(38,60,87,.48);white-space:nowra
   opacity:.92;
 }
 
+
+.cloud-auth-overlay{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:18px;background:rgba(5,12,23,.92);backdrop-filter:blur(12px)}
+.cloud-auth-card{width:min(100%,460px);padding:30px;border:1px solid var(--line2);border-radius:22px;background:var(--panel);box-shadow:var(--shadow);color:var(--txt)}
+.cloud-auth-card h1{margin:12px 0 8px;font-size:26px}.cloud-auth-card p{color:var(--muted);line-height:1.55;margin:0 0 20px}
+.cloud-auth-card label,.cloud-modal label{display:grid;gap:7px;margin:14px 0;font-weight:700}.cloud-auth-card input,.cloud-modal input,.cloud-modal select{width:100%;padding:11px 12px;border:1px solid var(--line2);border-radius:11px;background:var(--bg2);color:var(--txt)}
+.cloud-auth-card .btn{width:100%;margin-top:9px}.cloud-auth-logo{width:150px;max-height:60px;object-fit:contain}
+.cloud-auth-error{min-height:20px;color:var(--warn);font-size:13px;margin:9px 0}
+.nav button[hidden]{display:none!important}
+.cloud-user-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.cloud-avatar{width:42px;height:42px;border-radius:12px;object-fit:cover}.cloud-initial{display:grid;place-items:center;background:var(--panel3);font-weight:800}
+.cloud-modal-backdrop{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.66)}
+.cloud-modal{width:min(100%,560px);max-height:92vh;overflow:auto;padding:24px;border:1px solid var(--line2);border-radius:20px;background:var(--panel);color:var(--txt);box-shadow:var(--shadow)}
+.cloud-modal h2{margin:0 0 18px}.cloud-modal .muted{color:var(--muted);font-size:13px;line-height:1.5}
+.cloud-modal-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:20px}
+.cloud-password{padding:14px;border:1px dashed var(--primary);border-radius:12px;text-align:center;font-size:28px;font-weight:900;letter-spacing:3px}
+.cloud-check{display:flex!important;grid-template-columns:auto 1fr!important;align-items:center}.cloud-check input{width:auto!important}
+#usersPanel .tablewrap{overflow:auto}
+@media(max-width:700px){.cloud-user-row{grid-template-columns:1fr}.cloud-auth-card{padding:22px}.cloud-modal-actions>*{flex:1 1 auto}}
 </style>
 <style id="disman-theme">
 /* Identidade visualNível de serviço | Disman, alinhada ao painel de Ouvidoria. */
@@ -330,8 +348,9 @@ body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Seg
 <button data-tab="analysis" data-icon="03"><span>Análise de Entregas</span></button>
 <button data-tab="service" data-icon="04"><span>Nível de Serviço</span></button>
 <button data-tab="action" data-icon="05"><span>Plano de Ação</span></button>
+<button data-tab="users" data-icon="06" hidden><span>Gestão de usuários</span></button>
 </div>
-<div class="sidefoot">Dados processados localmente no navegador</div>
+<div class="sidefoot">Bases sincronizadas com banco remoto</div>
 </aside>
 <main class="main"><div class="top"><div style="display:flex;align-items:center;gap:20px;min-width:0">
 <img src="data:image/png;base64,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" alt="Revalle" style="width:150px;height:auto;object-fit:contain;flex:0 0 auto">
@@ -502,6 +521,10 @@ Como funciona a clusterização
 <div class="sectiontitle"><span>Plano mensal priorizado</span><small id="actionTableCount">—</small></div>
 <div class="tablecard"><div class="tablemeta"><span>Gerado automaticamente a partir de OT, IF, OTIF, Rating e frequência de entrega</span><span>ordenado por mês e prioridade</span></div><div class="tablewrap"><table id="actionTable"></table></div></div>
 </section>
+<section id="users" class="tab">
+<div class="hero"><div><h2>Gestão de usuários</h2><p>Contas compartilhadas, solicitações de acesso, perfis e senhas temporárias.</p></div></div>
+<div id="usersPanel"></div>
+</section>
 </main></div>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -530,9 +553,21 @@ const code=v=>{let s=norm(v).replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/
 function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
 function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
 function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
-async function persist(){await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate}); if(state.folderHandle) try{await put('folder',state.folderHandle)}catch(e){}}
-async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);state.folderHandle=await get('folder');renderTab('import');updateHeader()}
-$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade']};$('#pageTitle').textContent='Nível de serviço';$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
+async function persist(){
+ const payload={files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate};
+ await put('state',payload);if(state.folderHandle)try{await put('folder',state.folderHandle)}catch{}
+ if(!cloudSession||!cloudCanWrite())return;
+ try{
+  cloudStatus('Salvando no banco');
+  let s=await cloudRefresh();if(!s)throw new Error('Sessão expirada');
+  let blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
+  await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
+  cloudStatus('Dados sincronizados');
+ }catch(e){console.error(e);cloudStatus('Falha na sincronização');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message)}
+}
+async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);state.folderHandle=await get('folder');await cloudOpenPanel()}
+$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação e Configurações','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Contas, perfis e solicitações de acesso']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
 function monthFromName(n){let l=n.toLowerCase();for(let k in MONTHS)if(l.includes(k))return MONTHS[k];return null}
@@ -1593,11 +1628,156 @@ function updateHeader(){
  $('#dataStatus').textContent=state.files?.length?`${Object.keys(state.data||{}).length} bases conectadas`:'Painel pronto';
 }
 function renderTab(tab){
- if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='action')renderAction();
+ if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='action')renderAction();else if(tab==='users')cloudRenderUsersTab();
  updateHeader();
 
  setTimeout(applyHelp,0);
 }
+const CLOUD_URL='https://eyxzmyumysdyvourvysa.supabase.co';
+const CLOUD_KEY='sb_publishable_HuwCIOBP0yscx2tAWSxiyA_4Y9wVNtT';
+const CLOUD_AUTH_KEY='clusterizacao.auth.v1';
+let cloudSession=null,cloudProfile=null,cloudAuthUser=null,cloudUsers=[],cloudRequests=[];
+const CLOUD_RANK={usuario:1,gestor:2,administrador:3,master:4};
+const cloudRoleLabel=r=>({usuario:'Usuário',gestor:'Gestor',administrador:'Administrador',master:'Master'})[r]||'Usuário';
+const cloudEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cloudAdmin=()=>!!cloudProfile&&['master','administrador'].includes(cloudProfile.role);
+const cloudRoot=()=>!!cloudProfile&&cloudProfile.role==='master'&&cloudProfile.permissions?.canCreateMasters===true;
+const cloudCanWrite=()=>!!cloudProfile&&['master','administrador','gestor'].includes(cloudProfile.role);
+function cloudStatus(s){let e=document.querySelector('#dataStatus');if(e)e.textContent=s}
+function cloudHeaders(token){return {apikey:CLOUD_KEY,Authorization:'Bearer '+token}}
+async function cloudJson(url,options={}){
+ const r=await fetch(url,options);let d={};try{d=await r.json()}catch{}
+ if(!r.ok){let e=new Error(d.msg||d.message||d.error_description||d.error||('Erro '+r.status));e.status=r.status;throw e}
+ return d;
+}
+function cloudSaveSession(s){if(s.expires_in&&!s.expires_at)s.expires_at=Math.floor(Date.now()/1000)+s.expires_in;cloudSession=s;localStorage.setItem(CLOUD_AUTH_KEY,JSON.stringify(s))}
+async function cloudRefresh(){
+ let s=cloudSession||JSON.parse(localStorage.getItem(CLOUD_AUTH_KEY)||'null');if(!s)return null;
+ if(s.expires_at&&s.expires_at>Date.now()/1000+90){cloudSession=s;return s}
+ try{let n=await cloudJson(CLOUD_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:CLOUD_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});cloudSaveSession(n);return n}catch{cloudSession=null;localStorage.removeItem(CLOUD_AUTH_KEY);return null}
+}
+async function cloudFunction(name,body,allowPublic=false){
+ let s=allowPublic?null:await cloudRefresh();if(!allowPublic&&!s)throw new Error('Sua sessão expirou. Entre novamente.');
+ let headers={'Content-Type':'application/json',apikey:CLOUD_KEY};if(s)headers.Authorization='Bearer '+s.access_token;
+ return cloudJson(CLOUD_URL+'/functions/v1/'+name,{method:'POST',headers,body:JSON.stringify(body||{})});
+}
+function cloudAuthScreen(mode,message,initialEmail){
+ let old=document.getElementById('cloudAuthOverlay');if(old)old.remove();
+ let overlay=document.createElement('div');overlay.id='cloudAuthOverlay';overlay.className='cloud-auth-overlay';
+ let content='';
+ if(mode==='request'){
+  content='<div class="cloud-auth-card"><img class="cloud-auth-logo" src="'+(document.querySelector('.top img')?.src||'')+'" alt="Disman"><h1>Solicitar acesso</h1><p>Informe seus dados. Um administrador analisará a solicitação.</p><form id="cloudAuthForm"><label>Nome completo<input name="name" required minlength="3" autocomplete="name"></label><label>E-mail corporativo<input name="email" type="email" required autocomplete="email" value="'+cloudEsc(initialEmail||'')+'"></label><div class="cloud-auth-error" id="cloudAuthError">'+cloudEsc(message||'')+'</div><button class="btn btn-primary" type="submit">Enviar solicitação</button><button class="btn btn-ghost" type="button" id="cloudAuthBack">Voltar para entrar</button></form></div>';
+ }else if(mode==='change'){
+  content='<div class="cloud-auth-card"><h1>Defina uma nova senha</h1><p>Por segurança, altere a senha temporária antes de continuar.</p><form id="cloudAuthForm"><label>Nova senha<input name="password" type="password" required minlength="8" autocomplete="new-password"></label><label>Confirme a nova senha<input name="confirm" type="password" required minlength="8" autocomplete="new-password"></label><div class="cloud-auth-error" id="cloudAuthError">'+cloudEsc(message||'')+'</div><button class="btn btn-primary" type="submit">Salvar nova senha</button></form></div>';
+ }else{
+  content='<div class="cloud-auth-card"><img class="cloud-auth-logo" src="'+(document.querySelector('.top img')?.src||'')+'" alt="Disman"><h1>Nível de serviço</h1><p>Entre com a mesma conta usada nos outros painéis da Disman.</p><form id="cloudAuthForm"><label>E-mail<input name="email" type="email" required autocomplete="username" value="'+cloudEsc(initialEmail||'')+'"></label><label>Senha<input name="password" type="password" required autocomplete="current-password"></label><div class="cloud-auth-error" id="cloudAuthError">'+cloudEsc(message||'')+'</div><button class="btn btn-primary" type="submit">Entrar</button><button class="btn btn-ghost" type="button" id="cloudAuthRequest">Solicitar acesso</button></form></div>';
+ }
+ overlay.innerHTML=content;document.body.appendChild(overlay);
+ let form=document.getElementById('cloudAuthForm');
+ if(mode==='request')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');try{await cloudFunction('clusterizacao-first-access',{name:String(fd.get('name')).trim(),email:String(fd.get('email')).trim()},true);cloudAuthScreen('login','Solicitação enviada para aprovação.',String(fd.get('email')).trim())}catch(x){err.textContent=x.message}};
+ else if(mode==='change')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),pass=String(fd.get('password')),conf=String(fd.get('confirm')),err=document.getElementById('cloudAuthError');if(pass!==conf){err.textContent='As senhas não coincidem.';return}try{await cloudJson(CLOUD_URL+'/auth/v1/user',{method:'PUT',headers:{...cloudHeaders(cloudSession.access_token),'Content-Type':'application/json'},body:JSON.stringify({password:pass})});await cloudFunction('clusterizacao-admin-users',{action:'mark_password_changed'});cloudProfile.must_change_password=false;await cloudOpenPanel()}catch(x){err.textContent=x.message}};
+ else form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');try{let s=await cloudJson(CLOUD_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:CLOUD_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:String(fd.get('email')).trim(),password:String(fd.get('password'))})});cloudSaveSession(s);await cloudOpenPanel()}catch(x){err.textContent='Não foi possível entrar. Confira o e-mail e a senha.'}};
+ let req=document.getElementById('cloudAuthRequest');if(req)req.onclick=()=>cloudAuthScreen('request','',form.elements.email.value);
+ let back=document.getElementById('cloudAuthBack');if(back)back.onclick=()=>cloudAuthScreen('login','');
+}
+function cloudLockScreen(){
+ localStorage.removeItem(CLOUD_AUTH_KEY);cloudSession=null;cloudProfile=null;
+ cloudAuthScreen('request','Sua conta não tem acesso ativo a este painel. Envie uma solicitação de liberação.',cloudAuthUser?.email||'');
+}
+function cloudSetUserMenu(){
+ let foot=document.querySelector('.sidefoot');if(!foot)return;
+ foot.innerHTML='<div style="line-height:1.45">Dados sincronizados no banco<br><b>'+cloudEsc(cloudProfile?.name||'Usuário')+'</b> · '+cloudEsc(cloudRoleLabel(cloudProfile?.role))+'</div><button type="button" class="btn btn-ghost btn-sm" id="cloudSignOut" style="margin-top:8px">Sair</button>';
+ document.getElementById('cloudSignOut').onclick=async()=>{let s=cloudSession;try{if(s)await fetch(CLOUD_URL+'/auth/v1/logout',{method:'POST',headers:cloudHeaders(s.access_token)})}catch{}localStorage.removeItem(CLOUD_AUTH_KEY);cloudSession=null;cloudProfile=null;location.reload()};
+ let nav=document.querySelector('.nav button[data-tab="users"]');if(nav)nav.hidden=!cloudAdmin();
+}
+async function cloudOpenPanel(){
+ cloudSession=await cloudRefresh();if(!cloudSession){cloudAuthScreen('login','');return}
+ try{
+  let u=await cloudJson(CLOUD_URL+'/auth/v1/user',{headers:cloudHeaders(cloudSession.access_token)});cloudAuthUser=u;
+  let p=await cloudFunction('clusterizacao-admin-users',{action:'get_me'});cloudProfile=p.user;
+  if(!cloudProfile?.active||cloudProfile.deleted_at){cloudLockScreen();return}
+  cloudSetUserMenu();
+  let meta=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});
+  if(meta.state?.byte_size>0){
+   cloudStatus('Carregando bases salvas');
+   let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
+   if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});resetCache()}}
+   else if(response.status!==404)throw new Error('Não foi possível baixar os dados salvos.');
+  }else{
+   let local=await get('state');if(local)Object.assign(state,local);
+   if(local?.files?.length&&cloudCanWrite())await persist();
+  }
+  state.folderHandle=await get('folder');
+  document.getElementById('cloudAuthOverlay')?.remove();
+  if(cloudProfile.must_change_password){cloudAuthScreen('change','');return}
+  renderTab('import');updateHeader();
+ }catch(e){console.error(e);if(e.status===403){cloudLockScreen();return}cloudAuthScreen('login','Falha ao carregar os dados. Tente novamente ou contate o administrador.')}
+}
+
+function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
+async function cloudLoadUsers(){
+ const d=await cloudFunction('clusterizacao-admin-users',{action:'list_users'});
+ cloudUsers=(d.profiles||[]).filter(x=>!x.deleted_at);cloudRequests=d.requests||[];return d;
+}
+function renderUsers(){
+ const root=document.getElementById('usersPanel');if(!root)return;
+ if(!cloudAdmin()){root.innerHTML='<div class="empty">Seu perfil não pode administrar usuários.</div>';return}
+ root.innerHTML='<div class="toolbar"><button class="btn btn-primary" id="cloudNewUser">Novo usuário</button><button class="btn btn-ghost" id="cloudReloadUsers">Atualizar lista</button></div><div id="cloudUserContent" class="card section">Carregando usuários…</div>';
+ document.getElementById('cloudNewUser').onclick=()=>cloudUserModal(null);
+ document.getElementById('cloudReloadUsers').onclick=()=>renderUsers();
+ cloudLoadUsers().then(()=>{
+  let box=document.getElementById('cloudUserContent');if(!box)return;
+  let pending=cloudRequests.map(r=>'<div class="cloud-user-row"><div><b>'+cloudEsc(r.name)+'</b><div class="muted">'+cloudEsc(r.email)+'</div></div><div class="muted">'+new Date(r.requested_at).toLocaleString('pt-BR')+'</div><div><button class="btn btn-primary btn-sm" data-approve="'+cloudEsc(r.id)+'">Aprovar</button> <button class="btn btn-ghost btn-sm" data-reject="'+cloudEsc(r.id)+'">Recusar</button></div></div>').join('');
+  let rows=cloudUsers.map(p=>'<tr><td><div style="display:flex;gap:10px;align-items:center">'+(p.photo_data_url?'<img class="cloud-avatar" src="'+cloudEsc(p.photo_data_url)+'" alt="">':'<span class="cloud-avatar cloud-initial">'+cloudEsc((p.name||'?').slice(0,1).toUpperCase())+'</span>')+'<div><b>'+cloudEsc(p.name)+'</b><div class="muted">'+cloudEsc(p.email)+'</div></div></td><td>'+cloudEsc(cloudRoleLabel(p.role))+'</td><td><span class="badge '+(p.active?'b-green':'b-gray')+'">'+(p.active?'Ativo':'Inativo')+'</span></td><td><button class="btn btn-secondary btn-sm" data-edit="'+cloudEsc(p.user_id)+'">Editar</button> <button class="btn btn-ghost btn-sm" data-password="'+cloudEsc(p.user_id)+'">Senha temporária</button></td></tr>').join('');
+  box.innerHTML=(cloudRequests.length?'<h3>Solicitações de acesso ('+cloudRequests.length+')</h3>'+pending:'')+'<h3>Usuários</h3><div class="tablewrap"><table><thead><tr><th>Usuário</th><th>Perfil</th><th>Situação</th><th>Ações</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  box.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>cloudUserAction('approve_request',b.dataset.approve));
+  box.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>cloudUserAction('reject_request',b.dataset.reject));
+  box.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>cloudUserModal(cloudUsers.find(x=>x.user_id===b.dataset.edit)));
+  box.querySelectorAll('[data-password]').forEach(b=>b.onclick=()=>cloudUserAction('reset_temp_password',b.dataset.password));
+ }).catch(e=>{let box=document.getElementById('cloudUserContent');if(box)box.textContent='Não foi possível carregar a gestão de usuários: '+e.message});
+}
+async function cloudUserAction(action,id){
+ try{
+  if(action==='approve_request'||action==='reject_request'){
+   let req=cloudRequests.find(x=>x.id===id);if(!req)return;
+   if(!confirm((action==='approve_request'?'Aprovar o acesso de ':'Recusar a solicitação de ')+req.name+'?'))return;
+   let d=await cloudFunction('clusterizacao-admin-users',{action,request_id:id});await renderUsers();
+   if(d.temp_password)cloudShowTemp(d.user,d.temp_password,'Acesso aprovado');else if(typeof toast==='function')toast('Acesso atualizado.');
+  }else if(action==='reset_temp_password'){
+   let p=cloudUsers.find(x=>x.user_id===id);if(!p||!confirm('A senha também muda nos outros painéis que usam esta conta. Gerar senha temporária para '+p.name+'?'))return;
+   let d=await cloudFunction('clusterizacao-admin-users',{action,user_id:id});cloudShowTemp(p,d.temp_password,'Senha temporária');
+  }
+ }catch(e){alert(e.message)}
+}
+function cloudShowTemp(u,pw,title){
+ let m=document.createElement('div');m.className='cloud-modal-backdrop';let mail=encodeURIComponent('Senha temporária - Nível de serviço'),body=encodeURIComponent('Olá, '+u.name+'.\n\nSenha temporária: '+pw+'\n\nNo primeiro acesso será solicitada uma nova senha.\nE-mail: '+u.email);
+ m.innerHTML='<div class="cloud-modal"><h2>'+cloudEsc(title)+'</h2><p>Conta compartilhada · '+cloudEsc(u.email)+'</p><div class="cloud-password">'+cloudEsc(pw)+'</div><p>Esta senha é exibida somente agora. O usuário precisará alterá-la ao entrar.</p><div class="cloud-modal-actions"><button class="btn btn-ghost" id="copyCloudPw">Copiar senha</button><a class="btn btn-secondary" href="mailto:'+encodeURIComponent(u.email)+'?subject='+mail+'&body='+body+'">Preparar e-mail</a><button class="btn btn-primary" id="closeCloudPw">Concluir</button></div></div>';
+ document.body.appendChild(m);m.querySelector('#copyCloudPw').onclick=()=>navigator.clipboard?.writeText(pw);m.querySelector('#closeCloudPw').onclick=()=>m.remove();
+}
+async function cloudPhoto(file){
+ if(file.size>5*1024*1024)throw new Error('A foto deve ter até 5 MB.');
+ let image=await createImageBitmap(file),scale=Math.min(1,512/Math.max(image.width,image.height)),c=document.createElement('canvas');c.width=Math.round(image.width*scale);c.height=Math.round(image.height*scale);c.getContext('2d').drawImage(image,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.78);
+}
+function cloudUserModal(user){
+ let roles=['usuario','gestor','administrador','master'].filter(r=>user?r===user.role||cloudCanCreateRole(r):cloudCanCreateRole(r));
+ let m=document.createElement('div');m.className='cloud-modal-backdrop';
+ let isRoot=!!user&&user.role==='master'&&user.permissions?.canCreateMasters===true;
+ m.innerHTML='<form class="cloud-modal" id="cloudUserForm"><h2>'+(user?'Editar usuário':'Novo usuário')+'</h2><label>Nome completo<input name="name" required minlength="3" value="'+cloudEsc(user?.name||'')+'"></label><label>E-mail<input name="email" type="email" required '+(user?'disabled':'')+' value="'+cloudEsc(user?.email||'')+'"></label><label>Foto JPEG<input name="photo" type="file" accept="image/jpeg,image/png,image/webp"></label><label>Perfil<select name="role">'+roles.map(r=>'<option value="'+r+'" '+(user?.role===r?'selected':'')+'>'+cloudRoleLabel(r)+'</option>').join('')+'</select></label><label>Situação<select name="active"><option value="true" '+(!user||user.active?'selected':'')+'>Ativo</option><option value="false" '+(user&&!user.active?'selected':'')+'>Inativo</option></select></label>'+(cloudRoot()?'<label class="cloud-check"><input name="can_create_masters" type="checkbox" '+(isRoot?'checked':'')+'> Pode cadastrar outros Masters</label>':'')+'<p class="muted">'+(user?'A remoção revoga apenas o acesso a este painel.':'Se a conta já existir em outro painel, a senha será mantida; se for nova, será criada uma senha temporária.')+'</p><div class="cloud-modal-actions">'+(user&&user.user_id!==cloudProfile.user_id?'<button type="button" class="btn btn-ghost" id="cloudDeleteUser">Remover acesso</button>':'')+'<button type="button" class="btn btn-ghost" id="cloudCancelUser">Cancelar</button><button type="submit" class="btn btn-primary">Salvar</button></div></form>';
+ document.body.appendChild(m);let form=m.querySelector('#cloudUserForm'),photo=user?.photo_data_url||null;
+ form.elements.photo.onchange=async e=>{if(!e.target.files?.[0])return;try{photo=await cloudPhoto(e.target.files[0])}catch(x){alert(x.message)}};
+ m.querySelector('#cloudCancelUser').onclick=()=>m.remove();
+ const del=m.querySelector('#cloudDeleteUser');if(del)del.onclick=async()=>{if(!confirm('Remover o acesso de '+user.name+' a este painel? A conta continuará válida nos outros painéis.'))return;try{await cloudFunction('clusterizacao-admin-users',{action:'delete_user',user_id:user.user_id});m.remove();await renderUsers()}catch(x){alert(x.message)}};
+ form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),payload={name:String(fd.get('name')).trim(),role:String(fd.get('role')),active:fd.get('active')==='true',photo_data_url:photo,can_create_masters:fd.get('can_create_masters')==='on'};
+  try{let d;if(user){d=await cloudFunction('clusterizacao-admin-users',{action:'update_user',user_id:user.user_id,...payload});m.remove();await renderUsers();if(typeof toast==='function')toast('Usuário atualizado.')}
+  else{payload.email=String(fd.get('email')).trim().toLowerCase();d=await cloudFunction('clusterizacao-admin-users',{action:'create_user',...payload});m.remove();await renderUsers();if(d.temp_password)cloudShowTemp(d.user,d.temp_password,'Usuário criado');else alert('Acesso liberado para a conta existente. A senha atual foi mantida.')}
+  }catch(x){alert(x.message)}
+ };
+}
+async function cloudRequestAccess(name,email){
+ return cloudFunction('clusterizacao-first-access',{name,email},true);
+}
+function cloudRenderUsersTab(){renderUsers()}
+
 function renderAll(){let tab=document.querySelector('.nav button.active')?.dataset.tab||'import';renderTab(tab)}
 init();
 </script>
