@@ -359,7 +359,7 @@ body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Seg
 
 <section id="import" class="tab active">
 <div class="hero"><div><h2>Central de dados</h2><p>Importe a pasta completa. As fontes são reconhecidas pela estrutura e conciliadas pelo código do PDV.</p></div><div class="health" id="importHealth"><span class="healthchip">Aguardando importação</span></div></div>
-<div class="toolbar"><button class="btn" id="pickFolder">Selecionar pasta</button><button class="btn secondary" id="refreshFolder">Atualizar bases</button><button class="btn danger" id="clearData">Limpar dados</button></div>
+<div class="toolbar"><button class="btn secondary" id="refreshFolder">Atualizar bases</button><button class="btn danger" id="clearData">Limpar dados</button></div>
 <div class="card flat"><div class="cardhead"><h3>Processamento</h3><span id="progText" class="meta">Aguardando</span></div><div class="progress"><i id="progBar"></i></div></div>
 <div class="kpigrid" style="margin-top:12px">
 <div class="card kpi"><div class="label tooltip" title="Arquivos reconhecidos e carregados sem erro">Arquivos reconhecidos</div><div class="val" id="kFiles">0</div><div class="hint">Fontes válidas</div></div>
@@ -590,8 +590,7 @@ async function importFileList(fileList){state.folderHandle=null;state.files=[];s
 const folderInput=$('#folderInput');
 folderInput.onchange=async e=>{if(e.target.files?.length)await importFileList(e.target.files);e.target.value=''};
 async function chooseFolder(){if(window.showDirectoryPicker){try{let h=await window.showDirectoryPicker({mode:'read'});await importFolder(h);return}catch(e){if(e&&e.name==='AbortError')return}}folderInput.click()}
-$('#pickFolder').onclick=chooseFolder;
-$('#refreshFolder').onclick=async()=>{if(state.folderHandle&&window.showDirectoryPicker){try{let p=await state.folderHandle.queryPermission({mode:'read'});if(p!=='granted')p=await state.folderHandle.requestPermission({mode:'read'});if(p==='granted'){await importFolder(state.folderHandle);return}}catch(e){}}folderInput.click()};
+$('#refreshFolder').onclick=chooseFolder;
 $('#clearData').onclick=async()=>{if(confirm('Remover todas as bases salvas deste painel?')){state.files=[];state.data={};state.lastUpdate=null;resetCache();await persist();renderAll()}};
 function validPdvs(){let out=new Map();for(let src of state.data.Cadastro||[])for(let r of src.rows){let st=norm(r['Status do Cliente']).toUpperCase(),set=norm(r['Cod. Setor']).replace(/\D/g,'');if(st==='A'&&set&&Number(set[0])<9){let c=code(r['Codigo Cliente']);if(c)out.set(c,{code:c,unit:src.unit,name:norm(r['Nome Fantasia']),bairro:norm(r['Bairro']),cidade:norm(r['Cidade']),setor:norm(r['Cod. Setor'])})}}return out}
 function isNonProfitable(v){
