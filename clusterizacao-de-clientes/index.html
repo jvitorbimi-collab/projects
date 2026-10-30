@@ -564,7 +564,7 @@ function isNonProfitable(v){
  if(!s)return false;
  return s==='nao'||s==='n'||s==='false'||s==='0'||s==='não rentável'||s==='nao rentavel'||s.includes('nao rent');
 }
-function dateToken(v){let m=norm(v).match(/(\d{2}\\/\d{2}\\/\d{4})/);return m?m[1]:''}
+function dateToken(v){let m=norm(v).match(new RegExp('[0-9]{2}/[0-9]{2}/[0-9]{4}'));return m?m[1]:''}
 function operationData(){
  let m=new Map();
  for(let s of state.data['Operação 03.01.47.01']||[])for(let r of s.rows){
@@ -587,7 +587,7 @@ for(let s of state.data.Relevância||[])for(let r of s.rows)rel.set(code(r['Cód
 for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>norm(r[k]).toUpperCase()==='FREE').map(x=>x[1]);del.set(code(r.ERP_POC_ID),days)}
 let vol=new Map();
 for(let x of operationData()){let mth=x.month,sem=mth<=6?1:2,k=x.code+'|'+x.year+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=x.deliveredVolume;v.p++;vol.set(k,v)}
-for(let s of state.data.Volume||[])for(let r of s.rows){let c=code(r['Cód. Cliente']);if(!pdvs.has(c))continue;let ds=norm(r['Data']||r['Data      ']),m=ds.match(/(\d{2})\\/(\d{2})\\/(\d{4})/);if(!m)continue;let y=+m[3],mo=+m[2],sem=mo<=6?1:2,k=c+'|'+y+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=num(r.Volume);v.p+=num(r.Pedidos);vol.set(k,v)}
+for(let s of state.data.Volume||[])for(let r of s.rows){let c=code(r['Cód. Cliente']);if(!pdvs.has(c))continue;let ds=norm(r['Data']||r['Data      ']),m=ds.match(new RegExp('([0-9]{2})/([0-9]{2})/([0-9]{4})'));if(!m)continue;let y=+m[3],mo=+m[2],sem=mo<=6?1:2,k=c+'|'+y+'|'+sem,v=vol.get(k)||{v:0,p:0};v.v+=num(r.Volume);v.p+=num(r.Pedidos);vol.set(k,v)}
 let params=getClusterParams(),arr=[];
 for(let p of pdvs.values()){let a=vol.get(p.code+'|'+prevYear+'|'+prevSem)||{v:0,p:0},b=vol.get(p.code+'|'+refYear+'|'+refSem)||{v:0,p:0},hasVolume=b.v>0&&b.p>0,avgA=a.p?a.v/a.p:0,avgB=b.p?b.v/b.p:0,growth=avgA?(avgB/avgA-1):(avgB>0?Infinity:0),relevance=rel.get(p.code)||0,cl=hasVolume?classify(avgB,growth,relevance,params):'Sem dados de volume',days=del.get(p.code)||[],clusterAllowed=hasVolume?(state.params.deliveries[cl]??0):0,allowed=hasVolume?Number(clusterAllowed||0):0;allowed=Number.isFinite(allowed)?allowed:0;arr.push({...p,hasVolume,relevance,avgPrev:avgA,avgCur:avgB,growth,volume:b.v,orders:b.p,cluster:cl,rent:'',diff:0,days,deliveryCount:days.length,clusterAllowed,nonProfitable:false,allowed,deliveryGap:days.length-allowed})}
 CACHE.pdvByPeriod.set(cacheKey,arr);return arr}
