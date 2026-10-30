@@ -1733,7 +1733,11 @@ function cloudStatus(s){let e=document.querySelector('#dataStatus');if(e)e.textC
 function cloudHeaders(token){return {apikey:CLOUD_KEY,Authorization:'Bearer '+token}}
 async function cloudJson(url,options={}){
  const r=await fetch(url,options);let d={};try{d=await r.json()}catch{}
- if(!r.ok){let e=new Error(d.msg||d.message||d.error_description||d.error||('Erro '+r.status));e.status=r.status;throw e}
+ if(!r.ok){
+  const nested=d.error&&typeof d.error==='object'?d.error:{};
+  const message=d.msg||d.message||d.error_description||(typeof d.error==='string'?d.error:null)||nested.message||nested.details||nested.hint||[nested.code,d.details,d.hint,d.code].filter(Boolean).join(' · ')||(d.error?JSON.stringify(d.error):null)||('Erro '+r.status);
+  let e=new Error(String(message));e.status=r.status;e.code=nested.code||d.code;e.details=nested.details||d.details;e.hint=nested.hint||d.hint;throw e
+ }
  return d;
 }
 function cloudSaveSession(s){if(s.expires_in&&!s.expires_at)s.expires_at=Math.floor(Date.now()/1000)+s.expires_in;cloudSession=s;localStorage.setItem(CLOUD_AUTH_KEY,JSON.stringify(s))}
@@ -1818,7 +1822,7 @@ async function cloudOpenPanel(){
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password){cloudAuthScreen('change','');return}
   renderTab('import');updateHeader();
- }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=e.message||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
+ }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=[e.message,e.details,e.hint,e.code?'Código '+e.code:''].filter(Boolean).join(' · ')||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
 }
 function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
 async function cloudLoadUsers(){
