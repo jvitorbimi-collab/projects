@@ -1287,11 +1287,11 @@ let m=new Map();
 for(let x of operationData()){
  if(x.year!==Number(state.params.monthlyYear)||!x.month)continue;
  let k=x.code+'|'+x.month+'|'+x.year,v=m.get(k)||{code:x.code,name:x.name,month:x.month,year:x.year,vis:0,ot:0,iff:0};
- v.vis++;if(x.onTime)v.ot++;if(x.inFull)v.iff++;m.set(k,v)
+ v.vis++;if(x.onTime)v.ot++;if(x.inFull)v.iff++;if(x.onTime&&x.inFull)v.otif++;m.set(k,v)
 }
 for(let s of state.data['Nível mensal']||[])for(let r of s.rows){let c=code(r.Cliente);if(!c)continue;let k=c+'|'+s.month+'|'+state.params.monthlyYear,v=m.get(k)||{code:c,name:norm(r['Nome Cliente']),month:s.month,year:state.params.monthlyYear,vis:0,ot:0,iff:0};v.vis+=num(r.Visita);v.ot+=num(r['Visita OT']);v.iff+=num(r['Visita IF']);m.set(k,v)}
 let ratings=new Map();for(let s of state.data.Rating||[])for(let r of s.rows){let c=code(r['Cod PDV']);if(!c)continue;let d=new Date(r['Data da Avaliação']);if(isNaN(d))continue;let k=c+'|'+d.getFullYear()+'|'+(d.getMonth()+1),v=ratings.get(k)||{sum:0,n:0,classes:{}};v.sum+=num(r.Avaliação);v.n++;let cl=norm(r.Classificação)||'Sem classificação';v.classes[cl]=(v.classes[cl]||0)+1;ratings.set(k,v)}
-let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.vis?x.ot/x.vis:0,ifPct:x.vis?x.iff/x.vis:0,otif:x.vis?x.ot*x.iff/(x.vis*x.vis):0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});
+let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.vis?x.ot/x.vis:0,ifPct:x.vis?x.iff/x.vis:0,otif:x.vis?x.otif/x.vis:0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});
 CACHE.service={key:ck,rows};return rows}
 
 
@@ -1343,22 +1343,22 @@ function renderService(){
  addClearFilter($('#serviceFilters'),renderService);
  let mo=$('#serviceFilters .sm').value,cl=$('#serviceFilters .sc').value,q=$('#serviceFilters .sq').value.toLowerCase();
  d=d.filter(x=>(!mo||x.month==mo)&&(!cl||x.cluster===cl)&&(!q||(x.code+' '+x.name).toLowerCase().includes(q)));
- let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),iff=d.reduce((s,x)=>s+x.iff,0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
- let otv=vis?ot/vis:null,ifv=vis?iff/vis:null,otifv=vis?Math.min(ot,iff)/vis:null,rat=rn?rs/rn:null;
+ let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),iff=d.reduce((s,x)=>s+x.iff,0),otif=d.reduce((s,x)=>s+(x.otif||0),0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
+ let otv=vis?ot/vis:null,ifv=vis?iff/vis:null,otifv=vis?otif/vis:null,rat=rn?rs/rn:null;
  $('#serviceScopeChip').innerHTML=`<strong>${mo?monthName(mo):'Todos os meses'}</strong>${cl?' · '+cl:''}`;
  $('#serviceKpis').innerHTML=[
   ['On Time',otv===null?'—':pct(otv),otv,'Entregas realizadas dentro do prazo: Visita OT ÷ Visita'],
   ['In Full',ifv===null?'—':pct(ifv),ifv,'Entregas completas: Visita IF ÷ Visita'],
-  ['OTIF',otifv===null?'—':pct(otifv),otifv,'OTIF: mínimo entre Visita OT e Visita IF ÷ Visita'],
+  ['OTIF',otifv===null?'—':pct(otifv),otifv,'OTIF: On Time e In Full aprovados na mesma entrega'],
   ['Rating médio',rat===null?'—':rat.toFixed(2),null,`${fmtInt(rn)} avaliações no filtro`]
  ].map((x,i)=>`<div class="card kpi ${i===2&&otifv!==null?(otifv>=.95?'good':otifv<.85?'bad':'warn'):''}"><div class="label tooltip" title="${x[3]}">${x[0]}</div><div class="val">${x[1]}</div><div class="hint">${i<3?fmtInt(vis)+' visitas consideradas':fmtInt(rn)+' avaliações'}</div>${x[2]!==null?`<div class="tinybar"><i style="width:${Math.min(100,x[2]*100)}%"></i></div>`:''}</div>`).join('');
- let months={};for(let x of d){let z=months[x.month]||(months[x.month]={vis:0,ot:0,iff:0});z.vis+=x.vis;z.ot+=x.ot;z.iff+=x.iff}
- let monthChart=Object.entries(months).sort((a,b)=>a[0]-b[0]).map(([m,x])=>({key:String(m),label:monthName(m).slice(0,3),otif:x.vis?Math.min(x.ot,x.iff)/x.vis:0,ot:x.vis?x.ot/x.vis:0,iff:x.vis?x.iff/x.vis:0}));
+ let months={};for(let x of d){let z=months[x.month]||(months[x.month]={vis:0,ot:0,iff:0,otif:0});z.vis+=x.vis;z.ot+=x.ot;z.iff+=x.iff;z.otif+=x.otif||0}
+ let monthChart=Object.entries(months).sort((a,b)=>a[0]-b[0]).map(([m,x])=>({key:String(m),label:monthName(m).slice(0,3),otif:x.vis?x.otif/x.vis:0,ot:x.vis?x.ot/x.vis:0,iff:x.vis?x.iff/x.vis:0}));
  $('#serviceMonthCombo').innerHTML=serviceComboChart(monthChart,'month');
  let cls={};for(let x of d)for(let [k,v] of Object.entries(x.classes))cls[k]=(cls[k]||0)+v;
  $('#ratingSplit').innerHTML=Object.keys(cls).length?barsHTML(Object.entries(cls).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Sem ratings no período.</div>';
  let clusters=['Winner','Grower','Alto volume','Basic','Low sales'];
- let byCluster=clusters.map(c=>{let r=d.filter(x=>x.cluster===c),v=r.reduce((s,x)=>s+x.vis,0),o=r.reduce((s,x)=>s+x.ot,0),f=r.reduce((s,x)=>s+x.iff,0),rnC=r.reduce((s,x)=>s+x.ratingN,0),rsC=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);return {cluster:c,pdvs:new Set(r.map(x=>x.code)).size,vis:v,ot:v?o/v:null,iff:v?f/v:null,otif:v?Math.min(o,f)/v:null,rating:rnC?rsC/rnC:null,ratingN:rnC}}).filter(x=>x.vis>0||x.ratingN>0);
+ let byCluster=clusters.map(c=>{let r=d.filter(x=>x.cluster===c),v=r.reduce((s,x)=>s+x.vis,0),o=r.reduce((s,x)=>s+x.ot,0),f=r.reduce((s,x)=>s+x.iff,0),oif=r.reduce((s,x)=>s+(x.otif||0),0),rnC=r.reduce((s,x)=>s+x.ratingN,0),rsC=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);return {cluster:c,pdvs:new Set(r.map(x=>x.code)).size,vis:v,ot:v?o/v:null,iff:v?f/v:null,otif:v?oif/v:null,rating:rnC?rsC/rnC:null,ratingN:rnC}}).filter(x=>x.vis>0||x.ratingN>0);
  let rank=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif);
  $('#otifClusterRank').innerHTML=rank.length?rank.map((x,i)=>`<div class="rankrow cluster-filter-row" data-cluster="${x.cluster}" title="Clique para filtrar o painel por ${x.cluster}"><div><b>${i===0?'⚠ ':''}${x.cluster}</b><div class="rankbar"><i style="width:${Math.min(100,x.otif*100)}%"></i></div></div><b style="text-align:right" class="${x.otif<.85?'neg':x.otif<.95?'warn':'pos'}">${pct(x.otif)}</b></div>`).join(''):'<div class="empty">Sem dados por cluster.</div>';
  $('#serviceByCluster').innerHTML=byCluster.length?`<div style="overflow:auto"><table><thead><tr><th>Cluster</th><th>PDVs</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>${byCluster.map(x=>`<tr><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${fmtInt(x.pdvs)}</td><td>${x.ot===null?'—':pct(x.ot)}</td><td>${x.iff===null?'—':pct(x.iff)}</td><td>${x.otif===null?'—':`<b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b><div class="tinybar" style="margin-top:5px"><i style="width:${Math.min(100,x.otif*100)}%"></i></div>`}</td><td><b>${x.rating===null?'—':x.rating.toFixed(2)}</b></td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sem dados por cluster.</div>';
