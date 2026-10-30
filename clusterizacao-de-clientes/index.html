@@ -626,7 +626,22 @@ async function persist(){
   cloudStatus('Dados sincronizados');
  }catch(e){console.error(e);cloudStatus('Falha na sincronização');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message)}
 }
-async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');await cloudOpenPanel()}
+async function cloudHandlePasswordRecovery(){
+ const params=new URLSearchParams(location.hash.slice(1));
+ if(params.get('type')!=='recovery')return false;
+ const access=params.get('access_token'),refresh=params.get('refresh_token'),expiresIn=Number(params.get('expires_in')||3600);
+ if(!access){history.replaceState(null,'',location.pathname+location.search);cloudAuthScreen('login','Este link de recuperação está inválido ou expirou. Solicite outro.');return true}
+ cloudSaveSession({access_token:access,refresh_token:refresh,token_type:params.get('token_type')||'bearer',expires_in:expiresIn,expires_at:Number(params.get('expires_at')||0)||Math.floor(Date.now()/1000)+expiresIn});
+ history.replaceState(null,'',location.pathname+location.search);
+ try{
+  cloudAuthUser=await cloudJson(CLOUD_URL+'/auth/v1/user',{headers:cloudHeaders(cloudSession.access_token)});
+  const p=await cloudFunction('clusterizacao-admin-users',{action:'get_me'});cloudProfile=p.user;
+  if(!cloudProfile?.active||cloudProfile.deleted_at){cloudLockScreen();return true}
+  cloudAuthScreen('change','Defina uma nova senha para recuperar o acesso.');
+ }catch(e){console.error(e);localStorage.removeItem(CLOUD_AUTH_KEY);cloudSession=null;cloudAuthScreen('login','Este link expirou ou não pode ser usado. Solicite uma nova recuperação.',cloudAuthUser?.email||'')}
+ return true;
+}
+async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery())return;await cloudOpenPanel()}
 $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação e Configurações','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Contas, perfis e solicitações de acesso']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
