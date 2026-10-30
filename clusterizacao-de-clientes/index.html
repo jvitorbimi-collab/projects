@@ -1008,7 +1008,7 @@ function renderCluster(){
 
  $('#clusterTableCount').textContent=`${fmtInt(a.length)} PDVs encontrados`;
  let cols=['Código','Fantasia','Cidade','Relevância','HL/Ped. ant.','HL/Ped. atual','Evolução','Volume','Pedidos','Dias entrega','Qtd.','Permitido','Cluster'];
- $('#clusterTable').innerHTML='<thead><tr>'+cols.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+a.slice(0,DISPLAY_LIMIT).map(p=>`<tr><td>${p.code}</td><td>${p.name}</td><td>${p.cidade}</td><td>${fmtInt(p.relevance)}</td><td>${fmt(p.avgPrev)}</td><td><b>${fmt(p.avgCur)}</b></td><td class="${p.growth>0?'pos':p.growth<0?'neg':'neutral'}">${p.growth===Infinity?'Novo':pct(p.growth)}</td><td>${fmt(p.volume)}</td><td>${fmtInt(p.orders)}</td><td>${p.days.join(', ')||'—'}</td><td>${fmtInt(p.deliveryCount)}</td><td>${fmtInt(p.allowed)}${}</td><td><span class="badge ${badgeClass(p.cluster)}">${p.cluster}</span></td></tr>`).join('')+'</tbody>';
+ $('#clusterTable').innerHTML='<thead><tr>'+cols.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>'+a.slice(0,DISPLAY_LIMIT).map(p=>`<tr><td>${p.code}</td><td>${p.name}</td><td>${p.cidade}</td><td>${fmtInt(p.relevance)}</td><td>${fmt(p.avgPrev)}</td><td><b>${fmt(p.avgCur)}</b></td><td class="${p.growth>0?'pos':p.growth<0?'neg':'neutral'}">${p.growth===Infinity?'Novo':pct(p.growth)}</td><td>${fmt(p.volume)}</td><td>${fmtInt(p.orders)}</td><td>${p.days.join(', ')||'—'}</td><td>${fmtInt(p.deliveryCount)}</td><td>${fmtInt(p.allowed)}</td><td><span class="badge ${badgeClass(p.cluster)}">${p.cluster}</span></td></tr>`).join('')+'</tbody>';
 
  let ex=$('#exportClusterXlsx');if(ex)ex.onclick=exportClusterizedXlsx;
 }
