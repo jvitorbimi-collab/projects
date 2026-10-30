@@ -533,6 +533,7 @@ body,.main{background:var(--page);color:var(--ink)}
 @media(max-width:720px){.main .hero{padding:22px 19px}.main .card{padding:16px}.main .kpi{min-height:112px}.main .top h1{font-size:17px}.main .filters{padding:12px}}
 @media(prefers-reduced-motion:reduce){.tab.active{animation:none}}
 </style>
+<style>.impact-branch{border:1px solid #e1e8f4;border-radius:12px;margin:8px 0;padding:12px 14px}.impact-branch summary{cursor:pointer;display:flex;justify-content:space-between;gap:12px;color:#24365f}.impact-branch summary span{color:#5269a3;font-size:12px}.holiday-row{display:flex;align-items:center;justify-content:space-between;padding:9px 4px;border-bottom:1px solid #e8edf6}</style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
@@ -544,8 +545,9 @@ body,.main{background:var(--page);color:var(--ink)}
 <button data-tab="cluster" data-icon="02"><span>Clusterização</span></button>
 <button data-tab="analysis" data-icon="03"><span>Análise de Entregas</span></button>
 <button data-tab="service" data-icon="04"><span>Nível de Serviço</span></button>
-<button data-tab="action" data-icon="05"><span>Plano de Ação</span></button>
-<button data-tab="users" data-icon="06" hidden><span>Gestão de usuários</span></button>
+<button data-tab="offroute" data-icon="05"><span>Fora de rota</span></button>
+<button data-tab="action" data-icon="06"><span>Plano de Ação</span></button>
+<button data-tab="users" data-icon="07" hidden><span>Gestão de usuários</span></button>
 </div>
 <div class="sidefoot">Bases sincronizadas com banco remoto</div>
 </aside>
@@ -575,6 +577,8 @@ body,.main{background:var(--page);color:var(--ink)}
 <div class="card"><div class="cardhead"><h3>Configurações analíticas</h3><span class="meta">ajustes gerais</span></div><div class="paramrow"><span>Proximidade de mudança de cluster</span><input id="nearPct" type="number" min="1" max="50" step="1"></div><div class="paramrow"><span>Ano padrão dos arquivos mensais</span><input id="monthlyYear" type="number" min="2020" max="2100"></div><div class="note" style="margin-top:9px">O mês do nível de serviço é identificado pelo nome do arquivo. O ano utilizado pode ser ajustado aqui.</div></div>
 </div>
 
+<div class="sectiontitle"><span>Feriados</span><small>Configurados para todos os usuários</small></div>
+<div class="card"><div class="cardhead"><h3>Calendário de feriados</h3><span class="meta">Usado no On Time e nos dias úteis para pedidos</span></div><form id="holidayForm" class="toolbar"><input type="date" name="date" required aria-label="Data do feriado"><input name="name" required maxlength="100" placeholder="Nome do feriado" aria-label="Nome do feriado"><button class="btn" type="submit">Cadastrar feriado</button></form><div id="holidayList"></div></div>
 <details class="card" style="margin-top:12px">
 <summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center">
 Como funciona a clusterização
@@ -641,7 +645,7 @@ Como funciona a clusterização
 
 <div class="filters service-filters" id="serviceFilters"></div>
 
-<div class="kpigrid service-kpis" id="serviceKpis"></div>
+<div class="kpigrid service-kpis" id="serviceKpis"></div><div class="card" style="margin:14px 0"><div class="cardhead"><h3>Árvore de impactos</h3><span class="meta">Pedidos que impactaram o indicador selecionado</span></div><div class="toolbar"><label>Indicador <select id="impactMetric"><option value="otif">OTIF</option><option value="onTime">On Time</option><option value="inFull">In Full</option></select></label></div><div id="impactTree"></div></div>
 
 <div class="service-layout-primary">
   <div class="card chartbox service-month-card">
@@ -710,6 +714,12 @@ Como funciona a clusterização
 </section>
 
 
+<section id="offroute" class="tab">
+<div class="hero"><div><h2>Pedidos fora de rota</h2><p>Pedidos fora do 1º ou 2º dia útil anterior à entrega padrão cadastrada no Bees.</p></div><div class="health"><span class="healthchip" id="offrouteScope"></span></div></div>
+<div class="filters" id="offrouteFilters"><label>Ano <select class="ory"></select></label><label>Mês <select class="orm"><option value="">Todos os meses</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></label><label>Buscar PDV <input class="orq" placeholder="Código, nome ou pedido"></label></div>
+<div class="toolbar"><button class="btn" type="button" id="exportOffroute">Exportar fora de rota em Excel</button></div><div class="kpigrid" id="offrouteKpis"></div>
+<div class="grid g2" style="margin-top:14px"><div class="card chartbox"><div class="cardhead"><h3>Pedidos fora de rota por mês</h3></div><div id="offrouteMonths"></div></div><div class="card chartbox"><div class="cardhead"><h3>Distribuição por dia do pedido</h3></div><div id="offrouteDays"></div></div></div>
+<div class="sectiontitle"><span>Detalhamento dos pedidos</span><small id="offrouteCount"></small></div><div class="tablecard"><div class="tablewrap"><table id="offrouteTable"></table></div></div></section>
 <section id="action" class="tab">
 <div class="hero"><div><h2>Plano de ação automático</h2><p>Prioriza ações mensais para recuperar nível de serviço por cluster e corrigir frequência/janelas de atendimento.</p></div><div class="health"><span class="healthchip" id="actionScopeChip">Plano mensal</span></div></div>
 <div class="filters" id="actionFilters"></div>
@@ -786,7 +796,7 @@ async function cloudHandlePasswordRecovery(){
 }
 function cloudLoading(show){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old)return;let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="cloud-loading-card"><div class="cloud-spinner"></div><strong>Carregando painel</strong><small>Estamos preparando seus dados...</small></div>';document.body.appendChild(overlay)}
 async function init(){cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
-$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação e Configurações','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Contas, perfis e solicitações de acesso']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
+$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação e Configurações','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],offroute:['Fora de rota','Pedidos fora dos dias padrão'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Contas, perfis e solicitações de acesso']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
 function monthFromName(n){let l=n.toLowerCase();for(let k in MONTHS)if(l.includes(k))return MONTHS[k];return null}
@@ -826,23 +836,36 @@ function beesExpectedDate(orderDate,days){
  for(let i=0;i<7;i++){let d=new Date(base);d.setUTCDate(base.getUTCDate()+i);if(allowed.has(d.getUTCDay()))return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear()}
  return '';
 }
+function isoDateFromKey(v){let p=dateParts(v);return p?String(p.y)+'-'+String(p.m).padStart(2,'0')+'-'+String(p.d).padStart(2,'0'):''}
+function calendarDate(v){let p=dateParts(v);return p?new Date(Date.UTC(p.y,p.m-1,p.d)):null}
+function validOrderDates(expected){
+ let d=calendarDate(expected);if(!d)return [];
+ let holidays=new Set((state.params.holidays||[]).map(x=>x.date)),out=[];
+ while(out.length<2){d.setUTCDate(d.getUTCDate()-1);let day=d.getUTCDay(),iso=d.toISOString().slice(0,10);if(day!==0&&day!==6&&!holidays.has(iso))out.push(String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear())}
+ return out;
+}
+function reasonKey(v){return norm(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
 function operationData(){
- let operationKey=String(state.lastUpdate||'')+'|'+String(state.params.monthlyYear);if(CACHE.operation?.key===operationKey)return CACHE.operation.rows;
+ let operationKey=String(state.lastUpdate||'')+'|'+String(state.params.monthlyYear)+'|'+JSON.stringify(state.params.holidays||[]);if(CACHE.operation?.key===operationKey)return CACHE.operation.rows;
  let schedules=new Map();
  for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
  let m=new Map();
  for(let s of state.data['Operação 03.01.47.01']||[])for(let r of s.rows){
   let c=code(r.Cliente),pedido=norm(r.Pedido),ddc=code(r['Cod Puxada']);if(!c||c==='0'||!pedido)continue;
-  let key=ddc+'|'+c+'|'+pedido,v=m.get(key);
-  if(!v){let days=schedules.get(ddc+'|'+c)||[];v={code:c,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(s.month||monthFromName(s.name)||0),year:Number((dateParts(r.Data)||{}).y)||state.params.monthlyYear,orderDate:dateKey(r.Data),expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true};m.set(key,v)}
-  let marked=norm(r['Volume Marcacao']),delivered=norm(r['Volume Entrega']);
-  if(!marked) v.markedValid=false; else v.marked+=num(marked);
-  if(!delivered) v.deliveredValid=false; else v.deliveredVolume+=num(delivered);
+  let orderDate=dateKey(r.Data),key=ddc+'|'+c+'|'+pedido+'|'+orderDate,v=m.get(key);
+  if(!v){let days=schedules.get(ddc+'|'+c)||[],dp=dateParts(r.Data);v={code:c,pedido,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(dp?.m||s.month||monthFromName(s.name)||0),year:Number(dp?.y)||Number(state.params.monthlyYear),orderDate,days,expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true,motives:new Set(),normalRows:0,deletedRows:0};m.set(key,v)}
+  let motive=norm(r.Motivo),mk=reasonKey(motive);if(motive&&mk!=='pedido normal')v.motives.add(motive);if(mk.includes('pedido exclu'))v.deletedRows++;else v.normalRows++;
+  let marked=norm(r['Volume Marcacao']),delivered=norm(r['Volume Entrega']);if(!marked)v.markedValid=false;else v.marked+=num(marked);if(!delivered)v.deliveredValid=false;else v.deliveredVolume+=num(delivered);
  }
+ let holidays=new Set((state.params.holidays||[]).map(x=>x.date));
  let rows=[...m.values()].map(x=>{
-  let onTimeValid=!!(x.expected&&x.actual),inFullValid=x.markedValid&&x.deliveredValid;
-  let onTime=onTimeValid?x.expected===x.actual:null,inFull=inFullValid?Math.abs(x.marked-x.deliveredVolume)<0.000001:null;
-  return {...x,onTime,onTimeValid,inFull,inFullValid,otifValid:onTimeValid&&inFullValid,otif:onTimeValid&&inFullValid&&onTime&&inFull}
+  let motives=[...x.motives],deleted=x.deletedRows>0&&x.normalRows===0,hasDeleted=x.deletedRows>0,hasCancelReturn=motives.some(z=>/cancel|devolu/.test(reasonKey(z))),holiday=holidays.has(isoDateFromKey(x.expected));
+  let dateMismatch=!!(x.expected&&x.actual&&x.expected!==x.actual&&!holiday);
+  let onTimeValid=!deleted&&((!!x.expected&&!!x.actual)||hasCancelReturn),onTime=onTimeValid?((holiday&&!!x.actual)||(!dateMismatch&&!!x.expected&&!!x.actual)):null;
+  let inFullValid=hasDeleted||(x.markedValid&&x.deliveredValid),inFull=inFullValid?(!hasDeleted&&Math.abs(x.marked-x.deliveredVolume)<0.000001):null;
+  let otifValid=deleted||(onTimeValid&&inFullValid),otif=!deleted&&otifValid&&onTime&&inFull;
+  let standardDates=validOrderDates(x.expected),outsideRoute=!!(x.orderDate&&x.expected&&standardDates.length)?!standardDates.includes(x.orderDate):null;
+  return {...x,motives,deleted,holiday,dateMismatch,onTime,onTimeValid,inFull,inFullValid,otifValid,otif,standardDates,outsideRoute};
  });
  CACHE.operation={key:operationKey,rows};return rows;
 }
@@ -920,7 +943,7 @@ function renderImport(){
  $('#nearPct').onchange=async e=>{state.params.nearPct=+e.target.value;resetCache();await persist()};
  $('#monthlyYear').onchange=async e=>{state.params.monthlyYear=+e.target.value;resetCache();await persist()};
 
- renderClusterParamsConfig();
+ renderClusterParamsConfig();renderHolidays();
 }
 
 function exportClusterizedXlsx(){
@@ -1644,9 +1667,43 @@ function renderService(){
  $('#serviceTableCount').textContent=`${fmtInt(d.length)} linhas encontradas`;
  $('#serviceTable').innerHTML='<thead><tr><th>PDV</th><th>Cluster</th><th>Mês</th><th>Visitas</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${x.code} • ${x.name}</td><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${monthName(x.month)}/${x.year}</td><td>${fmtInt(x.vis)}</td><td>${pct(x.otPct)}</td><td>${pct(x.ifPct)}</td><td><b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b></td><td>${x.rating===null?'—':x.rating.toFixed(2)}</td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')+'</tbody>';
 
- bindServiceChartInteractions();
+ bindServiceChartInteractions();renderServiceImpact(d);
 }
 
+
+function eventImpactReasons(x,metric){
+ let on=[];if(x.onTimeValid&&!x.onTime){if(x.dateMismatch)on.push('Mapa virado');for(let m of x.motives)if(/cancel|devolu/.test(reasonKey(m)))on.push(m);if(!on.length)on.push('Sem data de entrega válida')}
+ let full=[];if(x.inFullValid&&!x.inFull)full=x.motives.length?x.motives.slice():['Divergência de volume sem motivo informado'];
+ return [...new Set(metric==='onTime'?on:metric==='inFull'?full:[...on,...full,...(x.deleted?['Pedido Excluído']:[])])];
+}
+function renderServiceImpact(visible){
+ let select=document.getElementById('impactMetric'),root=document.getElementById('impactTree');if(!select||!root)return;select.onchange=()=>renderService();
+ let keys=new Set(visible.map(x=>x.code+'|'+x.year+'|'+x.month)),metric=select.value,rows=operationData().filter(x=>keys.has(x.code+'|'+x.year+'|'+x.month)),failed=rows.filter(x=>metric==='onTime'?x.onTimeValid&&!x.onTime:metric==='inFull'?x.inFullValid&&!x.inFull:x.otifValid&&!x.otif),groups=new Map();
+ for(let x of failed)for(let reason of eventImpactReasons(x,metric)){let list=groups.get(reason)||[];list.push(x);groups.set(reason,list)}
+ let sorted=[...groups.entries()].sort((a,b)=>b[1].length-a[1].length);
+ root.innerHTML='<p class="muted">'+fmtInt(failed.length)+' pedidos impactaram o indicador. Um pedido com mais de um motivo aparece em cada motivo; as contagens podem se sobrepor.</p>'+ (sorted.length?sorted.map(([reason,items])=>'<details class="impact-branch"><summary><b>'+cloudEsc(reason)+'</b><span>'+fmtInt(items.length)+' pedidos · '+pct(failed.length?items.length/failed.length:0)+'</span></summary><div class="tablewrap"><table><thead><tr><th>PDV</th><th>Pedido</th><th>Data do pedido</th><th>Entrega prevista</th><th>Entrega realizada</th><th>Motivos</th></tr></thead><tbody>'+items.slice(0,100).map(x=>'<tr><td>'+cloudEsc(x.code+' • '+x.name)+'</td><td>'+cloudEsc(x.pedido)+'</td><td>'+cloudEsc(x.orderDate||'—')+'</td><td>'+cloudEsc(x.expected||'—')+'</td><td>'+cloudEsc(x.actual||'—')+'</td><td>'+cloudEsc(x.motives.join(', ')||'—')+'</td></tr>').join('')+'</tbody></table></div>'+(items.length>100?'<small>Exibindo 100 de '+fmtInt(items.length)+' pedidos.</small>':'')+'</details>').join(''):'<div class="empty">Nenhum impacto identificado nos filtros atuais.</div>');
+}
+function renderHolidays(){
+ let root=document.getElementById('holidayList'),form=document.getElementById('holidayForm');if(!root||!form)return;let holidays=Array.isArray(state.params.holidays)?state.params.holidays:[];root.innerHTML=holidays.length?holidays.map(h=>'<div class="holiday-row"><span><b>'+cloudEsc(h.date.split('-').reverse().join('/'))+'</b> · '+cloudEsc(h.name)+'</span>'+(cloudCanWrite()?'<button class="btn ghost" type="button" data-remove-holiday="'+cloudEsc(h.date)+'">Excluir</button>':'')+'</div>').join(''):'<div class="empty">Nenhum feriado cadastrado.</div>';
+ form.hidden=!cloudCanWrite();form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),date=String(fd.get('date')),name=String(fd.get('name')).trim();if(holidays.some(h=>h.date===date)){alert('Já existe um feriado nesta data.');return}await saveHolidays([...holidays,{date,name}])};
+ root.querySelectorAll('[data-remove-holiday]').forEach(btn=>btn.onclick=()=>saveHolidays(holidays.filter(x=>x.date!==btn.dataset.removeHoliday)));
+}
+async function saveHolidays(holidays){try{let result=await cloudFunction('clusterizacao-admin-users',{action:'save_holidays',holidays:holidays.sort((a,b)=>a.date.localeCompare(b.date))});state.params.holidays=result.holidays;resetCache();renderHolidays();if(typeof toast==='function')toast('Feriados atualizados.')}catch(e){alert('Não foi possível salvar os feriados: '+e.message)}}
+function renderOffroute(){
+ let box=$('#offrouteFilters'),ys=periods(),y=box.querySelector('.ory'),m=box.querySelector('.orm'),q=box.querySelector('.orq'),old=y.value;
+ if(y.dataset.years!==ys.join(',')){y.innerHTML=ys.map(n=>'<option value="'+n+'">'+n+'</option>').join('');y.value=ys.includes(+old)?old:String(ys.includes(+state.params.monthlyYear)?state.params.monthlyYear:ys.at(-1)||'');y.dataset.years=ys.join(',')}
+ box.querySelectorAll('input,select').forEach(el=>el.oninput=renderOffroute);
+ let filtered=operationData().filter(x=>(!y.value||x.year===+y.value)&&(!m.value||x.month===+m.value)&&(!q.value||(x.code+' '+x.name+' '+x.pedido).toLowerCase().includes(q.value.toLowerCase()))),outside=filtered.filter(x=>x.outsideRoute===true),known=filtered.filter(x=>x.outsideRoute!==null),unknown=filtered.length-known.length,pdvs=new Set(outside.map(x=>x.code)).size;
+ $('#offrouteScope').textContent=fmtInt(outside.length)+' pedidos fora de rota';
+ $('#offrouteKpis').innerHTML=[['Pedidos fora de rota',fmtInt(outside.length),'Pedidos identificados'],['Participação',known.length?pct(outside.length/known.length):'—','Sobre pedidos com agenda identificada'],['PDVs',fmtInt(pdvs),'Com pedidos fora do padrão'],['Sem agenda ou data',fmtInt(unknown),'Pedidos sem classificação']].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="val">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>').join('');
+ let months=new Map(),days=new Map(),weekday=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];for(let x of outside){months.set(x.month,(months.get(x.month)||0)+1);let dt=calendarDate(x.orderDate),day=dt?weekday[dt.getUTCDay()]:'Sem data';days.set(day,(days.get(day)||0)+1)}
+ $('#offrouteMonths').innerHTML=outside.length?barsHTML([...months.entries()].sort((a,b)=>a[0]-b[0]).map(([k,v])=>({label:monthName(k),value:v}))):'<div class="empty">Nenhum pedido fora de rota no filtro.</div>';
+ $('#offrouteDays').innerHTML=outside.length?barsHTML([...days.entries()].sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Nenhum pedido fora de rota no filtro.</div>';
+ $('#offrouteCount').textContent=fmtInt(outside.length)+' pedidos · até 500 exibidos';
+ const cols=['PDV','Pedido','Data do pedido','Entrega padrão','Dias padrão para pedido','Dias FREE/FLEX','Motivo'];
+ $('#offrouteTable').innerHTML='<thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+outside.slice(0,500).map(x=>'<tr><td>'+cloudEsc(x.code+' • '+x.name)+'</td><td>'+cloudEsc(x.pedido)+'</td><td>'+cloudEsc(x.orderDate||'—')+'</td><td>'+cloudEsc(x.expected||'—')+'</td><td>'+cloudEsc(x.standardDates.join(' / ')||'—')+'</td><td>'+cloudEsc(x.days.join(', ')||'—')+'</td><td>'+cloudEsc(x.motives.join(', ')||'Pedido Normal')+'</td></tr>').join('')+'</tbody>';
+ $('#exportOffroute').onclick=()=>{if(!outside.length){alert('Não há pedidos fora de rota para exportar.');return}let data=outside.map(x=>({'Código PDV':x.code,'PDV':x.name,'Pedido':x.pedido,'Data pedido':x.orderDate,'Entrega padrão':x.expected,'Dias padrão para pedido':x.standardDates.join(' / '),'Dias FREE/FLEX':x.days.join(', '),'Motivos':x.motives.join(', ')||'Pedido Normal'})),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Fora de rota');XLSX.writeFile(wb,'pedidos-fora-de-rota.xlsx')};
+}
 
 function actionDefaultStatus(year,month){
  let n=new Date(),cy=n.getFullYear(),cm=n.getMonth()+1;
@@ -1854,7 +1911,7 @@ function updateHeader(){
  $('#dataStatus').textContent=state.files?.length?`${Object.keys(state.data||{}).length} bases conectadas`:'Painel pronto';
 }
 function renderTab(tab){
- if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='action')renderAction();else if(tab==='users')cloudRenderUsersTab();
+ if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='offroute')renderOffroute();else if(tab==='action')renderAction();else if(tab==='users')cloudRenderUsersTab();
  updateHeader();
 
  setTimeout(applyHelp,0);
@@ -1960,6 +2017,7 @@ async function cloudOpenPanel(){
    let local=await get('state');if(local)Object.assign(state,local);normalizePanelState();
    if(local?.files?.length)cloudStatus('Bases locais: sincronização pendente');
   }
+  state.params.holidays=Array.isArray(meta.state?.holidays)?meta.state.holidays:[];resetCache();
   state.folderHandle=await get('folder');
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password){cloudAuthScreen('change','');return}
