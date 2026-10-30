@@ -404,6 +404,14 @@ body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Seg
 #cloudLoading strong{display:block;font-size:18px}#cloudLoading small{display:block;margin-top:8px;color:#647092;font-size:14px}
 @keyframes cloud-spin{to{transform:rotate(360deg)}}
 </style>
+<style>
+@media (min-width:1101px){
+ .side{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden}
+ .side .brandbox,.side .nav,.side .sidefoot{flex-shrink:0}
+ .side .nav{padding-bottom:0}
+ .side .sidefoot{position:static;left:auto;right:auto;bottom:auto;margin:24px 4px 0;padding:16px 8px 12px}
+}
+</style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
