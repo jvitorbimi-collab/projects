@@ -397,7 +397,14 @@ body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Seg
 .cloud-auth-overlay .cloud-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;padding:6px;border:0;border-radius:8px;background:transparent;color:#63708e;cursor:pointer}
 .cloud-auth-overlay .cloud-password-toggle:hover{background:#eef1fa;color:#141a38}
 .cloud-auth-overlay .cloud-password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-</style></head>
+</style><style>
+#cloudLoading{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;background:rgba(239,242,253,.94);color:#10183c;font-family:Inter,Segoe UI,Arial,sans-serif}
+#cloudLoading .cloud-loading-card{min-width:260px;text-align:center;background:white;padding:34px 42px;border-radius:22px;box-shadow:0 12px 45px rgba(20,33,100,.15)}
+#cloudLoading .cloud-spinner{width:44px;height:44px;margin:0 auto 18px;border:4px solid #e3e8ff;border-top-color:#1117d8;border-radius:50%;animation:cloud-spin .8s linear infinite}
+#cloudLoading strong{display:block;font-size:18px}#cloudLoading small{display:block;margin-top:8px;color:#647092;font-size:14px}
+@keyframes cloud-spin{to{transform:rotate(360deg)}}
+</style>
+</head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
 <div class="brandbox"><div class="brand" style="padding:18px 14px 22px">
@@ -647,7 +654,8 @@ async function cloudHandlePasswordRecovery(){
  }catch(e){console.error(e);localStorage.removeItem(CLOUD_AUTH_KEY);cloudSession=null;cloudAuthScreen('login','Este link expirou ou não pode ser usado. Solicite uma nova recuperação.',cloudAuthUser?.email||'')}
  return true;
 }
-async function init(){await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery())return;await cloudOpenPanel()}
+function cloudLoading(show){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old)return;let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="cloud-loading-card"><div class="cloud-spinner"></div><strong>Carregando painel</strong><small>Estamos preparando seus dados...</small></div>';document.body.appendChild(overlay)}
+async function init(){cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
 $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');let m={import:['Importação e Configurações','Central de dados, parâmetros e validações'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','On Time, In Full, OTIF e Rating'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Contas, perfis e solicitações de acesso']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab)});
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
@@ -1752,6 +1760,7 @@ async function cloudFunction(name,body,allowPublic=false){
  return cloudJson(CLOUD_URL+'/functions/v1/'+name,{method:'POST',headers,body:JSON.stringify(body||{})});
 }
 function cloudAuthScreen(mode,message,initialEmail){
+ cloudLoading(false);
  let old=document.getElementById('cloudAuthOverlay');if(old)old.remove();
  let overlay=document.createElement('div');overlay.id='cloudAuthOverlay';overlay.className='cloud-auth-overlay';
  let logo=cloudEsc(DISMAN_LOGO_WHITE),mobileLogo=cloudEsc(DISMAN_LOGO_COLOR);
@@ -1782,7 +1791,7 @@ function cloudAuthScreen(mode,message,initialEmail){
  if(mode==='request')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');try{await cloudFunction('clusterizacao-first-access',{name:String(fd.get('name')).trim(),email:String(fd.get('email')).trim()},true);cloudAuthScreen('login','Solicitação enviada para aprovação.',String(fd.get('email')).trim())}catch(x){err.textContent=x.message}};
  else if(mode==='change')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),pass=String(fd.get('password')),conf=String(fd.get('confirm')),err=document.getElementById('cloudAuthError');if(pass!==conf){err.textContent='As senhas não coincidem.';return}try{await cloudJson(CLOUD_URL+'/auth/v1/user',{method:'PUT',headers:{...cloudHeaders(cloudSession.access_token),'Content-Type':'application/json'},body:JSON.stringify({password:pass})});await cloudFunction('clusterizacao-admin-users',{action:'mark_password_changed'});cloudProfile.must_change_password=false;await cloudOpenPanel()}catch(x){err.textContent=x.message}};
  else if(mode==='recover')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError'),email=String(fd.get('email')).trim().toLowerCase(),btn=form.querySelector('button[type="submit"]');btn.disabled=true;try{const headers={apikey:CLOUD_KEY,'Content-Type':'application/json'},body=JSON.stringify({email}),redirect=location.origin+location.pathname;try{await cloudJson(CLOUD_URL+'/auth/v1/recover?redirect_to='+encodeURIComponent(redirect),{method:'POST',headers,body})}catch(first){if(first.status!==400)throw first;await cloudJson(CLOUD_URL+'/auth/v1/recover',{method:'POST',headers,body})}err.textContent='Se o e-mail estiver cadastrado, o link de recuperação foi enviado. Confira sua caixa de entrada e o spam.'}catch(x){btn.disabled=false;err.textContent=x.message||'Não foi possível enviar a recuperação.'}};
- else form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');try{let s=await cloudJson(CLOUD_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:CLOUD_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:String(fd.get('email')).trim(),password:String(fd.get('password'))})});cloudSaveSession(s);await cloudOpenPanel()}catch(x){err.textContent=x.status===400?'E-mail ou senha inválidos. Use “Esqueci minha senha” para recuperar o acesso.':'Não foi possível entrar. Tente novamente.'}};
+ else form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');cloudLoading(true);try{let s=await cloudJson(CLOUD_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:CLOUD_KEY,'Content-Type':'application/json'},body:JSON.stringify({email:String(fd.get('email')).trim(),password:String(fd.get('password'))})});cloudSaveSession(s);await cloudOpenPanel()}catch(x){cloudLoading(false);err.textContent=x.status===400?'E-mail ou senha inválidos. Use “Esqueci minha senha” para recuperar o acesso.':'Não foi possível entrar. Tente novamente.'}};
  let req=document.getElementById('cloudAuthRequest');if(req)req.onclick=()=>cloudAuthScreen('request','',form.elements.email.value);
  let forgot=document.getElementById('cloudAuthForgot');if(forgot)forgot.onclick=()=>cloudAuthScreen('recover','',form.elements.email.value);
  let back=document.getElementById('cloudAuthBack');if(back)back.onclick=()=>cloudAuthScreen('login','',form.elements.email?.value||'');
@@ -1798,6 +1807,7 @@ function cloudSetUserMenu(){
  let nav=document.querySelector('.nav button[data-tab="users"]');if(nav)nav.hidden=!cloudAdmin();
 }
 async function cloudOpenPanel(){
+ cloudLoading(true);
  cloudSession=await cloudRefresh();if(!cloudSession){cloudAuthScreen('login','');return}
  let loadingStep='validar sua conta';
  try{
@@ -1821,7 +1831,7 @@ async function cloudOpenPanel(){
   state.folderHandle=await get('folder');
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password){cloudAuthScreen('change','');return}
-  renderTab('import');updateHeader();
+  renderTab('import');updateHeader();cloudLoading(false);
  }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=[e.message,e.details,e.hint,e.code?'Código '+e.code:''].filter(Boolean).join(' · ')||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
 }
 function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
