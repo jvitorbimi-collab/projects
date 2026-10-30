@@ -391,7 +391,13 @@ body{background:#f3f5fb;color:#161c3a;font-family:'Plus Jakarta Sans',Inter,'Seg
 .cloud-auth-overlay .btn-ghost:hover{background:#f6f7fc}
 .cloud-auth-overlay .login-form .btn-ghost{margin-top:8px}
 </style>
-</head>
+<style>
+.cloud-auth-overlay .cloud-password-wrap{position:relative;width:100%}
+.cloud-auth-overlay .cloud-password-wrap input{width:100%;padding-right:48px}
+.cloud-auth-overlay .cloud-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:grid;place-items:center;padding:6px;border:0;border-radius:8px;background:transparent;color:#63708e;cursor:pointer}
+.cloud-auth-overlay .cloud-password-toggle:hover{background:#eef1fa;color:#141a38}
+.cloud-auth-overlay .cloud-password-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+</style></head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
 <div class="brandbox"><div class="brand" style="padding:18px 14px 22px">
@@ -1756,7 +1762,18 @@ function cloudAuthScreen(mode,message,initialEmail){
  }else{
   content='<div class="login-card">'+brand+'<div class="login-form"><img class="m-logo" src="'+mobileLogo+'" alt="Disman Distribuidora"><h2>Acesso ao painel</h2><p>Entre com seu e-mail e senha para continuar.</p><form id="cloudAuthForm"><div class="field"><label>E-mail</label><input name="email" type="email" required autocomplete="username" placeholder="seu.nome@empresa.com.br" value="'+cloudEsc(initialEmail||'')+'"></div><div class="field"><label>Senha</label><input name="password" type="password" required autocomplete="current-password" placeholder="••••••••"></div><div class="cloud-auth-error" id="cloudAuthError">'+cloudEsc(message||'')+'</div><button class="btn btn-primary btn-block" type="submit">Entrar</button><button class="btn btn-secondary btn-block" type="button" id="cloudAuthRequest">Solicitar acesso</button><button class="btn btn-ghost btn-block" type="button" id="cloudAuthForgot">Esqueci minha senha</button></form></div></div>';
  }
- overlay.innerHTML=content;document.body.appendChild(overlay);
+ overlay.innerHTML=content;
+ let passwordField=overlay.querySelector('input[type="password"]');
+ if(passwordField){
+  let wrap=document.createElement('div');wrap.className='cloud-password-wrap';
+  passwordField.parentNode.insertBefore(wrap,passwordField);wrap.appendChild(passwordField);
+  let toggle=document.createElement('button');toggle.type='button';toggle.className='cloud-password-toggle';toggle.setAttribute('aria-label','Mostrar senha');toggle.title='Mostrar senha';
+  const eyeOpen='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const eyeClosed='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 5.2A11 11 0 0112 5c6.4 0 10 7 10 7a15 15 0 01-3.1 3.8M6.2 6.3C3.5 8.1 2 12 2 12s3.6 7 10 7c1 0 1.9-.2 2.8-.5"/></svg>';
+  toggle.innerHTML=eyeOpen;toggle.onclick=()=>{let visible=passwordField.type==='password';passwordField.type=visible?'text':'password';toggle.innerHTML=visible?eyeClosed:eyeOpen;toggle.setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha');toggle.title=visible?'Ocultar senha':'Mostrar senha'};
+  wrap.appendChild(toggle);
+ }
+ document.body.appendChild(overlay);
  let form=document.getElementById('cloudAuthForm');
  if(mode==='request')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),err=document.getElementById('cloudAuthError');try{await cloudFunction('clusterizacao-first-access',{name:String(fd.get('name')).trim(),email:String(fd.get('email')).trim()},true);cloudAuthScreen('login','Solicitação enviada para aprovação.',String(fd.get('email')).trim())}catch(x){err.textContent=x.message}};
  else if(mode==='change')form.onsubmit=async e=>{e.preventDefault();let fd=new FormData(form),pass=String(fd.get('password')),conf=String(fd.get('confirm')),err=document.getElementById('cloudAuthError');if(pass!==conf){err.textContent='As senhas não coincidem.';return}try{await cloudJson(CLOUD_URL+'/auth/v1/user',{method:'PUT',headers:{...cloudHeaders(cloudSession.access_token),'Content-Type':'application/json'},body:JSON.stringify({password:pass})});await cloudFunction('clusterizacao-admin-users',{action:'mark_password_changed'});cloudProfile.must_change_password=false;await cloudOpenPanel()}catch(x){err.textContent=x.message}};
@@ -1778,18 +1795,22 @@ function cloudSetUserMenu(){
 }
 async function cloudOpenPanel(){
  cloudSession=await cloudRefresh();if(!cloudSession){cloudAuthScreen('login','');return}
+ let loadingStep='validar sua conta';
  try{
   let u=await cloudJson(CLOUD_URL+'/auth/v1/user',{headers:cloudHeaders(cloudSession.access_token)});cloudAuthUser=u;
+  loadingStep='verificar seu acesso ao painel';
   let p=await cloudFunction('clusterizacao-admin-users',{action:'get_me'});cloudProfile=p.user;
   if(!cloudProfile?.active||cloudProfile.deleted_at){cloudLockScreen();return}
   cloudSetUserMenu();
+  loadingStep='consultar as bases salvas';
   let meta=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});
   if(meta.state?.byte_size>0){
-   cloudStatus('Carregando bases salvas');
+   cloudStatus('Carregando bases salvas');loadingStep='baixar as bases salvas';
    let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
    if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);normalizePanelState();await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});resetCache()}}
-   else if(response.status!==404)throw new Error('Não foi possível baixar os dados salvos.');
+   else if(response.status!==404)throw new Error('O armazenamento respondeu com status '+response.status+'.');
   }else{
+   loadingStep='preparar os dados locais';
    let local=await get('state');if(local)Object.assign(state,local);normalizePanelState();
    if(local?.files?.length&&cloudCanWrite())await persist();
   }
@@ -1797,9 +1818,8 @@ async function cloudOpenPanel(){
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password){cloudAuthScreen('change','');return}
   renderTab('import');updateHeader();
- }catch(e){console.error(e);if(e.status===403){cloudLockScreen();return}cloudAuthScreen('login','Falha ao carregar os dados. Tente novamente ou contate o administrador.')}
+ }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=e.message||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
 }
-
 function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
 async function cloudLoadUsers(){
  const d=await cloudFunction('clusterizacao-admin-users',{action:'list_users'});
