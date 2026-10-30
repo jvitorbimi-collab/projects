@@ -643,6 +643,7 @@ async function persist(){
   cloudStatus('Salvando no banco');
   let s=await cloudRefresh();if(!s)throw new Error('Sessão expirada');
   let blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  if(blob.size>50*1024*1024)throw new Error('As bases excedem o limite de 50 MB do banco. Permanecem salvas neste navegador.');
   await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
   await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
   cloudStatus('Dados sincronizados');
@@ -1837,7 +1838,7 @@ async function cloudOpenPanel(){
   }else{
    loadingStep='preparar os dados locais';
    let local=await get('state');if(local)Object.assign(state,local);normalizePanelState();
-   if(local?.files?.length&&cloudCanWrite())await persist();
+   if(local?.files?.length)cloudStatus('Bases locais: sincronização pendente');
   }
   state.folderHandle=await get('folder');
   document.getElementById('cloudAuthOverlay')?.remove();
