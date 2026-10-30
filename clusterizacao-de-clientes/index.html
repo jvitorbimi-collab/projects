@@ -1286,10 +1286,9 @@ let lp=latestPeriod(),clMap=new Map(buildPDVs(lp.y,lp.s).map(x=>[x.code,x.cluste
 let m=new Map();
 for(let x of operationData()){
  if(x.year!==Number(state.params.monthlyYear)||!x.month)continue;
- let k=x.code+'|'+x.month+'|'+x.year,v=m.get(k)||{code:x.code,name:x.name,month:x.month,year:x.year,vis:0,ot:0,iff:0};
+ let k=x.code+'|'+x.month+'|'+x.year,v=m.get(k)||{code:x.code,name:x.name,month:x.month,year:x.year,vis:0,ot:0,iff:0,otif:0};
  v.vis++;if(x.onTime)v.ot++;if(x.inFull)v.iff++;if(x.onTime&&x.inFull)v.otif++;m.set(k,v)
 }
-for(let s of state.data['Nível mensal']||[])for(let r of s.rows){let c=code(r.Cliente);if(!c)continue;let k=c+'|'+s.month+'|'+state.params.monthlyYear,v=m.get(k)||{code:c,name:norm(r['Nome Cliente']),month:s.month,year:state.params.monthlyYear,vis:0,ot:0,iff:0};v.vis+=num(r.Visita);v.ot+=num(r['Visita OT']);v.iff+=num(r['Visita IF']);m.set(k,v)}
 let ratings=new Map();for(let s of state.data.Rating||[])for(let r of s.rows){let c=code(r['Cod PDV']);if(!c)continue;let d=new Date(r['Data da Avaliação']);if(isNaN(d))continue;let k=c+'|'+d.getFullYear()+'|'+(d.getMonth()+1),v=ratings.get(k)||{sum:0,n:0,classes:{}};v.sum+=num(r.Avaliação);v.n++;let cl=norm(r.Classificação)||'Sem classificação';v.classes[cl]=(v.classes[cl]||0)+1;ratings.set(k,v)}
 let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.vis?x.ot/x.vis:0,ifPct:x.vis?x.iff/x.vis:0,otif:x.vis?x.otif/x.vis:0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});
 CACHE.service={key:ck,rows};return rows}
