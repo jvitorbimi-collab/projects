@@ -615,7 +615,7 @@ const DISPLAY_LIMIT=500;
 function resetCache(){CACHE.pdvByPeriod.clear();CACHE.service=null;CACHE.lastUpdate=state.lastUpdate}
 function normalizePanelState(){state.files=Array.isArray(state.files)?state.files:[];state.data=state.data&&typeof state.data==='object'?state.data:{};let p=state.params&&typeof state.params==='object'?state.params:{};state.params={...p,deliveries:{Winner:3,Grower:2,'Alto volume':2,Basic:1,'Low sales':1,...(p.deliveries||{})},nearPct:Number.isFinite(+p.nearPct)?+p.nearPct:10,monthlyYear:Number.isFinite(+p.monthlyYear)?+p.monthlyYear:2026,actionStatus:p.actionStatus&&typeof p.actionStatus==='object'?p.actionStatus:{}}}
 function fmtInt(v){return Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0})}
-function latestPeriod(){let ys=periods();let y=ys.at(-1)||2025,s=2;return {y,s}}
+function latestPeriod(){let all=[];for(let x of operationData())if(x.year&&x.month)all.push({y:x.year,s:x.month<=6?1:2});for(let src of state.data.Volume||[])for(let r of src.rows){let p=dateParts(r['Data']||r['Data      ']);if(p)all.push({y:p.y,s:p.m<=6?1:2})}all.sort((a,b)=>a.y-b.y||a.s-b.s);return all.at(-1)||{y:2025,s:2}}
 
 function badgeClass(v){return norm(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}
 function monthName(n){return Object.entries(MONTHS).find(([k,v])=>v==n&&k!=='marco')?.[0]?.replace(/^./,c=>c.toUpperCase())||('Mês '+n)}
@@ -742,9 +742,9 @@ function getClusterParams(){
  return out.sort((a,b)=>b.priority-a.priority)
 }
 function classify(v,g,r,ps){for(let p of ps)if(v>=p.min&&v<=p.max&&(p.rel<=-9999||r>=p.rel)&&(p.growth<=-9999||g>=p.growth))return p.cluster;return 'Sem cluster'}
-function periods(){let ys=new Set();for(let s of state.data.Volume||[])for(let r of s.rows){let m=norm(r['Data']||r['Data      ']).match(/(\d{4})/);if(m)ys.add(+m[1])}return [...ys].sort()}
+function periods(){let ys=new Set();for(let x of operationData())if(x.year&&x.month)ys.add(x.year);for(let s of state.data.Volume||[])for(let r of s.rows){let m=norm(r['Data']||r['Data      ']).match(/(\d{4})/);if(m)ys.add(+m[1])}return [...ys].sort((a,b)=>a-b)}
 function filterControls(id){
- let box=$(id),ys=periods(),oldY=box.querySelector('.fy')?.value,oldS=box.querySelector('.fs')?.value||'2',oldC=box.querySelector('.fc')?.value||'',oldQ=box.querySelector('.fq')?.value||'',y=(oldY&&ys.includes(+oldY))?+oldY:(ys.at(-1)||2025);
+ let box=$(id),ys=periods(),oldY=box.querySelector('.fy')?.value,oldS=box.querySelector('.fs')?.value||String(latestPeriod().s),oldC=box.querySelector('.fc')?.value||'',oldQ=box.querySelector('.fq')?.value||'',y=(oldY&&ys.includes(+oldY))?+oldY:(ys.at(-1)||2025);
  let oldZ=box.querySelector('.fz')?.value||'hide';
  let controls=`
  <label class="filter-field"><span class="filter-label">Ano</span><select class="fy">${ys.length?ys.map(x=>`<option value="${x}" ${x===y?'selected':''}>${x}</option>`).join(''):`<option value="${y}">${y}</option>`}</select></label>
@@ -1444,7 +1444,7 @@ for(let x of operationData()){
  m.set(k,v)
 }
 let ratings=new Map();for(let s of state.data.Rating||[])for(let r of s.rows){let c=code(r['Cod PDV']);if(!c)continue;let d=new Date(r['Data da Avaliação']);if(isNaN(d))continue;let k=c+'|'+d.getFullYear()+'|'+(d.getMonth()+1),v=ratings.get(k)||{sum:0,n:0,classes:{}};v.sum+=num(r.Avaliação);v.n++;let cl=norm(r.Classificação)||'Sem classificação';v.classes[cl]=(v.classes[cl]||0)+1;ratings.set(k,v)}
-let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.onTimeN?x.ot/x.onTimeN:0,ifPct:x.inFullN?x.iff/x.inFullN:0,otif:x.otifN?x.otif/x.otifN:0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});
+let rows=[...m.values()].map(x=>{let r=ratings.get(x.code+'|'+x.year+'|'+x.month)||{sum:0,n:0,classes:{}};return {...x,cluster:clMap.get(x.code)||'Sem cluster',otPct:x.onTimeN?x.ot/x.onTimeN:0,ifPct:x.inFullN?x.iff/x.inFullN:0,otifOk:x.otif,otif:x.otifN?x.otif/x.otifN:0,rating:r.n?r.sum/r.n:null,ratingN:r.n,classes:r.classes}});
 CACHE.service={key:ck,rows};return rows}
 
 function ensureChartHoverTip(){
@@ -1495,7 +1495,7 @@ function renderService(){
  addClearFilter($('#serviceFilters'),renderService);
  let mo=$('#serviceFilters .sm').value,cl=$('#serviceFilters .sc').value,q=$('#serviceFilters .sq').value.toLowerCase();
  d=d.filter(x=>(!mo||x.month==mo)&&(!cl||x.cluster===cl)&&(!q||(x.code+' '+x.name).toLowerCase().includes(q)));
- let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),onN=d.reduce((s,x)=>s+x.onTimeN,0),iff=d.reduce((s,x)=>s+x.iff,0),ifN=d.reduce((s,x)=>s+x.inFullN,0),otif=d.reduce((s,x)=>s+x.otif,0),otifN=d.reduce((s,x)=>s+x.otifN,0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
+ let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),onN=d.reduce((s,x)=>s+x.onTimeN,0),iff=d.reduce((s,x)=>s+x.iff,0),ifN=d.reduce((s,x)=>s+x.inFullN,0),otif=d.reduce((s,x)=>s+x.otifOk,0),otifN=d.reduce((s,x)=>s+x.otifN,0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
  let otv=onN?ot/onN:null,ifv=ifN?iff/ifN:null,otifv=otifN?otif/otifN:null,rat=rn?rs/rn:null;
  $('#serviceScopeChip').innerHTML=`<strong>${mo?monthName(mo):'Todos os meses'}</strong>${cl?' · '+cl:''}`;
  $('#serviceKpis').innerHTML=[
@@ -1504,13 +1504,13 @@ function renderService(){
   ['OTIF',otifv===null?'—':pct(otifv),otifv,'OTIF: On Time e In Full aprovados na mesma entrega'],
   ['Rating médio',rat===null?'—':rat.toFixed(2),null,`${fmtInt(rn)} avaliações no filtro`]
  ].map((x,i)=>`<div class="card kpi ${i===2&&otifv!==null?(otifv>=.95?'good':otifv<.85?'bad':'warn'):''}"><div class="label tooltip" title="${x[3]}">${x[0]}</div><div class="val">${x[1]}</div><div class="hint">${i===0?fmtInt(onN)+' atendimentos com datas válidas':i===1?fmtInt(ifN)+' atendimentos com volumes válidos':i===2?fmtInt(otifN)+' atendimentos válidos para os dois critérios':fmtInt(rn)+' avaliações'}</div>${x[2]!==null?`<div class="tinybar"><i style="width:${Math.min(100,x[2]*100)}%"></i></div>`:''}</div>`).join('');
- let months={};for(let x of d){let z=months[x.month]||(months[x.month]={on:0,ot:0,inn:0,iff:0,ofn:0,otif:0});z.on+=x.onTimeN;z.ot+=x.ot;z.inn+=x.inFullN;z.iff+=x.iff;z.ofn+=x.otifN;z.otif+=x.otif}
+ let months={};for(let x of d){let z=months[x.month]||(months[x.month]={on:0,ot:0,inn:0,iff:0,ofn:0,otif:0});z.on+=x.onTimeN;z.ot+=x.ot;z.inn+=x.inFullN;z.iff+=x.iff;z.ofn+=x.otifN;z.otif+=x.otifOk}
  let monthChart=Object.entries(months).sort((a,b)=>a[0]-b[0]).map(([m,x])=>({key:String(m),label:monthName(m).slice(0,3),otif:x.ofn?x.otif/x.ofn:0,ot:x.on?x.ot/x.on:0,iff:x.inn?x.iff/x.inn:0}));
  $('#serviceMonthCombo').innerHTML=serviceComboChart(monthChart,'month');
  let cls={};for(let x of d)for(let [k,v] of Object.entries(x.classes))cls[k]=(cls[k]||0)+v;
  $('#ratingSplit').innerHTML=Object.keys(cls).length?barsHTML(Object.entries(cls).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Sem ratings no período.</div>';
  let clusters=['Winner','Grower','Alto volume','Basic','Low sales'];
- let byCluster=clusters.map(c=>{let r=d.filter(x=>x.cluster===c),oN=r.reduce((s,x)=>s+x.onTimeN,0),o=r.reduce((s,x)=>s+x.ot,0),iN=r.reduce((s,x)=>s+x.inFullN,0),f=r.reduce((s,x)=>s+x.iff,0),ofN=r.reduce((s,x)=>s+x.otifN,0),oif=r.reduce((s,x)=>s+x.otif,0),v=r.reduce((s,x)=>s+x.vis,0),rnC=r.reduce((s,x)=>s+x.ratingN,0),rsC=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);return {cluster:c,pdvs:new Set(r.map(x=>x.code)).size,vis:v,ot:oN?o/oN:null,iff:iN?f/iN:null,otif:ofN?oif/ofN:null,rating:rnC?rsC/rnC:null,ratingN:rnC}}).filter(x=>x.vis>0||x.ratingN>0);
+ let byCluster=clusters.map(c=>{let r=d.filter(x=>x.cluster===c),oN=r.reduce((s,x)=>s+x.onTimeN,0),o=r.reduce((s,x)=>s+x.ot,0),iN=r.reduce((s,x)=>s+x.inFullN,0),f=r.reduce((s,x)=>s+x.iff,0),ofN=r.reduce((s,x)=>s+x.otifN,0),oif=r.reduce((s,x)=>s+x.otifOk,0),v=r.reduce((s,x)=>s+x.vis,0),rnC=r.reduce((s,x)=>s+x.ratingN,0),rsC=r.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);return {cluster:c,pdvs:new Set(r.map(x=>x.code)).size,vis:v,ot:oN?o/oN:null,iff:iN?f/iN:null,otif:ofN?oif/ofN:null,rating:rnC?rsC/rnC:null,ratingN:rnC}}).filter(x=>x.vis>0||x.ratingN>0);
  let rank=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif);
  $('#otifClusterRank').innerHTML=rank.length?rank.map((x,i)=>`<div class="rankrow cluster-filter-row" data-cluster="${x.cluster}" title="Clique para filtrar o painel por ${x.cluster}"><div><b>${i===0?'⚠ ':''}${x.cluster}</b><div class="rankbar"><i style="width:${Math.min(100,x.otif*100)}%"></i></div></div><b style="text-align:right" class="${x.otif<.85?'neg':x.otif<.95?'warn':'pos'}">${pct(x.otif)}</b></div>`).join(''):'<div class="empty">Sem dados por cluster.</div>';
  $('#serviceByCluster').innerHTML=byCluster.length?`<div style="overflow:auto"><table><thead><tr><th>Cluster</th><th>PDVs</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>${byCluster.map(x=>`<tr><td><span class="badge ${badgeClass(x.cluster)}">${x.cluster}</span></td><td>${fmtInt(x.pdvs)}</td><td>${x.ot===null?'—':pct(x.ot)}</td><td>${x.iff===null?'—':pct(x.iff)}</td><td>${x.otif===null?'—':`<b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b><div class="tinybar" style="margin-top:5px"><i style="width:${Math.min(100,x.otif*100)}%"></i></div>`}</td><td><b>${x.rating===null?'—':x.rating.toFixed(2)}</b></td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sem dados por cluster.</div>';
