@@ -610,12 +610,12 @@ Como funciona a clusterização
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const DB='pdv-intelligence-v1', STORE='kv'; let db, state={files:[],data:{},params:{deliveries:{Winner:3,Grower:2,"Alto volume":2,Basic:1,"Low sales":1},nearPct:10,monthlyYear:2026,actionStatus:{}},folderHandle:null,lastUpdate:null};
-const CACHE={pdvByPeriod:new Map(),service:null,lastUpdate:null};
+const CACHE={pdvByPeriod:new Map(),service:null,operation:null,lastUpdate:null};
 const DISPLAY_LIMIT=500;
-function resetCache(){CACHE.pdvByPeriod.clear();CACHE.service=null;CACHE.lastUpdate=state.lastUpdate}
+function resetCache(){CACHE.pdvByPeriod.clear();CACHE.service=null;CACHE.operation=null;CACHE.lastUpdate=state.lastUpdate}
 function normalizePanelState(){state.files=Array.isArray(state.files)?state.files:[];state.data=state.data&&typeof state.data==='object'?state.data:{};let p=state.params&&typeof state.params==='object'?state.params:{};state.params={...p,deliveries:{Winner:3,Grower:2,'Alto volume':2,Basic:1,'Low sales':1,...(p.deliveries||{})},nearPct:Number.isFinite(+p.nearPct)?+p.nearPct:10,monthlyYear:Number.isFinite(+p.monthlyYear)?+p.monthlyYear:2026,actionStatus:p.actionStatus&&typeof p.actionStatus==='object'?p.actionStatus:{}}}
 function fmtInt(v){return Number(v||0).toLocaleString('pt-BR',{maximumFractionDigits:0})}
-function latestPeriod(){let all=[];for(let x of operationData())if(x.year&&x.month)all.push({y:x.year,s:x.month<=6?1:2});for(let src of state.data.Volume||[])for(let r of src.rows){let p=dateParts(r['Data']||r['Data      ']);if(p)all.push({y:p.y,s:p.m<=6?1:2})}all.sort((a,b)=>a.y-b.y||a.s-b.s);return all.at(-1)||{y:2025,s:2}}
+function latestPeriod(){let best=null;const add=(y,m)=>{if(!y||!m)return;let s=m<=6?1:2;if(!best||y>best.y||(y===best.y&&s>best.s))best={y,s}};for(let x of operationData())add(x.year,x.month);for(let src of state.data.Volume||[])for(let r of src.rows){let p=dateParts(r['Data']||r['Data      ']);if(p)add(p.y,p.m)}return best||{y:2025,s:2}}
 
 function badgeClass(v){return norm(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'-')}
 function monthName(n){return Object.entries(MONTHS).find(([k,v])=>v==n&&k!=='marco')?.[0]?.replace(/^./,c=>c.toUpperCase())||('Mês '+n)}
@@ -706,6 +706,7 @@ function beesExpectedDate(orderDate,days){
  return '';
 }
 function operationData(){
+ let operationKey=String(state.lastUpdate||'')+'|'+String(state.params.monthlyYear);if(CACHE.operation?.key===operationKey)return CACHE.operation.rows;
  let schedules=new Map();
  for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
  let m=new Map();
@@ -717,11 +718,12 @@ function operationData(){
   if(!marked) v.markedValid=false; else v.marked+=num(marked);
   if(!delivered) v.deliveredValid=false; else v.deliveredVolume+=num(delivered);
  }
- return [...m.values()].map(x=>{
+ let rows=[...m.values()].map(x=>{
   let onTimeValid=!!(x.expected&&x.actual),inFullValid=x.markedValid&&x.deliveredValid;
   let onTime=onTimeValid?x.expected===x.actual:null,inFull=inFullValid?Math.abs(x.marked-x.deliveredVolume)<0.000001:null;
   return {...x,onTime,onTimeValid,inFull,inFullValid,otifValid:onTimeValid&&inFullValid,otif:onTimeValid&&inFullValid&&onTime&&inFull}
- })
+ });
+ CACHE.operation={key:operationKey,rows};return rows;
 }
 function buildPDVs(refYear=2025,refSem=2){
 let cacheKey=refYear+'|'+refSem+'|'+JSON.stringify(state.params.deliveries)+'|'+(state.lastUpdate||'');
