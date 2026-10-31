@@ -642,6 +642,8 @@ td b{color:var(--ink)}
 
 /* ---------- Responsivo ---------- */
 
+.analysis-node-value .analysis-vol{display:block;margin-top:2px;color:var(--teal);font-weight:700;white-space:nowrap}
+.analysis-product-note{margin:6px 0}
 /* menu lateral recolhível (desktop) */
 .side-toggle{flex:0 0 auto;display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid var(--stroke);border-radius:var(--r-sm);background:var(--surface);color:var(--ink-2);cursor:pointer;box-shadow:var(--sh-1);transition:background .15s,color .15s,border-color .15s}
 .side-toggle:hover{background:var(--brand-50);color:var(--brand-600);border-color:var(--brand-100)}
@@ -1132,18 +1134,25 @@ function validOrderDates(expected){
  return out;
 }
 function reasonKey(v){return norm(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function productColumns(sample){
+ let keys=Object.keys(sample||{}),canon=keys.map(k=>[canonHeader(k),k]),pick=fn=>(canon.find(([c])=>fn(c))||[])[1];
+ let name=pick(c=>['produto','nomeproduto','descricaoproduto','descproduto','descricaodoproduto','item','nomeitem','descricaoitem','material','descricaomaterial','sku'].includes(c))||pick(c=>c.includes('produto')&&!/(cod|id|^cd)/.test(c));
+ let cod=pick(c=>['codproduto','codigoproduto','cdproduto','idproduto','coditem','codigoitem','codmaterial','codsku'].includes(c))||pick(c=>c.includes('produto')&&/(cod|id|^cd)/.test(c));
+ return {name:name||cod,cod:name&&cod!==name?cod:undefined};
+}
 function operationData(){
  let operationKey=String(state.lastUpdate||'')+'|'+String(state.params.monthlyYear)+'|'+JSON.stringify(state.params.holidays||[]);if(CACHE.operation?.key===operationKey)return CACHE.operation.rows;
  let schedules=new Map();
  for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
  let m=new Map();
- for(let s of state.data['Operação 03.01.47.01']||[])for(let r of s.rows){
+ for(let s of state.data['Operação 03.01.47.01']||[]){let pc=productColumns(s.rows[0]);for(let r of s.rows){
   let c=code(r.Cliente),pedido=norm(r.Pedido),ddc=code(r['Cod Puxada']);if(!c||c==='0'||!pedido)continue;
   let orderDate=dateKey(r.Data),key=ddc+'|'+c+'|'+pedido+'|'+orderDate,v=m.get(key);
   if(!v){let days=schedules.get(ddc+'|'+c)||[],dp=dateParts(r.Data);v={code:c,pedido,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(dp?.m||s.month||monthFromName(s.name)||0),year:Number(dp?.y)||Number(state.params.monthlyYear),orderDate,days,managerCode:norm(r['Gerente Vendas']),managerName:norm(r['Nome Gerente Vendas']),sectorCode:norm(r['Setor']),sectorName:norm(r['Nome Setor']),citySource:norm(r['Nome Município']||r['Nome Municipio']),expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true,motives:new Set(),normalRows:0,deletedRows:0};m.set(key,v)}
   let motive=norm(r.Motivo),mk=reasonKey(motive);if(motive&&mk!=='pedido normal')v.motives.add(motive);if(mk.includes('pedido exclu'))v.deletedRows++;else v.normalRows++;
   let marked=norm(r['Volume Marcacao']),delivered=norm(r['Volume Entrega']);if(!marked)v.markedValid=false;else v.marked+=num(marked);if(!delivered)v.deliveredValid=false;else v.deliveredVolume+=num(delivered);
- }
+  if(pc.name){let pn=norm(r[pc.name]),pk=pc.cod?norm(r[pc.cod]):'';(v.lines||(v.lines=[])).push({key:[pk,pn].filter(Boolean).join(' · ')||'Produto não identificado',m:marked?num(marked):0,d:delivered?num(delivered):0,del:mk.includes('pedido exclu')})}
+ }}
  let holidays=new Set((state.params.holidays||[]).map(x=>x.date));
  let rows=[...m.values()].map(x=>{
   let motives=[...x.motives],deleted=x.deletedRows>0&&x.normalRows===0,hasDeleted=x.deletedRows>0,hasCancelReturn=motives.some(z=>/cancel|devolu/.test(reasonKey(z))),holiday=holidays.has(isoDateFromKey(x.expected));
@@ -1774,24 +1783,37 @@ function renderServiceImpact(visible){
  const location=x=>byUnit.get(unitKey(x.unit)+'|'+x.code)||(!duplicate.has(x.code)?byCode.get(x.code):null)||{city:x.citySource||'',bairro:''};
  const safe=x=>cloudEsc(String(x||'')),pctParent=(n,total)=>total?pct(n/total):'—';
  const nodes=new Map();let nextId=0;
- function addNode(kind,title,items,parentCount,type){let id=String(++nextId);nodes.set(id,{kind,title,items,parentCount,type});return id}
- function nodeHtml(kind,title,items,parentCount,type){let id=addNode(kind,title,items,parentCount,type);return '<div class="analysis-node"><button class="analysis-node-button" type="button" data-analysis-node="'+id+'" aria-expanded="false"><span class="analysis-node-main"><span class="analysis-toggle">+</span><span class="analysis-node-name"><small>'+safe(({criterion:'INDICADOR',reason:'MOTIVO',manager:'GERENTE',sector:'SETOR',city:'CIDADE',bairro:'BAIRRO',pdv:'PDV'})[kind]||'')+'</small><b>'+safe(title)+'</b></span></span><span class="analysis-node-value"><b>'+fmtInt(items.length)+'</b><small>pedidos · '+pctParent(items.length,parentCount)+' do nível anterior</small></span></button><div class="analysis-node-children" data-analysis-children="'+id+'" hidden></div></div>'}
+ let ctxProduct=null;
+ function addNode(kind,title,items,parentCount,type,product=ctxProduct){let id=String(++nextId);nodes.set(id,{kind,title,items,parentCount,type,product});return id}
+ function nodeHtml(kind,title,items,parentCount,type,product,meta){let id=addNode(kind,title,items,parentCount,type,product);return '<div class="analysis-node"><button class="analysis-node-button" type="button" data-analysis-node="'+id+'" aria-expanded="false"><span class="analysis-node-main"><span class="analysis-toggle">+</span><span class="analysis-node-name"><small>'+safe(({criterion:'INDICADOR',reason:'MOTIVO',manager:'GERENTE',product:'PRODUTO',sector:'SETOR',city:'CIDADE',bairro:'BAIRRO',pdv:'PDV'})[kind]||'')+'</small><b>'+safe(title)+'</b></span></span><span class="analysis-node-value"><b>'+fmtInt(items.length)+'</b><small>pedidos · '+pctParent(items.length,parentCount)+' do nível anterior</small>'+(meta||'')+'</span></button><div class="analysis-node-children" data-analysis-children="'+id+'" hidden></div></div>'}
  function grouped(items,keyFn,kind,type){let groups=new Map();for(const x of items){let key=keyFn(x)||'Não informado';let list=groups.get(key)||[];list.push(x);groups.set(key,list)}return [...groups.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'pt-BR')).map(([key,list])=>nodeHtml(kind,key,list,items.length,type)).join('')}
  function reasons(items,type){let groups=new Map();for(const x of items){let reasons=eventImpactReasons(x,type);if(!reasons.length)reasons=['Motivo não informado'];for(const reason of reasons){let list=groups.get(reason)||[];list.push(x);groups.set(reason,list)}}return [...groups.entries()].sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0],'pt-BR')).map(([reason,list])=>nodeHtml('reason',reason,list,items.length,type)).join('')}
- function orderTable(items){return '<div class="analysis-order-list"><div class="tablewrap"><table><thead><tr><th>Pedido</th><th>Data do pedido</th><th>Entrega prevista</th><th>Entrega realizada</th><th>Motivos</th></tr></thead><tbody>'+items.slice(0,100).map(x=>'<tr><td>'+safe(x.pedido)+'</td><td>'+safe(x.orderDate||'—')+'</td><td>'+safe(x.expected||'—')+'</td><td>'+safe(x.actual||'—')+'</td><td>'+safe(x.motives.join(', ')||'—')+'</td></tr>').join('')+'</tbody></table></div>'+(items.length>100?'<small>Exibindo 100 de '+fmtInt(items.length)+' pedidos.</small>':'')+'</div>'}
+ const lineGap=l=>l.del||Math.abs(l.m-l.d)>0.000001,NO_PRODUCT='Produto não identificado';
+ const productVol=(x,product)=>{let m=0,d=0,hit=false;for(const l of x.lines||[])if(l.key===product&&lineGap(l)){m+=l.m;d+=l.d;hit=true}return {m,d,hit}};
+ const hasProducts=rows.some(x=>x.lines&&x.lines.length);
+ const volMeta=(m,d)=>'<small class="analysis-vol">Marcado '+fmt(m)+' · Entregue '+fmt(d)+' · Falta '+fmt(Math.max(0,m-d))+'</small>';
+ function productGroups(items,type){
+  let groups=new Map();
+  for(const x of items){let seen=new Set();for(const l of x.lines||[]){if(!lineGap(l))continue;let g=groups.get(l.key);if(!g){g={orders:[],m:0,d:0};groups.set(l.key,g)}g.m+=l.m;g.d+=l.d;if(!seen.has(l.key)){seen.add(l.key);g.orders.push(x)}}
+   if(!seen.size){let g=groups.get(NO_PRODUCT);if(!g){g={orders:[],m:0,d:0};groups.set(NO_PRODUCT,g)}g.orders.push(x)}}
+  return [...groups.entries()].sort((a,b)=>(b[1].m-b[1].d)-(a[1].m-a[1].d)||b[1].orders.length-a[1].orders.length||a[0].localeCompare(b[0],'pt-BR')).map(([key,g])=>nodeHtml('product',key,g.orders,items.length,type,key,volMeta(g.m,g.d))).join('');
+ }
+ function orderTable(items,product){let vol=!!product;return '<div class="analysis-order-list"><div class="tablewrap"><table><thead><tr><th>Pedido</th><th>Data do pedido</th><th>Entrega prevista</th><th>Entrega realizada</th>'+(vol?'<th>Marcado (produto)</th><th>Entregue (produto)</th>':'')+'<th>Motivos</th></tr></thead><tbody>'+items.slice(0,100).map(x=>{let pv=vol?productVol(x,product):null;return '<tr><td>'+safe(x.pedido)+'</td><td>'+safe(x.orderDate||'—')+'</td><td>'+safe(x.expected||'—')+'</td><td>'+safe(x.actual||'—')+'</td>'+(vol?'<td>'+fmt(pv.m)+'</td><td>'+fmt(pv.d)+'</td>':'')+'<td>'+safe(x.motives.join(', ')||'—')+'</td></tr>'}).join('')+'</tbody></table></div>'+(items.length>100?'<small>Exibindo 100 de '+fmtInt(items.length)+' pedidos.</small>':'')+'</div>'}
  function children(node){
-  const a=node.items;
+  const a=node.items;ctxProduct=node.product||null;
   if(node.kind==='root'){if(metric==='otif'){let ot=a.filter(x=>!x.deleted&&x.onTimeValid&&!x.onTime),inf=a.filter(x=>x.inFullValid&&!x.inFull);return (ot.length?nodeHtml('criterion','On Time',ot,a.length,'onTime'):'')+(inf.length?nodeHtml('criterion','In Full',inf,a.length,'inFull'):'')||'<div class="empty">Nenhum impacto identificado.</div>'}return reasons(a,metric)||'<div class="empty">Nenhum impacto identificado.</div>'}
   if(node.kind==='criterion')return reasons(a,node.type);
   if(node.kind==='reason')return grouped(a,x=>[x.managerCode,x.managerName].filter(Boolean).join(' · '),'manager',node.type);
-  if(node.kind==='manager')return grouped(a,x=>[x.sectorCode,x.sectorName].filter(Boolean).join(' · '),'sector',node.type);
+  if(node.kind==='manager'&&node.type==='inFull'&&hasProducts)return productGroups(a,node.type);
+  if(node.kind==='manager')return (node.type==='inFull'&&!hasProducts?'<div class="note analysis-product-note">Abertura por produto indisponível: a base de operação importada não possui coluna de produto.</div>':'')+grouped(a,x=>[x.sectorCode,x.sectorName].filter(Boolean).join(' · '),'sector',node.type);
+  if(node.kind==='product')return grouped(a,x=>[x.sectorCode,x.sectorName].filter(Boolean).join(' · '),'sector',node.type);
   if(node.kind==='sector')return grouped(a,x=>location(x).city||x.citySource,'city',node.type);
   if(node.kind==='city')return grouped(a,x=>location(x).bairro,'bairro',node.type);
   if(node.kind==='bairro')return grouped(a,x=>x.code+' · '+(x.name||'PDV sem nome'),'pdv',node.type);
-  return orderTable(a);
+  return orderTable(a,node.product);
  }
  const id=addNode('root',label,failed,eligible.length,metric),rate=eligible.length?pct(ok/eligible.length):'—';
- root.innerHTML='<div class="analysis-tree"><button class="analysis-root" type="button" data-analysis-node="'+id+'" aria-expanded="false"><span class="analysis-root-main"><span class="analysis-toggle">+</span><span><small>INDICADOR SELECIONADO</small><strong>'+safe(label)+'</strong><em>'+fmtInt(eligible.length)+' pedidos válidos · '+fmtInt(ok)+' OK</em></span></span><span class="analysis-root-result"><b>'+rate+'</b><small>resultado</small></span><span class="analysis-root-impact"><b>'+fmtInt(failed.length)+'</b><small>pedidos com impacto</small></span></button><div class="analysis-node-children analysis-first-level" data-analysis-children="'+id+'" hidden></div><p class="analysis-note">Clique para abrir cada nível: indicador, motivo, gerente, setor, cidade, bairro e PDV. Um pedido pode aparecer em mais de um motivo ou indicador; os percentuais usam o total do nível anterior.</p></div>';
+ root.innerHTML='<div class="analysis-tree"><button class="analysis-root" type="button" data-analysis-node="'+id+'" aria-expanded="false"><span class="analysis-root-main"><span class="analysis-toggle">+</span><span><small>INDICADOR SELECIONADO</small><strong>'+safe(label)+'</strong><em>'+fmtInt(eligible.length)+' pedidos válidos · '+fmtInt(ok)+' OK</em></span></span><span class="analysis-root-result"><b>'+rate+'</b><small>resultado</small></span><span class="analysis-root-impact"><b>'+fmtInt(failed.length)+'</b><small>pedidos com impacto</small></span></button><div class="analysis-node-children analysis-first-level" data-analysis-children="'+id+'" hidden></div><p class="analysis-note">Clique para abrir cada nível: indicador, motivo, gerente, produto (no In Full), setor, cidade, bairro e PDV. Um pedido pode aparecer em mais de um motivo ou indicador; os percentuais usam o total do nível anterior.</p></div>';
  root.onclick=e=>{const button=e.target.closest('[data-analysis-node]');if(!button||!root.contains(button))return;let id=button.dataset.analysisNode,node=nodes.get(id),target=root.querySelector('[data-analysis-children="'+id+'"]');if(!node||!target)return;let opening=button.getAttribute('aria-expanded')!=='true';if(opening&&!target.dataset.loaded){target.innerHTML=children(node);target.dataset.loaded='1'}target.hidden=!opening;button.setAttribute('aria-expanded',String(opening));button.querySelector('.analysis-toggle').textContent=opening?'−':'+'};
 }
 
