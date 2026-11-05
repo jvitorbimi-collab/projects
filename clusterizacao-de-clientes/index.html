@@ -1153,7 +1153,7 @@ function reasonKey(v){return norm(v).normalize('NFD').replace(/[\u0300-\u036f]/g
 function productColumns(sample){
  let keys=Object.keys(sample||{}),canon=keys.map(k=>[canonHeader(k),k]),pick=fn=>(canon.find(([c])=>fn(c))||[])[1];
  let name=pick(c=>['produto','nomeproduto','descricaoproduto','descproduto','descricaodoproduto','item','nomeitem','descricaoitem','material','descricaomaterial','sku'].includes(c))||pick(c=>c.includes('produto')&&!/(cod|id|^cd)/.test(c));
- let cod=pick(c=>['codproduto','codigoproduto','cdproduto','idproduto','coditem','codigoitem','codmaterial','codsku'].includes(c))||pick(c=>c.includes('produto')&&/(cod|id|^cd)/.test(c));
+ let cod=pick(c=>['codproduto','codigoproduto','cdproduto','idproduto','coditem','codigoitem','codmaterial','codsku','codprod','codigoprod','cdprod','idprod'].includes(c))||pick(c=>c.includes('produto')&&/(cod|id|^cd)/.test(c))||pick(c=>/^(cod|cd|id)prod/.test(c))||(canon[32]&&/prod/.test(canon[32][0])?canon[32][1]:undefined);
  return {name:name||cod,cod:name&&cod!==name?cod:undefined};
 }
 function operationData(){
