@@ -101,6 +101,7 @@ td{padding:9px 10px;border-bottom:1px solid rgba(38,60,87,.48);white-space:nowra
 .chart-hover-tip .r span:first-child{color:#9fbad2}
 .service-combo .line-label-if{fill:#c6b5ff;font-weight:800;font-size:10px}
 .service-combo .line-label-ot{fill:#ffc39a;font-weight:800;font-size:10px}
+.service-tabs{display:flex;gap:5px;margin:0 0 14px;padding:4px;border:1px solid var(--line);border-radius:13px;background:rgba(10,22,38,.72);width:max-content}.service-tab{border:0;border-radius:9px;padding:9px 14px;background:transparent;color:var(--muted);font-weight:800;cursor:pointer}.service-tab.active{background:var(--primary);color:#05231a}.return-layout{display:grid;gap:12px}.return-block{margin-top:12px}.return-block h3{margin:0 0 10px;font-size:13px}.return-table{max-height:360px}.return-pct{color:#83e8c9;font-weight:800}
 
 
 .filter-field{display:flex;flex-direction:column;gap:6px;min-width:162px}
@@ -859,6 +860,10 @@ Como funciona a clusterização
 <section id="service" class="tab">
 <div class="hero service-hero"><div><h2>Nível de serviço</h2><p>Leitura executiva de On Time, In Full, OTIF e Rating com foco em prioridade de atuação por cluster.</p></div><div class="health"><span class="healthchip" id="serviceScopeChip">Todos os meses</span></div></div>
 
+<div class="service-tabs" role="tablist" aria-label="Nível de serviço"><button class="service-tab active" type="button" role="tab" aria-selected="true" data-service-tab="serviceDeliveryPanel">Entrega e espera</button><button class="service-tab" type="button" role="tab" aria-selected="false" data-service-tab="serviceReturnsPanel">Devolução</button></div>
+
+<div id="serviceDeliveryPanel">
+
 <div class="filters service-filters" id="serviceFilters"></div>
 
 <div class="kpigrid service-kpis" id="serviceKpis"></div><div class="card" style="margin:14px 0"><div class="cardhead"><h3>Árvore de impactos</h3><span class="meta">Pedidos que impactaram o indicador selecionado</span></div><div class="toolbar"><label>Indicador <select id="impactMetric"><option value="otif">OTIF</option><option value="onTime">On Time</option><option value="inFull">In Full</option></select></label></div><div id="impactTree"></div></div>
@@ -926,6 +931,13 @@ Como funciona a clusterização
 <div class="tablecard">
   <div class="tablemeta"><span>OT, IF, OTIF e Rating</span><span>até 500 linhas exibidas</span></div>
   <div class="tablewrap"><table id="serviceTable"></table></div>
+</div>
+</div>
+
+<div id="serviceReturnsPanel" hidden>
+<div class="hero"><div><h2>Devolução</h2><p>Indicadores do relatório 03.01.47 por PDV, motivo, responsabilidade, RN e gerente.</p></div><div class="health"><span class="healthchip" id="returnScopeChip">Todos os períodos</span></div></div>
+<div class="filters" id="returnFilters"><label>De <input class="rf" data-return-filter="from" type="date"></label><label>Até <input class="rt" data-return-filter="to" type="date"></label><select class="rm" data-return-filter="motivo"><option value="">Todos os motivos</option></select><select class="rr" data-return-filter="responsabilidade"><option value="">Todas as responsabilidades</option></select><select class="rg" data-return-filter="gerente"><option value="">Todos os gerentes</option></select><button class="btn ghost" type="button" id="clearReturnFilters">Limpar filtros</button></div>
+<div class="kpigrid" id="returnKpis"></div><div id="returnContent"></div>
 </div>
 </section>
 
@@ -1781,6 +1793,36 @@ function renderService(){
 
  bindServiceChartInteractions();renderServiceImpact(d);
 }
+
+function devolutionRows(){
+ let out=[];
+ for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){
+  if(!/devolu/i.test(norm(r.Motivo)))continue;
+  let hl=num(r['Volume Marcacao']);if(!(hl>0))continue;
+  out.push({date:isoDateFromKey(dateKey(r.Data)),pdv:code(r.Cliente),pdvName:norm(r['Nome Cliente'])||code(r.Cliente),nota:norm(r['Nota Fiscal'])||'Sem nota',hl,motivo:norm(r['Submotivo 2'])||'Sem motivo informado',responsabilidade:norm(r['Submotivo 1'])||'Sem responsabilidade informada',gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado',rn:norm(r.Setor)||'Sem RN'});
+ }
+ return out;
+}
+function renderReturns(){
+ const all=devolutionRows(),box=$('#returnFilters');if(!box)return;
+ const fill=(sel,values,empty)=>{let el=box.querySelector(sel),old=el.value;el.innerHTML='<option value="">'+empty+'</option>'+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})).map(x=>'<option>'+esc(x)+'</option>').join('');if(values.includes(old))el.value=old};
+ fill('.rm',all.map(x=>x.motivo),'Todos os motivos');fill('.rr',all.map(x=>x.responsabilidade),'Todas as responsabilidades');fill('.rg',all.map(x=>x.gerente),'Todos os gerentes');
+ const from=box.querySelector('.rf').value,to=box.querySelector('.rt').value,motivo=box.querySelector('.rm').value,resp=box.querySelector('.rr').value,gerente=box.querySelector('.rg').value;
+ const data=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente));
+ const dates=all.map(x=>x.date).filter(Boolean).sort();box.querySelector('.rf').min=box.querySelector('.rt').min=dates[0]||'';box.querySelector('.rf').max=box.querySelector('.rt').max=dates.at(-1)||'';
+ const pctOf=(n,total)=>total?pct(n/total):'—',hl=data.reduce((s,x)=>s+x.hl,0),pdvs=new Set(data.map(x=>x.pdv)),notes=new Set(data.map(x=>x.nota)),rns=new Set(data.map(x=>x.rn));
+ $('#returnScopeChip').textContent=from||to?(from||'Início')+' a '+(to||'Fim'):'Todos os períodos';
+ $('#returnKpis').innerHTML=[['Devolução PDV',fmtInt(pdvs.size),pctOf(pdvs.size,new Set(all.map(x=>x.pdv)).size)+' dos PDVs'],['Devolução HL',fmt(hl),pctOf(hl,all.reduce((s,x)=>s+x.hl,0))+' do volume'],['Notas devolvidas',fmtInt(notes.size),fmtInt(rns.size)+' RNs envolvidos'],['Linhas de devolução',fmtInt(data.length),pctOf(data.length,all.length)+' do relatório']].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="val">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>').join('');
+ const group=(key,label)=>{let m=new Map();for(const x of data){let k=key(x),o=m.get(k)||{label:label(x),count:0,hl:0,pdvs:new Set,notes:new Set};o.count++;o.hl+=x.hl;o.pdvs.add(x.pdv);o.notes.add(x.nota);m.set(k,o)}return [...m.values()].sort((a,b)=>b.hl-a.hl||b.count-a.count)};
+ const table=(title,rows,cols)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
+ if(!data.length){$('#returnContent').innerHTML='<div class="empty">Nenhuma devolução encontrada nos filtros selecionados.</div>';return}
+ const byPdv=group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),byMot=group(x=>x.motivo,x=>x.motivo),byResp=group(x=>x.responsabilidade,x=>x.responsabilidade),byRn=group(x=>x.rn,x=>x.rn),byGer=group(x=>x.gerente,x=>x.gerente),criticalPdv=byPdv.filter(x=>x.notes.size>1),criticalRn=byRn.filter(x=>x.hl>=Math.max(1,hl/data.length*3));
+ const cols=(name,extra='')=>[[name,r=>esc(r.label)],[extra||'Linhas',r=>extra==='Notas'?fmtInt(r.notes.size):fmtInt(r.count)],['Devolução HL',r=>fmt(r.hl)],['%',r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']];
+ $('#returnContent').innerHTML='<div class="return-layout">'+table('Devolução por PDV',byPdv,cols('PDV'))+table('Devolução por motivo',byMot,cols('Motivo'))+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'))+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente','Notas'))+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico','Notas'))+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+'</div>';
+}
+$$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel')renderReturns()});
+['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]'))renderReturns()}));
+$('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});
 
 
 function eventImpactReasons(x,metric){
