@@ -28,3 +28,10 @@ Gerado direto dos dados (não da tela), respeitando os filtros de cada aba. Ao c
 
 ### Status da importação
 Ao fim de cada importação aparece, no cartão "Processamento", um resumo: concluída sem erros (verde), com alertas (arquivo não reconhecido ou mês não identificado, em amarelo) ou com erros (arquivo ilegível ou falha ao salvar, em vermelho). Mostra arquivos importados, registros, horário, lista dos arquivos com problema e se os dados foram sincronizados com o banco.
+
+## Revisão 4 — devoluções por datas distintas, textos normalizados e PPT redesenhado
+
+- **Devolução = datas distintas por cliente.** Em todo o painel e no PPT, uma devolução é um par (PDV, data); várias linhas ou notas no mesmo dia contam uma vez. Substitui "Linhas de devolução".
+- **Devolução PDV (%)** = devoluções (PDV/dia) ÷ entregas (PDV/dia) no filtro. PDVs reincidentes/críticos = clientes com devolução em mais de uma data.
+- **Textos de motivo e responsabilidade normalizados**: abreviações expandidas (ex.: "ciente canc." → "Cliente cancelou"), variações com erro de digitação unidas ao rótulo mais frequente e mapa opcional em `state.params.returnLabelMap` (`{"texto em minúsculas":"Rótulo final"}`).
+- **PPT redesenhado**: grade única, cartões de KPI, rankings em barras horizontais no lugar de tabelas densas, tabelas com linhas alternadas e novos slides de motivos/responsabilidade e RNs/gerentes.
