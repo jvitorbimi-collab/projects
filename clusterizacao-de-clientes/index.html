@@ -753,6 +753,106 @@ td b{color:var(--ink)}
 #returnFilters,#serviceFilters{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px 14px;align-items:end;padding:16px 18px;background:#fff;border:1px solid #d7e1ed;border-radius:16px;box-shadow:0 10px 24px rgba(28,54,89,.08)}#returnFilters:before,#serviceFilters:before{grid-column:1/-1;margin:0;padding:0;background:none;color:#20375a;font-size:12px;letter-spacing:.04em;text-transform:uppercase}#returnFilters label{display:flex;flex-direction:column;gap:6px;min-width:0;color:#526a87;font-size:11px;font-weight:700}#returnFilters label select,#returnFilters label input,#returnFilters>.return-search,#returnFilters>select{width:100%;min-width:0;background:#f9fbfe;color:#172b48;border-color:#c7d5e5}#returnFilters>.rgran{grid-column:span 2}#returnFilters>.return-month-field,#returnFilters>.return-period-field{grid-column:span 2}#returnFilters>.return-search{grid-column:span 3}#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg{grid-column:span 2}#returnFilters>#clearReturnFilters{grid-column:span 1;min-height:38px;white-space:nowrap}.service-filters{grid-template-columns:repeat(12,minmax(0,1fr))}.service-filters .multi-picker{grid-column:span 2}.service-filters .service-filter-search{grid-column:span 4;background:#f9fbfe;color:#172b48;border-color:#c7d5e5}.service-filters .service-filter-actions{grid-column:span 2;min-height:38px}.service-filters .multi-picker summary{background:#f9fbfe;color:#172b48;border-color:#c7d5e5}.service-filters .multi-picker summary span{color:#607896}@media(max-width:900px){#returnFilters,#serviceFilters{grid-template-columns:repeat(2,minmax(0,1fr))}#returnFilters:before,#serviceFilters:before{grid-column:1/-1}#returnFilters>.rgran,#returnFilters>.return-month-field,#returnFilters>.return-period-field,#returnFilters>.return-search,#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg,#returnFilters>#clearReturnFilters,.service-filters .multi-picker,.service-filters .service-filter-search,.service-filters .service-filter-actions{grid-column:span 1}}
 #returnFilters{grid-template-columns:1.1fr 1.1fr 1.1fr 1.7fr 1.35fr 1.35fr 1.35fr auto;display:grid;gap:14px;align-items:end;padding:18px 20px}#returnFilters:before{content:'Período e segmentação';grid-column:1/-1;margin-bottom:1px;font-size:13px;font-weight:800;letter-spacing:0;text-transform:none;color:#172b48}#returnFilters>label{grid-column:auto!important;min-width:0;display:grid;gap:6px;align-content:end;color:#526a87;font-size:11px;font-weight:750}#returnFilters>label>select,#returnFilters>label>input,#returnFilters>.return-search,#returnFilters>select{height:40px;min-height:40px;border-radius:10px}#returnFilters>label:has(.rgran){grid-column:span 1!important}#returnFilters>.return-search{grid-column:span 2;min-width:0}#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg{grid-column:span 1;min-width:0}#returnFilters>#clearReturnFilters{grid-column:auto;min-height:40px;height:40px;padding:0 14px}.service-filters{grid-template-columns:1fr 1fr 1fr 2.4fr auto;display:grid;gap:14px;align-items:end;padding:18px 20px}.service-filters:before{content:'Filtros do indicador';grid-column:1/-1;margin-bottom:1px;background:none;color:#172b48;font-size:13px;letter-spacing:0;text-transform:none}.service-filters .multi-picker,.service-filters .service-filter-search,.service-filters .service-filter-actions{grid-column:auto;min-width:0}.service-filters .multi-picker summary{height:40px;min-height:40px;display:flex;align-items:center;justify-content:space-between}.service-filters .service-filter-search{height:40px;min-height:40px;border-radius:10px}.service-filters .service-filter-actions{height:40px;white-space:nowrap}@media(max-width:1050px){#returnFilters{grid-template-columns:repeat(4,minmax(0,1fr))}.service-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.service-filters .service-filter-search{grid-column:span 2}}@media(max-width:700px){#returnFilters,#serviceFilters{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px}.service-filters .service-filter-search{grid-column:span 2}.service-filters .service-filter-actions{grid-column:span 1}}
 </style>
+<style id="ds2">
+/* =====================================================================
+   Revisão geral (camada final): hierarquia, densidade e consistência.
+   Só aparência; não altera nenhum cálculo.
+   ===================================================================== */
+:root{--sh-card:0 1px 2px rgba(18,26,59,.04),0 6px 18px -8px rgba(18,26,59,.10)}
+body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.main{padding-top:4px}
+
+/* Faixa de título: compacta, em vez de um bloco azul alto repetindo o título */
+.hero{min-height:0;padding:16px 22px;margin:0 0 16px;border-radius:var(--r-lg);gap:14px;align-items:center;flex-direction:row!important;flex-wrap:wrap;box-shadow:0 10px 26px -14px rgba(35,70,230,.55)}
+.hero h2{font-size:17px}
+.hero p{margin-top:3px;font-size:12.5px;line-height:1.45;max-width:680px}
+.hero .toolbar,.hero>div:last-child:not(:first-child){margin-left:auto}
+.hero:after{opacity:.6}
+
+/* Barra de filtros gerais mais baixa e sem sombra pesada */
+.global-filterbar{padding:10px 14px;margin-bottom:14px;box-shadow:var(--sh-card);gap:10px}
+.global-filter-title{padding-right:14px}
+.global-filter-menu summary{min-height:38px;font-size:12.5px}
+.global-filterbar .btn{min-height:38px}
+.global-filterbar input{min-height:38px}
+
+/* Filtros locais: rótulo curto à esquerda, campos alinhados */
+.filters{padding:10px 14px;margin-bottom:14px;gap:10px;box-shadow:var(--sh-card)}
+.filters select,.filters input{min-height:38px;font-size:13px}
+.filters select{min-width:160px}
+.filters:before{padding:4px 9px;font-size:10px}
+
+/* Cartões */
+.card,.kpi{box-shadow:var(--sh-card)}
+.kpi:after{display:none}
+.kpigrid{gap:14px;margin-bottom:16px}
+.kpi{min-height:112px;padding:16px 18px 14px}
+.kpi .val{font-size:30px;margin-top:10px}
+.kpi .tinybar{height:4px;margin-top:11px}
+.kpi:before{width:3px}
+
+/* Seletores de visão (OTIF/Devolução, Importação/Configurações/Usuários): segmentado claro */
+.service-tabs,.workspace-subtabs{display:inline-flex;gap:2px;margin:0 0 14px;padding:3px;width:auto;border:1px solid var(--stroke-2);border-radius:12px;background:var(--surface-3);box-shadow:none}
+.service-tab,.workspace-subtab{border:0;border-radius:9px;padding:8px 16px;background:transparent;color:var(--quiet);font:700 13px var(--font);cursor:pointer;transition:background .15s,color .15s,box-shadow .15s}
+.service-tab:hover,.workspace-subtab:hover{color:var(--ink)}
+.service-tab.active,.workspace-subtab.active{background:var(--surface);color:var(--brand-600);box-shadow:0 1px 3px rgba(18,26,59,.14)}
+.service-tab:focus-visible,.workspace-subtab:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+
+/* Filtros do Nível de Serviço (seleção múltipla) com o mesmo desenho dos filtros gerais */
+.service-filters{align-items:flex-end}
+.service-filters .multi-picker{position:relative}
+.service-filters .multi-picker>summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:38px;padding:0 12px;border:1px solid var(--stroke-2);border-radius:var(--r-sm);background:var(--surface);color:var(--ink-2);font:700 13px var(--font);cursor:pointer;white-space:nowrap;user-select:none}
+.service-filters .multi-picker>summary::-webkit-details-marker{display:none}
+.service-filters .multi-picker>summary:after{content:"";width:7px;height:7px;margin:-3px 0 0 2px;border:solid var(--quiet);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.service-filters .multi-picker[open]>summary{border-color:var(--brand);box-shadow:0 0 0 4px rgba(35,70,230,.12)}
+.service-filter-count{margin-left:2px;padding:2px 8px;border-radius:999px;background:var(--surface-3);color:var(--quiet);font-size:11px;font-weight:600}
+.service-filters .multi-picker-pop{z-index:40;min-width:200px;max-height:260px;overflow:auto;padding:8px;border:1px solid var(--stroke);border-radius:var(--r-md);background:var(--surface);box-shadow:var(--sh-pop)}
+.service-filters .multi-picker-pop label{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:8px;color:var(--ink-2);font-size:13px;cursor:pointer}
+.service-filters .multi-picker-pop label:hover{background:var(--surface-3)}
+.service-filter-search{min-width:220px}
+.service-filters .service-filter-actions{margin-left:auto}
+
+#serviceFilters{display:flex!important;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:14px 16px}
+#serviceFilters .multi-picker{grid-column:auto;min-width:150px;flex:0 0 auto}
+#serviceFilters .multi-picker>summary{justify-content:space-between;height:auto}
+#serviceFilters .service-filter-search{flex:1 1 220px}
+.g2 .tablewrap td,.g2 .tablewrap th{white-space:normal;padding-left:9px;padding-right:9px}
+.g2 .tablewrap td:first-child{min-width:150px}
+/* Tabelas: mais compactas e sem texto cortado */
+.tablewrap table{font-size:12.5px}
+td{padding:10px 12px}
+th{padding:10px 12px}
+tbody tr{transition:background .12s}
+tbody tr:hover td{background:#f5f8ff}
+.tablewrap{border-top:1px solid var(--stroke)}
+.card .tablewrap{border-radius:0 0 var(--r-md) var(--r-md)}
+
+/* Barras: rótulos maiores, sem quebra estranha */
+.barrow{grid-template-columns:minmax(110px,160px) 1fr 76px}
+.barrow>:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Processamento: barra vazia quando não há importação em andamento */
+#progBar{width:0}
+.progress{height:7px}
+
+/* Estados vazios */
+.empty{padding:28px 16px;border:1px dashed var(--stroke-2);border-radius:var(--r-md);background:var(--surface-2);color:var(--quiet);text-align:center;font-size:13px}
+
+/* Botões de ação principais agrupados com respiro */
+.toolbar{gap:10px;margin:0 0 14px}
+
+/* Troca de aba suave e barata */
+.tab.active{animation:tabIn .22s var(--ease)}
+@keyframes tabIn{from{opacity:.0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.tab.active{animation:none}*{transition:none!important}}
+
+@media (max-width:820px){
+ .hero{padding:14px 16px}
+ .service-filters .service-filter-actions{margin-left:0}
+ .service-tabs,.workspace-subtabs{display:flex;width:100%}
+ .service-tab,.workspace-subtab{flex:1;padding:8px 6px}
+}
+</style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
@@ -1084,24 +1184,51 @@ function scatterSVG(rows){
 }
 
 const MONTHS={janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
-const norm=s=>String(s??'').trim(); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const num=v=>{if(typeof v==='number')return v; let s=norm(v).replace(/\s/g,''); if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.'); else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.'); let n=parseFloat(s);return isFinite(n)?n:0}
+const norm=s=>String(s??'').trim(); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const NUM_FAST=/^-?\d+(?:,\d+)?$/; const num=v=>{if(typeof v==='number')return v; let s=norm(v); if(NUM_FAST.test(s)){let n=parseFloat(s.replace(',','.'));return isFinite(n)?n:0} s=s.replace(/\s/g,''); if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.'); else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.'); let n=parseFloat(s);return isFinite(n)?n:0}
 const code=v=>{let s=norm(v).replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/,'');return s||'0'}; const pct=v=>isFinite(v)?(v*100).toFixed(1)+'%':'—'; const fmt=v=>NF2.format(Number(v||0));
+let _riT=0;function renderImportSoon(force){let n=performance.now();if(force||n-_riT>150){_riT=n;renderImport()}}
 function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
 function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
 function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
-async function persist(){
- const payload={files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate};
- await put('state',payload);if(state.folderHandle)try{await put('folder',state.folderHandle)}catch{}
+let LOCAL_REF=null,PERSIST_CACHE={files:null,data:null,json:null},CLOUD_TIMER=null,CLOUD_BUSY=null,CLOUD_AGAIN=false;
+function payloadJson(){
+ /* O trecho pesado (arquivos + bases) só é serializado de novo quando as bases mudam; mudar um parâmetro reaproveita o texto pronto. */
+ if(PERSIST_CACHE.files!==state.files||PERSIST_CACHE.data!==state.data||!PERSIST_CACHE.json)PERSIST_CACHE={files:state.files,data:state.data,json:'"files":'+JSON.stringify(state.files)+',"data":'+JSON.stringify(state.data)};
+ return '{'+PERSIST_CACHE.json+',"params":'+JSON.stringify(state.params)+',"lastUpdate":'+JSON.stringify(state.lastUpdate??null)+'}';
+}
+async function cloudSync(){
  if(!cloudSession||!cloudCanWrite())return;
- try{
-  cloudStatus('Salvando no banco');
-  let s=await cloudRefresh();if(!s)throw new Error('Sessão expirada');
-  let blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
-  if(blob.size>50*1024*1024)throw new Error('As bases excedem o limite de 50 MB do banco. Permanecem salvas neste navegador.');
-  await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
-  await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
-  cloudStatus('Dados sincronizados');
- }catch(e){console.error(e);cloudStatus('Falha na sincronização');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message)}
+ if(CLOUD_BUSY){CLOUD_AGAIN=true;return CLOUD_BUSY}
+ CLOUD_BUSY=(async()=>{
+  do{
+   CLOUD_AGAIN=false;
+   try{
+    cloudStatus('Salvando no banco');
+    let s=await cloudRefresh();if(!s)throw new Error('Sessão expirada');
+    let blob=new Blob([payloadJson()],{type:'application/json'});
+    if(blob.size>50*1024*1024)throw new Error('As bases excedem o limite de 50 MB do banco. Permanecem salvas neste navegador.');
+    await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
+    await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
+    try{let m=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});if(m?.state&&!CLOUD_AGAIN)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}catch{}
+    cloudStatus('Dados sincronizados');
+   }catch(e){console.error(e);cloudStatus('Falha na sincronização');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
+  }while(CLOUD_AGAIN);
+ })().finally(()=>{CLOUD_BUSY=null});
+ return CLOUD_BUSY;
+}
+/* persist({light:true}) = só parâmetros mudaram (ex.: status do plano de ação): grava na hora o pequeno e sincroniza com o banco em seguida, sem travar a tela. */
+async function persist(opt){
+ const light=!!(opt&&opt.light);
+ if(light&&LOCAL_REF&&LOCAL_REF.files===state.files&&LOCAL_REF.data===state.data){
+  await put('cloudmark',null);await put('params',{params:state.params,lastUpdate:state.lastUpdate});
+  if(cloudSession&&cloudCanWrite()){clearTimeout(CLOUD_TIMER);cloudStatus('Salvando no banco');CLOUD_TIMER=setTimeout(()=>{CLOUD_TIMER=null;cloudSync()},1200)}
+  return;
+ }
+ const payload={files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate};
+ await put('cloudmark',null);await put('state',payload);await put('params',{params:state.params,lastUpdate:state.lastUpdate});LOCAL_REF={files:state.files,data:state.data};
+ if(state.folderHandle)try{await put('folder',state.folderHandle)}catch{}
+ clearTimeout(CLOUD_TIMER);CLOUD_TIMER=null;
+ await cloudSync();
 }
 async function cloudHandlePasswordRecovery(){
  const params=new URLSearchParams(location.hash.slice(1));
@@ -1119,7 +1246,7 @@ async function cloudHandlePasswordRecovery(){
  return true;
 }
 function cloudLoading(show){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old)return;let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="cloud-loading-card"><div class="cloud-spinner"></div><strong>Carregando painel</strong><small>Estamos preparando seus dados...</small></div>';document.body.appendChild(overlay)}
-async function init(){cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);normalizePanelState();state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
+async function init(){cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);let pm=await get('params');if(pm&&pm.params)Object.assign(state,{params:pm.params,lastUpdate:pm.lastUpdate??state.lastUpdate});normalizePanelState();LOCAL_REF=s?{files:state.files,data:state.data}:null;state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
 $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');$('#globalFilterBar').hidden=['service','import','users'].includes(b.dataset.tab);let m={import:['Importação e Configurações','Importe bases, ajuste parâmetros e gerencie acessos'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','OTIF, On Time, In Full, Rating e devoluções'],offroute:['Fora de rota','Pedidos fora dos dias padrão'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Usuários, perfis e acessos']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab,true)});
 (function(){const app=document.querySelector('.app'),btn=document.getElementById('sideToggle'),KEY='clusterizacao.side.collapsed';
  const apply=c=>{app.classList.toggle('collapsed',c);btn.setAttribute('aria-expanded',String(!c));btn.title=c?'Expandir menu':'Recolher menu';btn.setAttribute('aria-label',btn.title+' lateral');
@@ -1129,8 +1256,8 @@ $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.class
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
 function monthFromName(n){let l=n.toLowerCase();for(let k in MONTHS)if(l.includes(k))return MONTHS[k];return null}
-async function parseFile(file){let ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){let ab=await file.arrayBuffer();let bytes=new Uint8Array(ab),txt='';try{txt=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(e){txt=new TextDecoder('windows-1252').decode(bytes)}txt=txt.replace(/^\uFEFF/,'').replace(/\u0000/g,'');let lines=txt.split(/\r?\n/).filter(x=>x.trim()!=='');if(!lines.length)return {sheets:{CSV:[]}};let sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';let rows=lines.map(l=>csvLine(l,sep));let rawHeads=rows[0].map(norm),seen={};let heads=rawHeads.map(h=>{seen[h]=(seen[h]||0)+1;return seen[h]===1?h:h+'__'+seen[h]});return {sheets:{CSV:rows.slice(1).map(r=>Object.fromEntries(heads.map((h,i)=>[h,r[i]??''])) )}}}let ab=await file.arrayBuffer();let wb=XLSX.read(ab,{type:'array',cellDates:true});let sheets={};for(let s of wb.SheetNames)sheets[s]=XLSX.utils.sheet_to_json(wb.Sheets[s],{defval:''});return {sheets}}
-function csvLine(s,sep){let a=[],c='',q=false;for(let i=0;i<s.length;i++){let x=s[i];if(x==='"'){if(q&&s[i+1]==='"'){c+='"';i++}else q=!q}else if(x===sep&&!q){a.push(c);c=''}else c+=x}a.push(c);return a}
+async function parseFile(file){let ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){let ab=await file.arrayBuffer();let bytes=new Uint8Array(ab),txt='';try{txt=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(e){txt=new TextDecoder('windows-1252').decode(bytes)}txt=txt.replace(/^\uFEFF/,'').replace(/\u0000/g,'');let lines=txt.split(/\r?\n/).filter(x=>x.trim()!=='');if(!lines.length)return {sheets:{CSV:[]}};let sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';let rawHeads=csvLine(lines[0],sep).map(norm),seen={};let heads=rawHeads.map(h=>{seen[h]=(seen[h]||0)+1;return seen[h]===1?h:h+'__'+seen[h]});let hn=heads.length,out=new Array(lines.length-1);for(let li=1;li<lines.length;li++){let r=csvLine(lines[li],sep),o={};for(let i=0;i<hn;i++)o[heads[i]]=r[i]??'';out[li-1]=o}return {sheets:{CSV:out}}}let ab=await file.arrayBuffer();let wb=XLSX.read(ab,{type:'array',cellDates:true});let sheets={};for(let s of wb.SheetNames)sheets[s]=XLSX.utils.sheet_to_json(wb.Sheets[s],{defval:''});return {sheets}}
+function csvLine(s,sep){if(s.indexOf('"')<0)return s.split(sep);let a=[],c='',q=false;for(let i=0;i<s.length;i++){let x=s[i];if(x==='"'){if(q&&s[i+1]==='"'){c+='"';i++}else q=!q}else if(x===sep&&!q){a.push(c);c=''}else c+=x}a.push(c);return a}
 function canonHeader(s){return norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9%?]+/g,'')}
 function detect(p,name){let all=Object.entries(p.sheets);for(let [sn,rows] of all){if(!rows.length)continue;let h=Object.keys(rows[0]).map(norm),hc=h.map(canonHeader);let has=(...x)=>x.every(y=>h.includes(y)),hasc=(...x)=>x.every(y=>hc.includes(canonHeader(y)));
 if(has('Codigo Cliente','Status do Cliente','Cod. Setor','Nome Fantasia'))return {type:'Cadastro',rows};
@@ -1143,8 +1270,8 @@ if(has('Cluster','Vol Min (HL)','Vol Max (HL)','Rel Min','Cresc Min','Prioridade
 if(has('Cliente','Visita','Visita OT','Visita IF'))return {type:'Nível mensal',rows,month:monthFromName(name)};
 if(has('Data da Avaliação','Avaliação','Classificação','Cod PDV'))return {type:'Rating',rows};
 }return {type:null,rows:[]}}
-async function importFolder(handle){state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImport();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImport()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
-async function importFileList(fileList){state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImport();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImport()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
+async function importFolder(handle){state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
+async function importFileList(fileList){state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
 const folderInput=$('#folderInput');
 folderInput.onchange=async e=>{if(e.target.files?.length)await importFileList(e.target.files);e.target.value=''};
 async function chooseFolder(){try{if(window.showDirectoryPicker){let handle=await window.showDirectoryPicker({mode:'read'});await importFolder(handle)}else{folderInput.value='';folderInput.click()}}catch(e){if(e?.name!=='AbortError')alert('Não foi possível abrir o seletor de pastas. Abra o painel no Chrome ou Edge e tente novamente.')}}
@@ -1158,19 +1285,29 @@ function isNonProfitable(v){
  if(!s)return false;
  return s==='nao'||s==='n'||s==='false'||s==='0'||s==='não rentável'||s==='nao rentavel'||s.includes('nao rent');
 }
-function dateParts(v){let m=norm(v).match(/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/);return m?{d:+m[1],m:+m[2],y:+m[3]}:null}
+const DP_CACHE=new Map();
+function dateParts(v){let k=typeof v==='string'?v:null,r;if(k!==null&&(r=DP_CACHE.get(k))!==undefined)return r&&{...r};let m=norm(v).match(/([0-9]{2})\/([0-9]{2})\/([0-9]{4})/);r=m?{d:+m[1],m:+m[2],y:+m[3]}:null;if(k!==null){if(DP_CACHE.size>20000)DP_CACHE.clear();DP_CACHE.set(k,r)}return r&&{...r}}
 function excelDate(v){let n=typeof v==='number'?v:Number(norm(v));if(Number.isFinite(n)&&n>20000&&n<100000)return new Date(Date.UTC(1899,11,30)+n*86400000);let d=new Date(v);return isNaN(d)?null:d}
 function dateKey(v){let p=dateParts(v);return p?String(p.d).padStart(2,'0')+'/'+String(p.m).padStart(2,'0')+'/'+p.y:''}
+const WD_NUM={SEG:1,TER:2,QUA:3,QUI:4,SEX:5,SÁB:6,DOM:0},BEES_CACHE=new Map();
 function beesExpectedDate(orderDate,days){
  let p=dateParts(orderDate);if(!p||!days?.length)return '';
- let allowed=new Set(days.map(x=>({SEG:1,TER:2,QUA:3,QUI:4,SEX:5,SÁB:6,DOM:0})[x]).filter(x=>x!==undefined));
- let base=new Date(Date.UTC(p.y,p.m-1,p.d));
- for(let i=0;i<7;i++){let d=new Date(base);d.setUTCDate(base.getUTCDate()+i);if(allowed.has(d.getUTCDay()))return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear()}
- return '';
+ let ck=(typeof orderDate==='string'?orderDate:'')+'|'+days.join(','),hit=typeof orderDate==='string'?BEES_CACHE.get(ck):undefined;if(hit!==undefined)return hit;
+ let allowed=new Set(days.map(x=>WD_NUM[x]).filter(x=>x!==undefined)),res='';
+ let base=Date.UTC(p.y,p.m-1,p.d);
+ for(let i=0;i<7;i++){let d=new Date(base+i*86400000);if(allowed.has(d.getUTCDay())){res=String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear();break}}
+ if(typeof orderDate==='string'){if(BEES_CACHE.size>200000)BEES_CACHE.clear();BEES_CACHE.set(ck,res)}
+ return res;
 }
 function isoDateFromKey(v){let p=dateParts(v);return p?String(p.y)+'-'+String(p.m).padStart(2,'0')+'-'+String(p.d).padStart(2,'0'):''}
 function calendarDate(v){let p=dateParts(v);return p?new Date(Date.UTC(p.y,p.m-1,p.d)):null}
+const VOD={h:null,n:-1,m:new Map()};
 function validOrderDates(expected){
+ let hl=state.params.holidays;if(VOD.h!==hl||VOD.n!==(hl?hl.length:0)){VOD.h=hl;VOD.n=hl?hl.length:0;VOD.m.clear()}
+ let hit=typeof expected==='string'?VOD.m.get(expected):undefined;if(hit)return hit.slice();
+ let r=validOrderDatesRaw(expected);if(typeof expected==='string')VOD.m.set(expected,r.slice());return r;
+}
+function validOrderDatesRaw(expected){
  let d=calendarDate(expected);if(!d)return [];
  let holidays=new Set((state.params.holidays||[]).map(x=>x.date)),out=[];
  while(out.length<2){d.setUTCDate(d.getUTCDate()-1);let day=d.getUTCDay(),iso=d.toISOString().slice(0,10);if(day!==0&&day!==6&&!holidays.has(iso))out.push(String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear())}
@@ -1230,7 +1367,9 @@ function getClusterParams(){
  return out.sort((a,b)=>b.priority-a.priority)
 }
 function classify(v,g,r,ps){for(let p of ps)if(v>=p.min&&v<=p.max&&(p.rel<=-9999||r>=p.rel)&&(p.growth<=-9999||g>=p.growth))return p.cluster;return 'Sem cluster'}
-function periods(){let ys=new Set();for(let x of operationData())if(x.year&&x.month)ys.add(x.year);for(let s of state.data.Volume||[])for(let r of s.rows){let m=norm(r['Data']||r['Data      ']).match(/(\d{4})/);if(m)ys.add(+m[1])}return [...ys].sort((a,b)=>a-b)}
+let PERIODS_CACHE=null;
+function periods(){let ops=operationData(),vr=state.data.Volume;if(PERIODS_CACHE&&PERIODS_CACHE.ops===ops&&PERIODS_CACHE.vr===vr)return PERIODS_CACHE.v.slice();let v=periodsRaw();PERIODS_CACHE={ops,vr,v};return v.slice()}
+function periodsRaw(){let ys=new Set();for(let x of operationData())if(x.year&&x.month)ys.add(x.year);for(let s of state.data.Volume||[])for(let r of s.rows){let m=norm(r['Data']||r['Data      ']).match(/(\d{4})/);if(m)ys.add(+m[1])}return [...ys].sort((a,b)=>a-b)}
 function filterControls(id){
  let box=$(id),ys=periods(),oldY=box.querySelector('.fy')?.value,oldS=box.querySelector('.fs')?.value||String(latestPeriod().s),oldC=box.querySelector('.fc')?.value||'',oldQ=box.querySelector('.fq')?.value||'',y=(oldY&&ys.includes(+oldY))?+oldY:(ys.at(-1)||2025);
  let oldZ=box.querySelector('.fz')?.value||'hide';
@@ -1280,10 +1419,10 @@ function renderImport(){
  $('#importHealth').innerHTML=f.length?`<span class="healthchip"><strong>${imported}/${f.length}</strong> arquivos OK</span><span class="healthchip"><strong>${fmtInt(pdvCount)}</strong> PDVs válidos</span><span class="healthchip"><strong>${alerts}</strong> alertas</span>`:'<span class="healthchip">Aguardando importação</span>';
  $('#fileList').innerHTML=f.length?f.map(x=>`<div class="importrow"><div><b>${esc(x.name)}</b><div class="muted">${x.type||'—'}</div></div><div>${esc(x.unit||'—')}</div><div>${fmtInt(x.rows)} reg.</div><div class="${x.status==='Importado'?'ok':x.status==='Erro'?'bad':'warn'}"><b>${x.status}</b><div class="muted">${x.time}</div></div></div>`).join(''):'<div class="empty">Nenhum arquivo importado.</div>';
  $('#deliveryParams').innerHTML=Object.entries(state.params.deliveries).map(([k,v])=>`<div class="paramrow"><span><span class="badge ${badgeClass(k)}">${k}</span></span><input data-cl="${k}" type="number" min="0" max="7" value="${v}"></div>`).join('');
- $('#deliveryParams').querySelectorAll('input').forEach(x=>x.onchange=async()=>{state.params.deliveries[x.dataset.cl]=+x.value;resetCache();await persist();renderImport()});
+ $('#deliveryParams').querySelectorAll('input').forEach(x=>x.onchange=async()=>{state.params.deliveries[x.dataset.cl]=+x.value;resetCache();await persist({light:true});renderImport()});
  $('#nearPct').value=state.params.nearPct;$('#monthlyYear').value=state.params.monthlyYear;
- $('#nearPct').onchange=async e=>{state.params.nearPct=+e.target.value;resetCache();await persist()};
- $('#monthlyYear').onchange=async e=>{state.params.monthlyYear=+e.target.value;resetCache();await persist()};
+ $('#nearPct').onchange=async e=>{state.params.nearPct=+e.target.value;resetCache();await persist({light:true})};
+ $('#monthlyYear').onchange=async e=>{state.params.monthlyYear=+e.target.value;resetCache();await persist({light:true})};
 
  renderClusterParamsConfig();renderHolidays();
 }
@@ -2034,7 +2173,7 @@ function renderAction(){
  $('#actionByType').innerHTML=Object.keys(bt).length?barsHTML(Object.entries(bt).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,value:v}))):'<div class="empty">Sem ações no filtro.</div>';
  $('#actionTableCount').textContent=`${fmtInt(d.length)} planos encontrados`;
  $('#actionTable').innerHTML='<thead><tr><th>Mês</th><th>Prioridade</th><th>Cluster</th><th>Frente</th><th>PDVs impactados</th><th>Atual</th><th>Meta</th><th>Plano de ação</th><th>Status</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${monthName(x.month)}/${x.year}</td><td><span class="badge ${badgeClass(x.priority)}">${x.priority}</span></td><td><span class="badge ${badgeClass(x.cluster)}">${esc(x.cluster)}</span></td><td>${x.type}</td><td>${fmtInt(x.affected)}</td><td><b>${x.current}</b></td><td>${x.target}</td><td><b>${x.plan}</b><div class="meta" style="margin-top:4px">${x.details}</div></td><td><select class="action-status" data-id="${x.id}" data-year="${x.year}" data-month="${x.month}">${['Planejado','Em andamento','Concluído'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')+'</tbody>';
- $('#actionTable').querySelectorAll('.action-status').forEach(sel=>sel.onchange=async e=>{state.params.actionStatus=state.params.actionStatus||{};state.params.actionStatus[e.target.dataset.id]=e.target.value;await persist();renderAction()});
+ $('#actionTable').querySelectorAll('.action-status').forEach(sel=>sel.onchange=async e=>{state.params.actionStatus=state.params.actionStatus||{};state.params.actionStatus[e.target.dataset.id]=e.target.value;await persist({light:true});renderAction()});
  $('#exportActionXlsx').onclick=exportActionPlan;
 }
 function exportActionPlan(){
@@ -2284,14 +2423,18 @@ async function cloudOpenPanel(){
   loadingStep='consultar as bases salvas';
   let meta=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});
   if(meta.state?.byte_size>0){
+   let mark=meta.state.updated_at+'|'+meta.state.byte_size;
+   if(state.files?.length&&await get('cloudmark')===mark){cloudStatus('Dados sincronizados')}
+   else{
    cloudStatus('Carregando bases salvas');loadingStep='baixar as bases salvas';
    let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
-   if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);normalizePanelState();await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});resetCache()}}
+   if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);normalizePanelState();await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});await put('params',{params:state.params,lastUpdate:state.lastUpdate});await put('cloudmark',mark);LOCAL_REF={files:state.files,data:state.data};resetCache()}}
    else if(response.status!==404)throw new Error('O armazenamento respondeu com status '+response.status+'.');
+   }
   }else{
    loadingStep='preparar os dados locais';
-   let local=await get('state');if(local)Object.assign(state,local);normalizePanelState();
-   if(local?.files?.length)cloudStatus('Bases locais: sincronização pendente');
+   normalizePanelState();
+   if(state.files?.length)cloudStatus('Bases locais: sincronização pendente');
   }
   state.params.holidays=Array.isArray(meta.state?.holidays)?meta.state.holidays:[];resetCache();
   state.folderHandle=await get('folder');
