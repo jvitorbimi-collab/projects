@@ -910,6 +910,10 @@ tbody tr:hover td{background:#f5f8ff}
 .return-col{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:18px 1fr 18px;height:100%;min-width:0;text-align:center;cursor:default}
 .rc-val{align-self:end;justify-self:center;font-size:10.5px;font-weight:800;color:var(--ink);opacity:0;white-space:nowrap;overflow:visible}
 .rc-val.show{opacity:1}
+.return-cols.tight .rc-val{font-size:9px;letter-spacing:-.2px}
+.return-cols.vert{height:260px}
+.return-cols.vert .return-col{grid-template-rows:40px 1fr 18px}
+.return-cols.vert .rc-val{writing-mode:vertical-rl;transform:rotate(180deg);justify-self:center}
 .return-col:hover .rc-val{opacity:1}
 .rc-bar{position:relative;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--stroke-2)}
 .rc-bar i{display:block;width:min(70%,34px);border-radius:6px 6px 0 0;background:linear-gradient(180deg,#6d8bff,#3558f0);transition:filter .15s}
@@ -2090,10 +2094,14 @@ function renderService(){
 }
 let RET_WARM=0;function prewarmReturns(){if(RET_WARM===VIEW_VER)return;let ver=VIEW_VER,go=()=>{if(ver!==VIEW_VER||RET_WARM===ver)return;try{renderReturns();RET_WARM=ver}catch(e){console.warn(e)}};(window.requestIdleCallback||(f=>setTimeout(f,400)))(go,{timeout:1500})}
 
+const RET_FULL=['cliente cancelou','horário de entrega','mapa não carregado'];
+const retPlain=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const RET_ABBR={ciente:'cliente',cli:'cliente',clt:'cliente',cl:'cliente',dev:'devolução',devol:'devolução',devolucao:'devolução',ent:'entrega',entr:'entrega',mot:'motorista',aus:'ausente',ausen:'ausente',fech:'fechado',estab:'estabelecimento',pgto:'pagamento',prod:'produto',ped:'pedido',avar:'avaria',recus:'recusou',nao:'não',nf:'NF'};
 function cleanReturnLabel(v,prefix){let s=norm(v).replace(new RegExp('^'+prefix+'\\s*:\\s*','i'),'').replace(/\bCIA\b\s*/gi,'').replace(/\s+/g,' ').trim();s=s.replace(/^0+(?=\d)/,'').replace(/\s*-\s*/g,' - ').toLocaleLowerCase('pt-BR');if(!s)return 'Não informado';
+ s=s.replace(/^\d+\s*-\s*(?:-\s*)*/,'').replace(/[\s(\-–:]+$/,'').trim();if(!s)return 'Não informado';
  s=s.replace(/\b(ciente|cliente|cli|clt|cl)\.?\s+canc(?:elou|elado|elamento|\.)?(?=\s|$|\W)/g,'cliente cancelou').replace(/\bcanc(?:\.|\b)(?!elou|elado)/g,'cancelado').replace(/\.(?=\s|$)/g,'').replace(/\s+/g,' ').trim();
  s=s.replace(/[\p{L}]+/gu,w=>RET_ABBR[w]??w);
+ if(s.length>=8){const ps=retPlain(s),f=RET_FULL.find(x=>x!==s&&retPlain(x).startsWith(ps));if(f)s=f}
  const um=state.params?.returnLabelMap;if(um&&typeof um==='object'){let k=s.toLocaleLowerCase('pt-BR');if(um[k])s=String(um[k])}
  s=s.charAt(0).toLocaleUpperCase('pt-BR')+s.slice(1);return s.replace(/\bpdv\b/gi,'PDV').replace(/\brn\b/gi,'RN').replace(/\bhl\b/gi,'HL')}
 /* devolução = (PDV, data) distintos; várias linhas/notas no mesmo dia contam como 1 */
@@ -2127,8 +2135,8 @@ function renderReturns(){
  const monthMap=new Map();for(const x of base){let k=x.date.slice(0,7),o=monthMap.get(k);if(!o)monthMap.set(k,o={b:new Set,r:new Set,v:0});o.b.add(retEv(x))}for(const x of data){let o=monthMap.get(x.date.slice(0,7));if(o){o.r.add(retEv(x));o.v+=x.hl}}
  const months=[...monthMap.keys()].sort().map(k=>{let o=monthMap.get(k);return {label:k.slice(5,7)+'/'+k.slice(0,4),rate:o.b.size?o.r.size/o.b.size:0,hl:o.v,detail:o.r.size+'/'+o.b.size+' entregas'}});
  const monthRateMax=Math.max(.01,...months.map(x=>x.rate)),monthHlMax=Math.max(.01,...months.map(x=>x.hl));
- const monthlyBars=(rows,max,key,format)=>{if(!rows.length)return '<div class="empty">Sem dados no período.</div>';let top=rows.reduce((m,x,i)=>x[key]>rows[m][key]?i:m,0);return '<div class="return-cols'+(rows.length>12?' dense':'')+'" style="--n:'+rows.length+'">'+rows.map((x,i)=>'<div class="return-col'+(i===top?' is-top':'')+'" title="'+esc(x.label)+' · '+esc(format(x))+'"><span class="rc-val'+(rows.length<=8||i===top||i===rows.length-1?' show':'')+'">'+format(x)+'</span><div class="rc-bar"><i style="height:'+Math.max(3,x[key]/max*100)+'%"></i></div><span class="rc-lab">'+esc(x.label.replace(/^(\d\d)\/\d\d(\d\d)$/,'$1/$2'))+'</span></div>').join('')+'</div>'};
- $('#returnMonthPdv').innerHTML=monthlyBars(months,monthRateMax,'rate',x=>pct(x.rate));$('#returnMonthHl').innerHTML=monthlyBars(months,monthHlMax,'hl',x=>fmt(x.hl)+' HL');
+ const monthlyBars=(rows,max,key,format)=>{if(!rows.length)return '<div class="empty">Sem dados no período.</div>';let top=rows.reduce((m,x,i)=>x[key]>rows[m][key]?i:m,0);return '<div class="return-cols'+(rows.length>12?' dense':'')+(rows.length>9?' tight':'')+(rows.length>14?' vert':'')+'" style="--n:'+rows.length+'">'+rows.map((x,i)=>'<div class="return-col'+(i===top?' is-top':'')+'" title="'+esc(x.label)+' · '+esc(format(x))+'"><span class="rc-val show">'+format(x)+'</span><div class="rc-bar"><i style="height:'+Math.max(3,x[key]/max*100)+'%"></i></div><span class="rc-lab">'+esc(x.label.replace(/^(\d\d)\/\d\d(\d\d)$/,'$1/$2'))+'</span></div>').join('')+'</div>'};
+ $('#returnMonthPdv').innerHTML=monthlyBars(months,monthRateMax,'rate',x=>pct(x.rate));$('#returnMonthHl').innerHTML=monthlyBars(months,monthHlMax,'hl',x=>fmt(x.hl));
  const table=(title,rows,cols)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
  const bars=(title,rows)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">participação no HL devolvido</span></div><div class="return-bar-list">'+rows.slice(0,8).map(r=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.hl/(hl||1)*100)+'%"></i></div><span class="return-bar-value">'+fmt(r.hl)+' · '+pctOf(r.hl,hl)+'</span></div>').join('')+'</div></div>';
  if(!data.length){$('#returnContent').innerHTML='<div class="empty">Nenhuma devolução encontrada nos filtros selecionados.</div>';return}
@@ -2337,7 +2345,7 @@ async function buildServicePpt(Pptx,opts){
    {const s=mk('Devolução',sub);
     kpis(s,[{label:'Devolução PDV',value:pptPct(r.rate),hint:fmtInt(r.n)+' devoluções em '+fmtInt(r.baseEv)+' entregas',color:C.brand},{label:'Devolução HL',value:pptNum(r.hl),hint:'Volume devolvido no filtro',color:C.good},{label:'Clientes com devolução',value:fmtInt(r.pdvs),hint:'de '+fmtInt(r.basePdvs)+' PDVs entregues',color:C.orange},{label:'Devoluções',value:fmtInt(r.n),hint:'Datas distintas por cliente · '+fmtInt(r.rns)+' RNs',color:C.violet}]);
     const mc=(x,title,sub2,key,color,fmtCode)=>{chartBox(s,x,BODY,COLW,BH,title,sub2);
-     s.addChart(charts.BAR,[{name:title,labels:r.months.map(m=>m.label),values:r.months.map(m=>m[key])}],{...baseChart,x:x+.1,y:BODY+.72,w:COLW-.2,h:BH-.82,barDir:'col',barGapWidthPct:45,catAxisLabelRotate:r.months.length>8?-45:0,chartColors:[color],valAxisMinVal:0,valAxisLabelFormatCode:fmtCode,showLegend:false,showValue:r.months.length<=8,dataLabelFormatCode:fmtCode==='0%'?'0.0%':'#,##0',dataLabelFontSize:10,dataLabelFontFace:F,dataLabelColor:C.ink})};
+     s.addChart(charts.BAR,[{name:title,labels:r.months.map(m=>m.label),values:r.months.map(m=>m[key])}],{...baseChart,x:x+.1,y:BODY+.72,w:COLW-.2,h:BH-.82,barDir:'col',barGapWidthPct:45,catAxisLabelRotate:r.months.length>8?-45:0,chartColors:[color],valAxisMinVal:0,valAxisLabelFormatCode:fmtCode,showLegend:false,showValue:true,dataLabelFormatCode:fmtCode==='0%'?'0.0%':'#,##0',dataLabelFontSize:10,dataLabelFontFace:F,dataLabelColor:C.ink})};
     if(r.months.length){mc(LM,'Devolução PDV por mês','Devoluções ÷ entregas (PDV/dia)','rate',C.brand,'0%');mc(RX,'Devolução HL por mês','Volume devolvido em HL','hl',C.orange,'#,##0')}
     else none(s,LM,BODY,CW,BH,'Sem devoluções no período.');}
    {const s=mk('Motivos e responsabilidade',sub);
@@ -2356,7 +2364,7 @@ async function buildServicePpt(Pptx,opts){
   if(o){const s=mk('Pedidos fora de rota',o.scope+' · fora do 1º ou 2º dia útil anterior à entrega padrão cadastrada no Bees');
    kpis(s,[{label:'Pedidos fora de rota',value:fmtInt(o.n),hint:'Pedidos identificados',color:C.brand},{label:'Participação',value:o.share===null?'—':pptPct(o.share),hint:'Sobre pedidos com agenda identificada',color:C.good},{label:'PDVs',value:fmtInt(o.pdvs),hint:'Com pedidos fora do padrão',color:C.orange},{label:'Sem agenda ou data',value:fmtInt(o.unknown),hint:'Pedidos sem classificação',color:C.violet}]);
    chartBox(s,LM,BODY,COLW,BH,'Pedidos fora de rota por mês','Quantidade de pedidos');
-   if(o.months.length)s.addChart(charts.BAR,[{name:'Pedidos',labels:o.months.map(x=>x.label),values:o.months.map(x=>x.v)}],{...baseChart,x:LM+.1,y:BODY+.72,w:COLW-.2,h:BH-.82,barDir:'col',barGapWidthPct:45,chartColors:[C.brand],valAxisMinVal:0,valAxisLabelFormatCode:'#,##0',showLegend:false,showValue:o.months.length<=8,dataLabelFontSize:10,dataLabelFontFace:F,dataLabelColor:C.ink});
+   if(o.months.length)s.addChart(charts.BAR,[{name:'Pedidos',labels:o.months.map(x=>x.label),values:o.months.map(x=>x.v)}],{...baseChart,x:LM+.1,y:BODY+.72,w:COLW-.2,h:BH-.82,barDir:'col',barGapWidthPct:45,chartColors:[C.brand],valAxisMinVal:0,valAxisLabelFormatCode:'#,##0',showLegend:false,showValue:true,dataLabelFontSize:10,dataLabelFontFace:F,dataLabelColor:C.ink});
    else none(s,LM,BODY+.7,COLW,BH-.8,'Nenhum pedido fora de rota no filtro.');
    rank(s,RX,BODY,COLW,BH,'PDVs com mais pedidos fora de rota','Top 8 por quantidade de pedidos',o.top,g=>g.n,'#,##0',C.orange,g=>g.code+' • '+g.name);}}
  /* ---- plano de ação ---- */
