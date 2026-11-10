@@ -970,6 +970,21 @@ td,th{font-variant-numeric:tabular-nums}
 #pptNotice button{border:0;border-radius:8px;padding:6px 10px;background:rgba(255,255,255,.16);color:#fff;font:700 12px var(--font);cursor:pointer}
 #pptNotice button.x{background:none;font-size:18px;line-height:1;padding:0 4px}
 </style>
+<style id="import-status-css">
+.import-status{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--stroke);background:var(--surface-2);color:var(--ink-2);font-size:13px}
+.import-status.running{background:var(--brand-50);border-color:#cdd8ff;color:var(--brand-600)}
+.import-status.ok{background:#ecfaf6;border-color:#bfe9dd;color:#08775f}
+.import-status.warn{background:#fff7e8;border-color:#f3deb0;color:#8a5200}
+.import-status.bad{background:#fdf1f3;border-color:#f4c9d1;color:#a3243a}
+.import-status .is-head{display:flex;align-items:center;gap:12px}
+.import-status .is-head b{font-size:15px}
+.import-status.running{--c:#2d45e6}.import-status.ok{--c:#0a8a70}.import-status.warn{--c:#b56f06}.import-status.bad{--c:#c7314a}
+.import-status .is-ico{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:50%;background:var(--c,#66739a);color:#fff;font-weight:800;font-size:17px}
+.import-status .is-sub{margin-top:2px;font-size:12px;opacity:.85}
+.import-status ul{margin:10px 0 0;padding-left:20px}
+.import-status li{margin:3px 0}
+.import-status .is-sync{margin-top:10px;font-size:12px;opacity:.9}
+</style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
@@ -1004,7 +1019,7 @@ td,th{font-variant-numeric:tabular-nums}
 <div id="importDataPanel" class="import-subpanel">
 <div class="hero"><div><h2>Central de dados</h2><p>Importe a pasta completa. As fontes são reconhecidas pela estrutura e conciliadas pelo código do PDV.</p></div><div class="health" id="importHealth"><span class="healthchip">Aguardando importação</span></div></div>
 <div class="toolbar"><button class="btn secondary" id="refreshFolder">Atualizar bases</button><button class="btn danger" id="clearData">Limpar dados</button></div>
-<div class="card flat"><div class="cardhead"><h3>Processamento</h3><span id="progText" class="meta">Aguardando</span></div><div class="progress"><i id="progBar"></i></div></div>
+<div class="card flat"><div class="cardhead"><h3>Processamento</h3><span id="progText" class="meta">Aguardando</span></div><div class="progress"><i id="progBar"></i></div><div id="importStatus" class="import-status" role="status" aria-live="polite" hidden></div></div>
 <div class="kpigrid" style="margin-top:12px">
 <div class="card kpi"><div class="label tooltip" title="Arquivos reconhecidos e carregados sem erro">Arquivos reconhecidos</div><div class="val" id="kFiles">0</div><div class="hint">Fontes válidas</div></div>
 <div class="card kpi"><div class="label tooltip" title="PDVs ativos com setor iniciado entre 0 e 8">PDVs válidos</div><div class="val" id="kPdvs">0</div><div class="hint">População analisada</div></div>
@@ -1307,7 +1322,7 @@ let _riT=0;function renderImportSoon(force){let n=performance.now();if(force||n-
 function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
 function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
 function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
-let LOCAL_REF=null,PERSIST_CACHE={files:null,data:null,json:null},CLOUD_TIMER=null,CLOUD_BUSY=null,CLOUD_AGAIN=false;
+let LAST_SYNC=null,IMPORT_REPORT=null,LOCAL_REF=null,PERSIST_CACHE={files:null,data:null,json:null},CLOUD_TIMER=null,CLOUD_BUSY=null,CLOUD_AGAIN=false;
 function payloadJson(){
  /* O trecho pesado (arquivos + bases) só é serializado de novo quando as bases mudam; mudar um parâmetro reaproveita o texto pronto. */
  if(PERSIST_CACHE.files!==state.files||PERSIST_CACHE.data!==state.data||!PERSIST_CACHE.json)PERSIST_CACHE={files:state.files,data:state.data,json:'"files":'+JSON.stringify(state.files)+',"data":'+JSON.stringify(state.data)};
@@ -1327,8 +1342,8 @@ async function cloudSync(){
     await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
     await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
     try{let m=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});if(m?.state&&!CLOUD_AGAIN)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}catch{}
-    cloudStatus('Dados sincronizados');
-   }catch(e){console.error(e);cloudStatus('Falha na sincronização');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
+    cloudStatus('Dados sincronizados');LAST_SYNC='ok';
+   }catch(e){console.error(e);cloudStatus('Falha na sincronização');LAST_SYNC='fail';if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
   }while(CLOUD_AGAIN);
  })().finally(()=>{CLOUD_BUSY=null});
  return CLOUD_BUSY;
@@ -1387,8 +1402,8 @@ if(has('Cluster','Vol Min (HL)','Vol Max (HL)','Rel Min','Cresc Min','Prioridade
 if(has('Cliente','Visita','Visita OT','Visita IF'))return {type:'Nível mensal',rows,month:monthFromName(name)};
 if(has('Data da Avaliação','Avaliação','Classificação','Cod PDV'))return {type:'Rating',rows};
 }return {type:null,rows:[]}}
-async function importFolder(handle){state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
-async function importFileList(fileList){state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();await persist();renderAll()}
+async function importFolder(handle){startImportReport();state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
+async function importFileList(fileList){startImportReport();state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
 const folderInput=$('#folderInput');
 folderInput.onchange=async e=>{if(e.target.files?.length)await importFileList(e.target.files);e.target.value=''};
 async function chooseFolder(){try{if(window.showDirectoryPicker){let handle=await window.showDirectoryPicker({mode:'read'});await importFolder(handle)}else{folderInput.value='';folderInput.click()}}catch(e){if(e?.name!=='AbortError')alert('Não foi possível abrir o seletor de pastas. Abra o painel no Chrome ou Edge e tente novamente.')}}
@@ -1541,9 +1556,28 @@ function renderImport(){
  $('#nearPct').onchange=async e=>{state.params.nearPct=+e.target.value;resetCache();await persist({light:true})};
  $('#monthlyYear').onchange=async e=>{state.params.monthlyYear=+e.target.value;resetCache();await persist({light:true})};
 
- renderClusterParamsConfig();renderHolidays();
+ renderClusterParamsConfig();renderHolidays();renderImportStatus();
 }
 
+function renderImportStatus(){
+ const box=document.getElementById('importStatus'),txt=document.getElementById('progText'),bar=document.getElementById('progBar');if(!box)return;
+ const r=IMPORT_REPORT;if(!r){box.hidden=true;return}
+ box.hidden=false;box.className='import-status '+r.kind;
+ if(r.kind==='running'){box.innerHTML='<b>Importando…</b> <span>Aguarde, os arquivos estão sendo lidos.</span>';return}
+ if(txt)txt.textContent=r.kind==='ok'?'Concluída':'Concluída com '+(r.errors.length||r.saveError?'erros':'alertas');
+ if(bar)bar.style.width='100%';
+ const list=(items,max)=>items.length?'<ul>'+items.slice(0,max).map(x=>'<li><b>'+esc(x.name)+'</b> — '+esc(x.why)+'</li>').join('')+(items.length>max?'<li>e mais '+(items.length-max)+'…</li>':'')+'</ul>':'';
+ const head=r.kind==='ok'?'Importação concluída sem erros':r.kind==='warn'?'Importação concluída com '+r.alerts.length+' alerta'+(r.alerts.length>1?'s':''):'Importação concluída com '+r.errors.length+' erro'+(r.errors.length>1?'s':'')+(r.alerts.length?' e '+r.alerts.length+' alerta'+(r.alerts.length>1?'s':''):'');
+ const sync=r.saveError?'Não foi possível salvar neste navegador: '+esc(r.saveError):r.sync==='ok'?'Dados salvos e sincronizados com o banco.':r.sync==='fail'?'Dados salvos neste navegador, mas a sincronização com o banco falhou. Tente atualizar as bases novamente.':'Dados salvos neste navegador.';
+ box.innerHTML='<div class="is-head"><span class="is-ico" aria-hidden="true">'+(r.kind==='ok'?'✓':r.kind==='warn'?'!':'×')+'</span><div><b>'+head+'</b><div class="is-sub">'+fmtInt(r.imported)+' de '+fmtInt(r.total)+' arquivo'+(r.total===1?'':'s')+' importado'+(r.imported===1?'':'s')+' · '+fmtInt(r.rows)+' registros · '+r.time+'</div></div></div>'+list(r.errors,6)+list(r.alerts,6)+'<div class="is-sync">'+sync+'</div>';
+}
+function startImportReport(){IMPORT_REPORT={kind:'running'};LAST_SYNC=null;renderImportStatus()}
+function finishImport(saveErr){
+ const f=state.files||[],errors=f.filter(x=>x.status==='Erro').map(x=>({name:x.name,why:'não foi possível ler o arquivo'+(x.type?' ('+x.type+')':'')})),alerts=f.filter(x=>x.status==='Alerta').map(x=>({name:x.name,why:/mês não identificado/.test(x.type||'')?'mês não identificado no nome do arquivo':'formato não reconhecido; arquivo ignorado'}));
+ const imported=f.filter(x=>x.status==='Importado');
+ IMPORT_REPORT={kind:errors.length||saveErr?'bad':alerts.length?'warn':'ok',total:f.length,imported:imported.length,rows:imported.reduce((s,x)=>s+(x.rows||0),0),errors,alerts,sync:LAST_SYNC,saveError:saveErr?String(saveErr.message||saveErr):'',time:new Date().toLocaleTimeString('pt-BR')};
+ renderImportStatus();
+}
 function exportClusterizedXlsx(){
  const box=$('#clusterFilters');if(!box||!box.querySelector('.fy')){alert('Abra a tela de Clusterização para exportar.');return}
  if(typeof XLSX==='undefined'||!XLSX.utils){alert('Não foi possível carregar o recurso de Excel. Atualize a página e tente novamente.');return}
@@ -2325,6 +2359,7 @@ async function buildServicePpt(Pptx,opts){
  await pptx.writeFile({fileName:'Resumo_Nivel_de_Servico_'+new Date().toISOString().slice(0,10)+'.pptx'});
 }
 
+$$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel'&&RET_WARM!==VIEW_VER){renderReturns();RET_WARM=VIEW_VER}});
 $('#exportServicePpt')?.addEventListener('click',exportServicePpt);
 let returnRenderTimer=0;const scheduleReturnRender=()=>{clearTimeout(returnRenderTimer);returnRenderTimer=setTimeout(renderReturns,120)};['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]'))scheduleReturnRender()}));
 $('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});

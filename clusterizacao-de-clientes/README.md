@@ -25,3 +25,6 @@ Projeto estático preparado para publicação na Vercel.
 
 ### PPT resumido (revisão 3)
 Gerado direto dos dados (não da tela), respeitando os filtros de cada aba. Ao clicar em "Gerar PPT resumido" abre uma janela para escolher o que entra: Nível de serviço, Devolução, Fora de rota e Plano de ação. Slides: capa, resumo (KPIs, último mês × mês anterior, destaques automáticos e gráfico mensal), resultado por cluster + "onde agir primeiro", 10 PDVs com menor OTIF (mín. 3 atendimentos válidos), devolução (KPIs e gráficos mensais), destaques de devolução (RN, gerente, motivo), clientes com mais devoluções, fora de rota, plano de ação do mês mais recente e encerramento com a leitura dos indicadores. Fonte Calibri, identidade do painel, rodapé com data, logo e número de página. Se a biblioteca não carregar, aparece um aviso com "Tentar de novo".
+
+### Status da importação
+Ao fim de cada importação aparece, no cartão "Processamento", um resumo: concluída sem erros (verde), com alertas (arquivo não reconhecido ou mês não identificado, em amarelo) ou com erros (arquivo ilegível ou falha ao salvar, em vermelho). Mostra arquivos importados, registros, horário, lista dos arquivos com problema e se os dados foram sincronizados com o banco.
