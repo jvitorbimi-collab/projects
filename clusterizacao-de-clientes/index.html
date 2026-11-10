@@ -2846,15 +2846,32 @@ async function cloudOpenPanel(){
    let mark=meta.state.updated_at+'|'+meta.state.byte_size;
    if(state.files?.length&&await get('cloudmark')===mark){cloudStatus('Dados sincronizados')}
    else{
-   cloudStatus('Carregando bases salvas');cloudLoading(true,'Carregando suas bases','Estamos trazendo os dados salvos do banco.');loadingStep='baixar as bases salvas';
-   let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
-   if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);normalizePanelState();await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});await put('params',{params:state.params,lastUpdate:state.lastUpdate});await put('cloudmark',mark);LOCAL_REF={files:state.files,data:state.data};resetCache()}}
-   else if(response.status!==404)throw new Error('O armazenamento respondeu com status '+response.status+'.');
+    cloudStatus('Carregando bases salvas');cloudLoading(true,'Carregando suas bases','Estamos trazendo os dados salvos do banco.');loadingStep='baixar as bases salvas';
+    let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
+    if(response.ok){
+     let remote=await response.json();
+     if(remote&&remote.data){
+      Object.assign(state,remote);normalizePanelState();
+      await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});
+      await put('params',{params:state.params,lastUpdate:state.lastUpdate});
+      await put('cloudmark',mark);LOCAL_REF={files:state.files,data:state.data};resetCache();
+     }
+    }else if(response.status===404&&state.files?.length&&cloudCanWrite()){
+     loadingStep='publicar as bases locais';
+     cloudLoading(true,'Sincronizando suas bases','Estamos gravando os dados deste equipamento para toda a equipe.');
+     await cloudSync();
+    }else if(response.status!==404)throw new Error('O armazenamento respondeu com status '+response.status+'.');
    }
   }else{
    loadingStep='preparar os dados locais';
    normalizePanelState();
-   if(state.files?.length)cloudStatus('Bases locais: sincronização pendente');
+   if(state.files?.length&&cloudCanWrite()){
+    loadingStep='publicar as bases locais';
+    cloudLoading(true,'Sincronizando suas bases','Estamos gravando os dados deste equipamento para toda a equipe.');
+    await cloudSync();
+   }else if(state.files?.length){
+    cloudStatus('Bases locais aguardando sincronização por um gestor');
+   }
   }
   state.params.holidays=Array.isArray(meta.state?.holidays)?meta.state.holidays:[];resetCache();
   state.folderHandle=await get('folder');
