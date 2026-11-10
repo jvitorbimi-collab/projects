@@ -735,6 +735,7 @@ td b{color:var(--ink)}
 
 /* desempenho: tabelas grandes só calculam layout quando visíveis */
 .tab .tablewrap{content-visibility:auto;contain-intrinsic-size:auto 520px}
+.return-block{content-visibility:auto;contain-intrinsic-size:auto 420px}
 /* logo + botão de recolher no menu lateral */
 .side .side-toggle{width:34px;height:34px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#c9d2ff;box-shadow:none}
 .side .side-toggle:hover{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3)}
@@ -752,6 +753,24 @@ td b{color:var(--ink)}
 #globalFilterBar[hidden],#serviceReturnsPanel[hidden],#serviceDeliveryPanel[hidden]{display:none!important}.topright{display:none!important}.return-month-field{display:none}.return-period-field{display:flex}.return-month-mode .return-month-field{display:flex}.return-month-mode .return-period-field{display:none}
 #returnFilters,#serviceFilters{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px 14px;align-items:end;padding:16px 18px;background:#fff;border:1px solid #d7e1ed;border-radius:16px;box-shadow:0 10px 24px rgba(28,54,89,.08)}#returnFilters:before,#serviceFilters:before{grid-column:1/-1;margin:0;padding:0;background:none;color:#20375a;font-size:12px;letter-spacing:.04em;text-transform:uppercase}#returnFilters label{display:flex;flex-direction:column;gap:6px;min-width:0;color:#526a87;font-size:11px;font-weight:700}#returnFilters label select,#returnFilters label input,#returnFilters>.return-search,#returnFilters>select{width:100%;min-width:0;background:#f9fbfe;color:#172b48;border-color:#c7d5e5}#returnFilters>.rgran{grid-column:span 2}#returnFilters>.return-month-field,#returnFilters>.return-period-field{grid-column:span 2}#returnFilters>.return-search{grid-column:span 3}#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg{grid-column:span 2}#returnFilters>#clearReturnFilters{grid-column:span 1;min-height:38px;white-space:nowrap}.service-filters{grid-template-columns:repeat(12,minmax(0,1fr))}.service-filters .multi-picker{grid-column:span 2}.service-filters .service-filter-search{grid-column:span 4;background:#f9fbfe;color:#172b48;border-color:#c7d5e5}.service-filters .service-filter-actions{grid-column:span 2;min-height:38px}.service-filters .multi-picker summary{background:#f9fbfe;color:#172b48;border-color:#c7d5e5}.service-filters .multi-picker summary span{color:#607896}@media(max-width:900px){#returnFilters,#serviceFilters{grid-template-columns:repeat(2,minmax(0,1fr))}#returnFilters:before,#serviceFilters:before{grid-column:1/-1}#returnFilters>.rgran,#returnFilters>.return-month-field,#returnFilters>.return-period-field,#returnFilters>.return-search,#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg,#returnFilters>#clearReturnFilters,.service-filters .multi-picker,.service-filters .service-filter-search,.service-filters .service-filter-actions{grid-column:span 1}}
 #returnFilters{grid-template-columns:1.1fr 1.1fr 1.1fr 1.7fr 1.35fr 1.35fr 1.35fr auto;display:grid;gap:14px;align-items:end;padding:18px 20px}#returnFilters:before{content:'Período e segmentação';grid-column:1/-1;margin-bottom:1px;font-size:13px;font-weight:800;letter-spacing:0;text-transform:none;color:#172b48}#returnFilters>label{grid-column:auto!important;min-width:0;display:grid;gap:6px;align-content:end;color:#526a87;font-size:11px;font-weight:750}#returnFilters>label>select,#returnFilters>label>input,#returnFilters>.return-search,#returnFilters>select{height:40px;min-height:40px;border-radius:10px}#returnFilters>label:has(.rgran){grid-column:span 1!important}#returnFilters>.return-search{grid-column:span 2;min-width:0}#returnFilters>.rm,#returnFilters>.rr,#returnFilters>.rg{grid-column:span 1;min-width:0}#returnFilters>#clearReturnFilters{grid-column:auto;min-height:40px;height:40px;padding:0 14px}.service-filters{grid-template-columns:1fr 1fr 1fr 2.4fr auto;display:grid;gap:14px;align-items:end;padding:18px 20px}.service-filters:before{content:'Filtros do indicador';grid-column:1/-1;margin-bottom:1px;background:none;color:#172b48;font-size:13px;letter-spacing:0;text-transform:none}.service-filters .multi-picker,.service-filters .service-filter-search,.service-filters .service-filter-actions{grid-column:auto;min-width:0}.service-filters .multi-picker summary{height:40px;min-height:40px;display:flex;align-items:center;justify-content:space-between}.service-filters .service-filter-search{height:40px;min-height:40px;border-radius:10px}.service-filters .service-filter-actions{height:40px;white-space:nowrap}@media(max-width:1050px){#returnFilters{grid-template-columns:repeat(4,minmax(0,1fr))}.service-filters{grid-template-columns:repeat(3,minmax(0,1fr))}.service-filters .service-filter-search{grid-column:span 2}}@media(max-width:700px){#returnFilters,#serviceFilters{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px}.service-filters .service-filter-search{grid-column:span 2}.service-filters .service-filter-actions{grid-column:span 1}}
+</style>
+<style id="loading-metas">
+/* Tela de carregamento no mesmo padrão do painel de Metas e Incentivos */
+.login-loading{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:rgba(239,243,255,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.login-loading-card{width:min(100%,420px);padding:38px 30px 30px;text-align:center;background:linear-gradient(155deg,#fff 35%,#f3f5ff);border:1px solid rgba(255,255,255,.95);border-radius:28px;box-shadow:0 24px 90px rgba(18,32,120,.2);animation:login-card-in .25s ease-out;color:#11234a;box-sizing:border-box}
+.login-loading-symbol{position:relative;display:grid;place-items:center;width:82px;height:82px;margin:0 auto 26px;border-radius:50%;background:#e9edff;color:#2435eb}
+.login-loading-symbol span{position:absolute;inset:-7px;border:3px solid #dde3ff;border-top-color:#2435eb;border-right-color:#8d9aff;border-radius:50%;animation:login-spin 1s linear infinite}
+.login-loading-eyebrow{display:block;font-size:10px;letter-spacing:.18em;font-weight:800;color:#6676a1;margin-bottom:12px}
+.login-loading-card h2{font-size:23px;line-height:1.25;margin:0 0 10px;color:#142653}
+.login-loading-card p{font-size:14px;line-height:1.6;color:#647394;margin:0 auto;max-width:310px;min-height:45px}
+.login-loading-track{height:4px;background:#e3e8fb;border-radius:8px;overflow:hidden;margin:25px 0 18px}
+.login-loading-track i{display:block;width:42%;height:100%;border-radius:8px;background:linear-gradient(90deg,#5369ff,#2028db);animation:login-track 1.6s ease-in-out infinite}
+.login-loading-card small{font-size:12px;color:#7b87a3}
+@keyframes login-spin{to{transform:rotate(360deg)}}
+@keyframes login-track{0%{transform:translateX(-110%)}100%{transform:translateX(345%)}}
+@keyframes login-card-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.login-loading-card,.login-loading-symbol span,.login-loading-track i{animation:none}.login-loading-track i{width:100%;opacity:.6}}
+@media(max-width:480px){.login-loading{padding:22px}.login-loading-card{padding:32px 24px 26px}.login-loading-card h2{font-size:21px}}
 </style>
 <style id="ds2">
 /* =====================================================================
@@ -779,7 +798,6 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 /* Filtros locais: rótulo curto à esquerda, campos alinhados */
 .filters{padding:10px 14px;margin-bottom:14px;gap:10px;box-shadow:var(--sh-card)}
 .filters select,.filters input{min-height:38px;font-size:13px}
-.filters select{min-width:160px}
 .filters:before{padding:4px 9px;font-size:10px}
 
 /* Cartões */
@@ -852,6 +870,92 @@ tbody tr:hover td{background:#f5f8ff}
  .service-tabs,.workspace-subtabs{display:flex;width:100%}
  .service-tab,.workspace-subtab{flex:1;padding:8px 6px}
 }
+</style>
+<style id="ds3">
+/* ===== Layout geral, visualizações e gráficos ===== */
+/* faixa de título secundária dentro de subpainéis some (o título já está na faixa principal) */
+#serviceReturnsPanel>.hero{display:none}
+/* filtros: rótulo em cima, campos alinhados em grade */
+#returnFilters{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px 14px;align-items:end;padding:16px 18px}
+#returnFilters:before{grid-column:1/-1;content:"Período e segmentação";align-self:auto;margin:0;padding:0;background:none;color:var(--ink);font-size:13px;font-weight:800;letter-spacing:0;text-transform:none}
+#returnFilters .clearfilters,#returnFilters .btn{margin-left:0;justify-self:start}
+#returnFilters label,#offrouteFilters label,#actionFilters label{display:grid;gap:5px;color:var(--quiet);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+#returnFilters select,#returnFilters input{width:100%;min-width:0}
+#offrouteFilters,#actionFilters{align-items:flex-end}
+#actionFilters select{min-width:170px}
+#actionFilters input{min-width:220px}
+.filters select{min-width:190px}
+/* barras horizontais: sólidas, finas e legíveis */
+.bartrack,.return-bar-track{height:8px;border-radius:999px;background:var(--surface-3)}
+.barfill,.return-bar-track i{height:100%;border-radius:999px;background:linear-gradient(90deg,#4263f2,#6d8bff)}
+.barrow b,.return-bar-value{font-variant-numeric:tabular-nums;color:var(--ink)}
+.return-bar-list{margin-top:10px;gap:11px}
+.return-bar-row{grid-template-columns:minmax(90px,150px) 1fr auto;font-size:12.5px;color:var(--ink-2)}
+.return-bar-value small{color:var(--quiet);font-weight:600}
+.return-visuals{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px}
+.return-block{margin-top:0;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--stroke);box-shadow:var(--sh-card);color:var(--ink)}
+.return-layout{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px;align-items:start}
+.return-block h3{font-size:15px;color:var(--ink)}
+@media(max-width:1100px){.return-visuals,.return-layout{grid-template-columns:1fr!important}}
+/* rosca de devolução */
+.return-ring{position:relative;width:150px;height:150px;background:conic-gradient(#3558f0 var(--rate),#e7ecf8 0)}
+.return-ring:after{width:112px;height:112px;background:var(--surface)}
+.return-ring-value{font-size:24px;font-weight:800;color:var(--ink)}
+.return-ring-value small{margin-top:2px;font-size:10px;line-height:1.2;max-width:84px}
+.return-legend{gap:10px;font-size:12.5px;color:var(--quiet)}
+.return-legend span{display:flex;justify-content:space-between;gap:18px;padding-bottom:8px;border-bottom:1px solid var(--stroke)}
+.return-legend b{color:var(--ink)}
+/* colunas mensais (devolução) */
+.return-cols{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(3px,.7vw,10px);align-items:end;height:230px;margin-top:14px;padding:0 2px}
+.return-col{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:18px 1fr 18px;height:100%;min-width:0;text-align:center;cursor:default}
+.rc-val{align-self:end;justify-self:center;font-size:10.5px;font-weight:800;color:var(--ink);opacity:0;white-space:nowrap;overflow:visible}
+.rc-val.show{opacity:1}
+.return-col:hover .rc-val{opacity:1}
+.rc-bar{position:relative;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid var(--stroke-2)}
+.rc-bar i{display:block;width:min(70%,34px);border-radius:6px 6px 0 0;background:linear-gradient(180deg,#6d8bff,#3558f0);transition:filter .15s}
+.return-col.is-top .rc-bar i{background:linear-gradient(180deg,#f0a53c,#e2742f)}
+.return-col:hover .rc-bar i{filter:brightness(1.08)}
+.return-cols.dense .return-col:nth-child(even) .rc-lab{visibility:hidden}
+.rc-lab{align-self:center;justify-self:center;font-size:10.5px;color:var(--quiet);white-space:nowrap}
+/* gráfico combo (OTIF / In Full / On Time) */
+.cc-scroll{overflow-x:auto;padding-bottom:2px}
+.cc-svg{display:block;width:100%;min-width:560px;height:auto}
+.cc-grid{stroke:#e8ecf7;stroke-width:1;stroke-dasharray:3 5}
+.cc-grid.base{stroke:#c9d2e8;stroke-dasharray:none}
+.cc-ytick{fill:var(--quiet);font-size:12px}
+.cc-cat{fill:var(--ink-2);font-size:13px;font-weight:600}
+.cc-val{fill:#2a45e0;font-size:13px;font-weight:800}
+.cc-bar{fill:url(#ccBar);opacity:.95;transition:opacity .15s,filter .15s}
+.combo-item{cursor:pointer}
+.combo-item .cc-hit{fill:transparent}
+.combo-item:hover .cc-hit{fill:rgba(53,88,240,.06)}
+.combo-item.is-dim .cc-bar{opacity:.35}
+.combo-item.is-on .cc-bar{filter:drop-shadow(0 3px 6px rgba(35,70,230,.35))}
+.cc-line{fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round;pointer-events:none}
+.cc-line.if{stroke:#8b5cf6}.cc-line.ot{stroke:#f08a3c}
+.cc-dot{stroke:#fff;stroke-width:2;pointer-events:none}.cc-dot.if{fill:#8b5cf6}.cc-dot.ot{fill:#f08a3c}
+.combo-legend{gap:16px;margin-bottom:6px}
+.combo-legend i{width:12px;height:12px;border-radius:4px;background:#3558f0}
+.combo-legend b{font-weight:600;color:var(--quiet)}
+.combo-legend .cc-hint{margin-left:auto;color:var(--quiet);font-weight:500}
+/* listas de ação (Análise de Entregas): linha compacta, ação à direita */
+.actionitem{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;row-gap:3px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--stroke)}
+.actionitem:last-child{border-bottom:0}
+.actiontitle{grid-column:1;font-weight:700;color:var(--ink);font-size:13.5px}
+.actionmeta{grid-column:1;color:var(--quiet);font-size:12px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.actioncall{grid-column:2;grid-row:1/span 2;justify-self:end;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap;background:var(--surface-3)}
+.actioncall.neg{background:var(--red-50);color:#b42a41}
+.actioncall.ok{background:var(--teal-50);color:#08775f}
+@media(max-width:560px){.actionitem{grid-template-columns:1fr}.actioncall{grid-column:1;grid-row:auto;justify-self:start;margin-top:4px}}
+#action .tablewrap td{white-space:normal}
+#action .tablewrap td:nth-child(-n+3){white-space:nowrap}
+#action .tablewrap td:last-child,#action .tablewrap td:nth-last-child(2){min-width:230px;text-align:left}
+@media(max-width:700px){.filters select,.filters input{min-width:0!important;width:100%}.filters .filter-field,.filters>label{flex:1 1 calc(50% - 10px);min-width:0}#actionFilters input{min-width:0}}
+/* tabelas: cabeçalho fixo, números alinhados */
+td,th{font-variant-numeric:tabular-nums}
+.tablewrap{border-radius:var(--r-md)}
+/* seção "Detalhamento": título + contagem na mesma linha com espaçamento */
+.sectionhead,.section-title{margin:22px 0 10px}
 </style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
@@ -1245,7 +1349,7 @@ async function cloudHandlePasswordRecovery(){
  }catch(e){console.error(e);localStorage.removeItem(CLOUD_AUTH_KEY);cloudSession=null;cloudAuthScreen('login','Este link expirou ou não pode ser usado. Solicite uma nova recuperação.',cloudAuthUser?.email||'')}
  return true;
 }
-function cloudLoading(show){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old)return;let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="cloud-loading-card"><div class="cloud-spinner"></div><strong>Carregando painel</strong><small>Estamos preparando seus dados...</small></div>';document.body.appendChild(overlay)}
+function cloudLoading(show,title,text){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old){if(title)old.querySelector('h2').textContent=title;if(text)old.querySelector('p').textContent=text;return}let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.className='login-loading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="login-loading-card"><div class="login-loading-symbol" aria-hidden="true"><span></span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg></div><span class="login-loading-eyebrow">CLUSTERIZAÇÃO DE CLIENTES</span><h2>'+(title||'Carregando seu painel')+'</h2><p>'+(text||'Só um instante. Estamos preparando seus dados.')+'</p><div class="login-loading-track" aria-hidden="true"><i></i></div><small>Seu painel já vai abrir.</small></div>';document.body.appendChild(overlay)}
 async function init(){cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);let pm=await get('params');if(pm&&pm.params)Object.assign(state,{params:pm.params,lastUpdate:pm.lastUpdate??state.lastUpdate});normalizePanelState();LOCAL_REF=s?{files:state.files,data:state.data}:null;state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
 $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');$('#globalFilterBar').hidden=['service','import','users'].includes(b.dataset.tab);let m={import:['Importação e Configurações','Importe bases, ajuste parâmetros e gerencie acessos'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','OTIF, On Time, In Full, Rating e devoluções'],offroute:['Fora de rota','Pedidos fora dos dias padrão'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Usuários, perfis e acessos']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab,true)});
 (function(){const app=document.querySelector('.app'),btn=document.getElementById('sideToggle'),KEY='clusterizacao.side.collapsed';
@@ -1821,37 +1925,26 @@ function renderAnalysis(){
 
 function serviceComboChart(rows,mode){
  if(!rows.length)return '<div class="empty">Sem dados para o filtro atual.</div>';
- let W=1000,H=245,L=46,R=18,T=28,B=46,iw=W-L-R,ih=H-T-B,n=rows.length,step=iw/n,bw=Math.min(64,step*.52);
- let y=v=>T+(1-Math.max(0,Math.min(1,v||0)))*ih, x=i=>L+step*i+step/2;
- let grid=[0,.25,.5,.75,1].map(v=>`<line class="gridline" x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}%</text>`).join('');
- let bars=rows.map((d,i)=>{let yy=y(d.otif),xx=x(i)-bw/2,hh=T+ih-yy,ly=yy+hh/2+4;
-   let tip=`${esc(d.label)}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
-   return `<g class="combo-item" data-mode="${mode}" data-key="${d.key??d.label}" data-tip="${tip}">
-    <rect class="bar" x="${xx}" y="${yy}" width="${bw}" height="${hh}" rx="5"></rect>
-    <text class="value" x="${x(i)}" y="${ly}" text-anchor="middle">${pct(d.otif)}</text>
-    <text x="${x(i)}" y="${H-B+18}" text-anchor="middle">${esc(d.label)}</text>
-   </g>`}).join('');
- let ptsIF=rows.map((d,i)=>`${x(i)},${y(d.iff)}`).join(' ');
- let ptsOT=rows.map((d,i)=>`${x(i)},${y(d.ot)}`).join(' ');
- let linePts=rows.map((d,i)=>{
-   let xi=x(i), yi=y(d.iff), yo=y(d.ot), close=Math.abs(yi-yo)<18;
-   let ifY=close?yi-10:yi-8, otY=close?yo+15:yo+14;
-   let tip=`${esc(d.label)}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
-   return `<g class="combo-point" data-tip="${tip}">
-      <circle class="dot-if" cx="${xi}" cy="${yi}" r="4.5"></circle>
-      <text class="line-label-if" x="${xi}" y="${ifY}" text-anchor="middle">${pct(d.iff)}</text>
-      <circle class="dot-ot" cx="${xi}" cy="${yo}" r="4.5"></circle>
-      <text class="line-label-ot" x="${xi}" y="${otY}" text-anchor="middle">${pct(d.ot)}</text>
-    </g>`;
- }).join('');
- return `<div class="combo-legend"><span><i></i>OTIF</span><span class="if"><i></i>In Full</span><span class="ot"><i></i>On Time</span><span style="margin-left:auto">clique na barra para filtrar · passe o mouse para detalhes</span></div>
- <svg viewBox="0 0 ${W} ${H}" role="img">
-   <line class="axis" x1="${L}" y1="${T+ih}" x2="${W-R}" y2="${T+ih}"/>
-   ${grid}${bars}
-   <polyline class="line-if" points="${ptsIF}"/>
-   <polyline class="line-ot" points="${ptsOT}"/>
-   ${linePts}
- </svg>`;
+ const W=1000,H=300,L=46,R=14,T=14,B=58,iw=W-L-R,ih=H-T-B,n=rows.length,step=iw/n,bw=Math.max(14,Math.min(58,step*.5));
+ const y=v=>T+(1-Math.max(0,Math.min(1,v||0)))*ih,x=i=>L+step*i+step/2;
+ const sel=d=>mode==='month'?SERVICE_FILTER.months.has(Number(d.key)):mode==='cluster'?SERVICE_FILTER.clusters.has(d.key):false;
+ const anySel=rows.some(sel);
+ const grid=[0,.25,.5,.75,1].map(v=>`<line class="cc-grid${v===0?' base':''}" x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"/><text class="cc-ytick" x="${L-9}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}%</text>`).join('');
+ const cols=rows.map((d,i)=>{const yy=y(d.otif),xx=x(i)-bw/2,hh=Math.max(2,T+ih-yy),on=sel(d),dim=anySel&&!on;
+  const tip=`${esc(d.label)}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
+  return `<g class="combo-item${on?' is-on':''}${dim?' is-dim':''}" data-mode="${mode}" data-key="${d.key??d.label}" data-tip="${tip}">
+   <rect class="cc-hit" x="${L+step*i}" y="${T}" width="${step}" height="${H-T}"/>
+   <rect class="bar cc-bar" x="${xx}" y="${yy}" width="${bw}" height="${hh}" rx="6"/>
+   <text class="cc-cat" x="${x(i)}" y="${H-B+20}" text-anchor="middle">${esc(d.label)}</text>
+   <text class="cc-val" x="${x(i)}" y="${H-B+39}" text-anchor="middle">${pct(d.otif)}</text>
+  </g>`}).join('');
+ const line=(k,cls)=>`<polyline class="cc-line ${cls}" points="${rows.map((d,i)=>x(i)+','+y(d[k])).join(' ')}"/>`+rows.map((d,i)=>`<circle class="cc-dot ${cls}" cx="${x(i)}" cy="${y(d[k])}" r="${n>14?3:4.5}"/>`).join('');
+ const last=rows[rows.length-1];
+ return `<div class="combo-legend"><span><i></i>OTIF <b>(barras)</b></span><span class="if"><i></i>In Full</span><span class="ot"><i></i>On Time</span><span class="cc-hint">clique numa coluna para filtrar · passe o mouse para detalhes</span></div>
+ <div class="cc-scroll"><svg class="cc-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="OTIF, In Full e On Time">
+  <defs><linearGradient id="ccBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b7bff"/><stop offset="1" stop-color="#2d45e6"/></linearGradient></defs>
+  ${grid}${cols}${line('iff','if')}${line('ot','ot')}
+ </svg></div>`;
 }
 function serviceData(){
 let ck=(state.lastUpdate||'')+'|all-years|'+scopeSignature();
@@ -1946,7 +2039,9 @@ function renderService(){
  $('#serviceTable').innerHTML='<thead><tr><th>PDV</th><th>Cluster</th><th>Mês</th><th>Visitas</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${x.code} • ${esc(x.name)}</td><td><span class="badge ${badgeClass(x.cluster)}">${esc(x.cluster)}</span></td><td>${monthName(x.month)}/${x.year}</td><td>${fmtInt(x.vis)}</td><td>${pct(x.otPct)}</td><td>${pct(x.ifPct)}</td><td><b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b></td><td>${x.rating===null?'—':x.rating.toFixed(2)}</td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')+'</tbody>';
 
  bindServiceChartInteractions();renderServiceImpact(d);
+ prewarmReturns();
 }
+let RET_WARM=0;function prewarmReturns(){if(RET_WARM===VIEW_VER)return;let ver=VIEW_VER,go=()=>{if(ver!==VIEW_VER||RET_WARM===ver)return;try{renderReturns();RET_WARM=ver}catch(e){console.warn(e)}};(window.requestIdleCallback||(f=>setTimeout(f,400)))(go,{timeout:1500})}
 
 function cleanReturnLabel(v,prefix){let s=norm(v).replace(new RegExp('^'+prefix+'\\s*:\\s*','i'),'').replace(/\bCIA\b\s*/gi,'').replace(/\s+/g,' ').trim();s=s.replace(/^0+(?=\d)/,'').replace(/\s*-\s*/g,' - ').toLocaleLowerCase('pt-BR');if(!s)return 'Não informado';s=s.charAt(0).toLocaleUpperCase('pt-BR')+s.slice(1);return s.replace(/\bpdv\b/gi,'PDV').replace(/\brn\b/gi,'RN').replace(/\bhl\b/gi,'HL')}
 function returnSourceRows(){let out=[];for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){let pdv=code(r.Cliente),date=isoDateFromKey(dateKey(r.Data)),delivered=norm(r['Entrega Real'])||norm(r['Data Entrega NF']);if(pdv&&date&&delivered)out.push({date,pdv,pdvName:norm(r['Nome Cliente'])||pdv,gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado'});}return out}
@@ -1958,7 +2053,7 @@ function renderReturns(){
  const fill=(sel,values,empty)=>{let el=box.querySelector(sel),old=el.value;el.innerHTML='<option value="">'+empty+'</option>'+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})).map(x=>'<option>'+esc(x)+'</option>').join('');if(values.includes(old))el.value=old};
  fill('.rm',all.map(x=>x.motivo),'Todos os motivos');fill('.rr',all.map(x=>x.responsabilidade),'Todas as responsabilidades');fill('.rg',all.map(x=>x.gerente),'Todos os gerentes');
  fill('.ryear',all.map(x=>x.date.slice(0,4)),'Todos os anos');let monthSelect=box.querySelector('.rmonth'),monthOld=monthSelect.value;monthSelect.innerHTML='<option value="">Todos os meses</option>'+[...new Set(all.map(x=>x.date.slice(5,7)))].sort().map(x=>'<option value="'+x+'">'+monthName(Number(x))+'</option>').join('');if([...monthSelect.options].some(x=>x.value===monthOld))monthSelect.value=monthOld;
- $('#returnPdvSuggestions').innerHTML=[...new Map(source.map(x=>[x.pdv,x.pdv+' - '+(x.pdvName||'PDV')])).values()].slice(0,300).map(x=>'<option value="'+esc(x)+'"></option>').join('');
+ if(cached.sugg===undefined)cached.sugg=[...new Map(source.map(x=>[x.pdv,x.pdv+' - '+(x.pdvName||'PDV')])).values()].slice(0,300).map(x=>'<option value="'+esc(x)+'"></option>').join('');$('#returnPdvSuggestions').innerHTML=cached.sugg;
  const from=box.querySelector('.rf').value,to=box.querySelector('.rt').value,motivo=box.querySelector('.rm').value,resp=box.querySelector('.rr').value,gerente=box.querySelector('.rg').value,query=box.querySelector('.rq').value,returnYear=box.querySelector('.ryear').value,returnMonth=box.querySelector('.rmonth').value;
  const matchQuery=x=>!query||filterText([x.pdv,x.pdvName,x.name].filter(Boolean).join(' ')).includes(filterText(query)),inDates=x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!returnYear||x.date.slice(0,4)===returnYear)&&(!returnMonth||x.date.slice(5,7)===returnMonth);
  const base=source.filter(x=>inDates(x)&&(!gerente||x.gerente===gerente)&&matchQuery(x)),data=all.filter(x=>inDates(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&matchQuery(x));
@@ -1968,12 +2063,14 @@ function renderReturns(){
  $('#returnKpis').innerHTML=[['Devolução PDV',pct(rate),fmtInt(pdvs.size)+' de '+fmtInt(basePdvs.size)+' PDVs entregues'],['Devolução HL',fmt(hl), 'Volume devolvido no filtro'],['Notas devolvidas',fmtInt(notes.size),fmtInt(rns.size)+' RNs envolvidos'],['Linhas de devolução',fmtInt(data.length),pctOf(data.length,all.length)+' do relatório']].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="val">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>').join('');
  const group=(key,label,rows=data)=>{let m=new Map();for(const x of rows){let k=key(x),o=m.get(k)||{label:label(x),count:0,hl:0,pdvs:new Set,notes:new Set};o.count++;o.hl+=x.hl;o.pdvs.add(x.pdv);o.notes.add(x.nota);m.set(k,o)}return [...m.values()].sort((a,b)=>b.hl-a.hl||b.count-a.count)};
  const periodKey=(x)=>gran==='day'?x.date:gran==='month'?x.date.slice(0,7):'period',periodLabel=k=>k==='period'?'Período':k.length===7?k.slice(5,7)+'/'+k.slice(0,4):k.split('-').reverse().join('/');
- const timeline=[...new Set(base.map(periodKey))].sort().map(k=>{let b=new Set(base.filter(x=>periodKey(x)===k).map(x=>x.pdv)),r=new Set(data.filter(x=>periodKey(x)===k).map(x=>x.pdv));return {label:periodLabel(k),rate:b.size?r.size/b.size:0,detail:r.size+'/'+b.size+' PDVs'}});
+ const timelineMap=new Map();for(const x of base){let k=periodKey(x),o=timelineMap.get(k);if(!o)timelineMap.set(k,o={b:new Set,r:new Set});o.b.add(x.pdv)}for(const x of data){let o=timelineMap.get(periodKey(x));if(o)o.r.add(x.pdv)}
+ const timeline=[...timelineMap.keys()].sort().map(k=>{let o=timelineMap.get(k);return {label:periodLabel(k),rate:o.b.size?o.r.size/o.b.size:0,detail:o.r.size+'/'+o.b.size+' PDVs'}});
  $('#returnGranularityLabel').textContent=gran==='day'?'dia':gran==='month'?'mês':'período';$('#returnPdvRate').innerHTML='<div class="return-ring-wrap"><div class="return-ring" style="--rate:'+Math.round(rate*100)+'%"><div class="return-ring-value">'+pct(rate)+'<small>dos PDVs entregues</small></div></div><div class="return-legend"><span>Com devolução <b>'+fmtInt(pdvs.size)+'</b></span><span>PDVs entregues <b>'+fmtInt(basePdvs.size)+'</b></span><span>Sem devolução <b>'+fmtInt(Math.max(0,basePdvs.size-pdvs.size))+'</b></span></div></div>';
  const maxRate=Math.max(.01,...timeline.map(x=>x.rate));$('#returnTimeline').innerHTML=timeline.length?'<div class="return-bar-list">'+timeline.slice(-18).map(x=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(x.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,x.rate/maxRate*100)+'%"></i></div><span class="return-bar-value">'+pct(x.rate)+' <small>'+x.detail+'</small></span></div>').join('')+'</div>':'<div class="empty">Sem dados no período.</div>';
- const months=[...new Set(base.map(x=>x.date.slice(0,7)))].sort().map(k=>{let b=new Set(base.filter(x=>x.date.slice(0,7)===k).map(x=>x.pdv)),r=new Set(data.filter(x=>x.date.slice(0,7)===k).map(x=>x.pdv)),v=data.filter(x=>x.date.slice(0,7)===k).reduce((s,x)=>s+x.hl,0);return {label:k.slice(5,7)+'/'+k.slice(0,4),rate:b.size?r.size/b.size:0,hl:v,detail:r.size+'/'+b.size+' PDVs'}});
+ const monthMap=new Map();for(const x of base){let k=x.date.slice(0,7),o=monthMap.get(k);if(!o)monthMap.set(k,o={b:new Set,r:new Set,v:0});o.b.add(x.pdv)}for(const x of data){let o=monthMap.get(x.date.slice(0,7));if(o){o.r.add(x.pdv);o.v+=x.hl}}
+ const months=[...monthMap.keys()].sort().map(k=>{let o=monthMap.get(k);return {label:k.slice(5,7)+'/'+k.slice(0,4),rate:o.b.size?o.r.size/o.b.size:0,hl:o.v,detail:o.r.size+'/'+o.b.size+' PDVs'}});
  const monthRateMax=Math.max(.01,...months.map(x=>x.rate)),monthHlMax=Math.max(.01,...months.map(x=>x.hl));
- const monthlyBars=(rows,max,key,format)=>rows.length?'<div class="return-bar-list">'+rows.map(x=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(x.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,x[key]/max*100)+'%"></i></div><span class="return-bar-value">'+format(x)+'</span></div>').join('')+'</div>':'<div class="empty">Sem dados no período.</div>';
+ const monthlyBars=(rows,max,key,format)=>{if(!rows.length)return '<div class="empty">Sem dados no período.</div>';let top=rows.reduce((m,x,i)=>x[key]>rows[m][key]?i:m,0);return '<div class="return-cols'+(rows.length>12?' dense':'')+'" style="--n:'+rows.length+'">'+rows.map((x,i)=>'<div class="return-col'+(i===top?' is-top':'')+'" title="'+esc(x.label)+' · '+esc(format(x))+'"><span class="rc-val'+(rows.length<=8||i===top||i===rows.length-1?' show':'')+'">'+format(x)+'</span><div class="rc-bar"><i style="height:'+Math.max(3,x[key]/max*100)+'%"></i></div><span class="rc-lab">'+esc(x.label.replace(/^(\d\d)\/\d\d(\d\d)$/,'$1/$2'))+'</span></div>').join('')+'</div>'};
  $('#returnMonthPdv').innerHTML=monthlyBars(months,monthRateMax,'rate',x=>pct(x.rate));$('#returnMonthHl').innerHTML=monthlyBars(months,monthHlMax,'hl',x=>fmt(x.hl)+' HL');
  const table=(title,rows,cols)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
  const bars=(title,rows)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">participação no HL devolvido</span></div><div class="return-bar-list">'+rows.slice(0,8).map(r=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.hl/(hl||1)*100)+'%"></i></div><span class="return-bar-value">'+fmt(r.hl)+' · '+pctOf(r.hl,hl)+'</span></div>').join('')+'</div></div>';
@@ -1999,7 +2096,7 @@ async function exportServicePpt(){
  highlightSlide.addText('Resumo gerado com os filtros ativos no painel',{x:.48,y:6.95,w:6,h:.15,fontSize:7,color:'8092AA',margin:0});
  const clientSlide=pptx.addSlide();clientSlide.background={color:'F4F7FB'};clientSlide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:.25,fill:{color:'2148D8'},line:{color:'2148D8'}});clientSlide.addText('Clientes com mais devoluções',{x:.48,y:.48,w:8,h:.35,fontSize:22,bold:true,color:'172A4D',margin:0});clientSlide.addText('PDVs distintos com maior volume devolvido no período',{x:.48,y:.92,w:8,h:.2,fontSize:10,color:'607696',margin:0});addRanking(clientSlide,'Ranking de clientes','Devolução por PDV',.55,1.35,12.2,4.95);clientSlide.addText('Resumo gerado com os filtros ativos no painel',{x:.48,y:6.95,w:6,h:.15,fontSize:7,color:'8092AA',margin:0});await pptx.writeFile({fileName:'Resumo_Nivel_de_Servico_'+new Date().toISOString().slice(0,10)+'.pptx'});
 }
-$$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel')renderReturns()});
+$$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel'&&RET_WARM!==VIEW_VER){renderReturns();RET_WARM=VIEW_VER}});
 $('#exportServicePpt')?.addEventListener('click',exportServicePpt);
 let returnRenderTimer=0;const scheduleReturnRender=()=>{clearTimeout(returnRenderTimer);returnRenderTimer=setTimeout(renderReturns,120)};['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]'))scheduleReturnRender()}));
 $('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});
@@ -2410,7 +2507,7 @@ function cloudProfileModal(){
  form.elements.name.focus();
 }
 async function cloudOpenPanel(){
- cloudLoading(true);
+ cloudLoading(true,'Confirmando seu acesso','Só um instante. Estamos verificando seus dados.');
  cloudSession=await cloudRefresh();if(!cloudSession){cloudAuthScreen('login','');return}
  let loadingStep='validar sua conta';
  try{
@@ -2426,7 +2523,7 @@ async function cloudOpenPanel(){
    let mark=meta.state.updated_at+'|'+meta.state.byte_size;
    if(state.files?.length&&await get('cloudmark')===mark){cloudStatus('Dados sincronizados')}
    else{
-   cloudStatus('Carregando bases salvas');loadingStep='baixar as bases salvas';
+   cloudStatus('Carregando bases salvas');cloudLoading(true,'Carregando suas bases','Estamos trazendo os dados salvos do banco.');loadingStep='baixar as bases salvas';
    let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
    if(response.ok){let remote=await response.json();if(remote&&remote.data){Object.assign(state,remote);normalizePanelState();await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});await put('params',{params:state.params,lastUpdate:state.lastUpdate});await put('cloudmark',mark);LOCAL_REF={files:state.files,data:state.data};resetCache()}}
    else if(response.status!==404)throw new Error('O armazenamento respondeu com status '+response.status+'.');

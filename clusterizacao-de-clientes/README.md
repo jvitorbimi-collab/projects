@@ -17,3 +17,8 @@ Projeto estático preparado para publicação na Vercel.
 - **Importação**: leitura de CSV ~4x mais rápida e a lista de arquivos é redesenhada sem excesso durante a importação.
 - **Cálculo**: datas, janelas de pedido e períodos são memorizados; os resultados são idênticos aos anteriores (conferido tela a tela).
 - **Visual**: camada final `ds2` no `index.html` (faixa de título compacta, seletores de visão claros, filtros e tabelas mais densos, sem texto cortado, barra de processamento vazia quando ocioso).
+
+### Revisão 2
+- Troca OTIF → Devolução: cálculo da devolução agrupado em uma só passagem e pré-montado em tempo ocioso quando a aba Nível de Serviço abre (≈420 ms → ≈20 ms).
+- Tela de carregamento no mesmo padrão do painel de Metas e Incentivos.
+- Gráfico mensal OTIF/In Full/On Time refeito (colunas OTIF, linhas IF e OT, filtro por clique); devolução mensal em colunas; rosca corrigida; listas de ação compactas; filtros alinhados em grade.
