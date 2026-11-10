@@ -2379,7 +2379,12 @@ async function buildServicePpt(Pptx,opts){
 
 $$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel'&&RET_WARM!==VIEW_VER){renderReturns();RET_WARM=VIEW_VER}});
 $('#exportServicePpt')?.addEventListener('click',exportServicePpt);
-let returnRenderTimer=0;const scheduleReturnRender=()=>{clearTimeout(returnRenderTimer);returnRenderTimer=setTimeout(renderReturns,120)};['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]'))scheduleReturnRender()}));
+let returnRenderTimer=0;const scheduleReturnRender=()=>{clearTimeout(returnRenderTimer);returnRenderTimer=setTimeout(renderReturns,120)};/* ao escolher mês (e ano), preenche De/Até com a menor e a maior data do mês nos relatórios importados */
+function syncReturnPeriod(){const box=$('#returnFilters');if(!box)return;const m=box.querySelector('.rmonth').value,y=box.querySelector('.ryear').value,rf=box.querySelector('.rf'),rt=box.querySelector('.rt');
+ if(!m&&!y){rf.value=rt.value='';return}
+ const c=returnRowsCached();let lo='',hi='';for(const list of [c.source,c.all])for(const x of list){const d=x.date;if(!d||(m&&d.slice(5,7)!==m)||(y&&d.slice(0,4)!==y))continue;if(!lo||d<lo)lo=d;if(!hi||d>hi)hi=d}
+ rf.value=lo;rt.value=hi}
+['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]')){if(ev==='change'&&e.target.matches('.rmonth,.ryear'))syncReturnPeriod();scheduleReturnRender()}}));
 $('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});
 
 
