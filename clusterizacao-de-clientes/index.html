@@ -957,6 +957,19 @@ td,th{font-variant-numeric:tabular-nums}
 /* seção "Detalhamento": título + contagem na mesma linha com espaçamento */
 .sectionhead,.section-title{margin:22px 0 10px}
 </style>
+<style id="ppt-ui">
+.ppt-modal{position:fixed;inset:0;z-index:10001;display:grid;place-items:center;padding:20px;background:rgba(18,26,59,.45);backdrop-filter:blur(4px)}
+.ppt-card{width:min(100%,460px);padding:24px 24px 20px;border-radius:20px;background:#fff;box-shadow:0 24px 80px rgba(18,32,120,.3);animation:login-card-in .2s ease-out}
+.ppt-card h3{margin:0 0 6px;font-size:19px;color:var(--ink)}
+.ppt-card p{margin:0 0 14px;color:var(--quiet);font-size:13px;line-height:1.5}
+.ppt-card label{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--stroke);border-radius:12px;color:var(--ink-2);font-size:14px;font-weight:600;cursor:pointer}
+.ppt-card label:hover{background:var(--surface-2)}
+.ppt-card input{width:18px;height:18px;accent-color:var(--brand)}
+.ppt-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+#pptNotice{position:fixed;left:50%;bottom:24px;z-index:10002;display:flex;align-items:center;gap:12px;max-width:min(92vw,560px);padding:12px 16px;border-radius:14px;background:var(--ink);color:#fff;font-size:13px;box-shadow:0 12px 40px rgba(18,26,59,.35);transform:translateX(-50%)}
+#pptNotice button{border:0;border-radius:8px;padding:6px 10px;background:rgba(255,255,255,.16);color:#fff;font:700 12px var(--font);cursor:pointer}
+#pptNotice button.x{background:none;font-size:18px;line-height:1;padding:0 4px}
+</style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
 <aside class="side">
@@ -2079,24 +2092,239 @@ function renderReturns(){
  const cols=(name,extra='')=>[[name,r=>esc(r.label)],[extra||'Linhas',r=>extra==='Notas'?fmtInt(r.notes.size):fmtInt(r.count)],['Devolução HL',r=>fmt(r.hl)],['%',r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']];
  $('#returnContent').innerHTML='<div class="return-visuals">'+bars('Devolução por motivo',byMot)+bars('Devolução por responsabilidade',byResp)+bars('Devolução por RN',byRn)+bars('Devolução por gerente',byGer)+'</div><div class="return-layout">'+table('Devolução por PDV',byPdv,cols('PDV'))+table('Devolução por motivo',byMot,cols('Motivo'))+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'))+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente','Notas'))+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico','Notas'))+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+'</div>';
 }
-async function exportServicePpt(){
- const Pptx=window.pptxgen||window.PptxGenJS;if(!Pptx){alert('O gerador de PPT ainda está carregando. Tente novamente em alguns segundos.');return}
- renderReturns();
- const pptx=new Pptx();pptx.layout='LAYOUT_WIDE';pptx.author='Disman';pptx.subject='Resumo do nível de serviço';pptx.title='Resumo do nível de serviço';pptx.company='Disman';
- const slide=pptx.addSlide();slide.background={color:'F4F7FB'};slide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:.25,fill:{color:'2148D8'},line:{color:'2148D8'}});
- const logo=$('.main > .top img')?.src;if(logo)slide.addImage({data:logo,x:.45,y:.42,w:1.35,h:.42});slide.addText('Resumo do nível de serviço',{x:2,y:.43,w:8.3,h:.35,fontFace:'Aptos Display',fontSize:22,bold:true,color:'172A4D',margin:0});slide.addText(new Date().toLocaleDateString('pt-BR'),{x:10.8,y:.52,w:1.8,h:.2,fontSize:9,color:'607696',align:'right',margin:0});
- const active=$('.service-tab.active')?.dataset.serviceTab==='serviceReturnsPanel',kpis=[...(active?$('#returnKpis')?.querySelectorAll('.kpi'):$('#serviceKpis')?.querySelectorAll('.kpi'))||[]];kpis.forEach((k,i)=>{let x=.45+i*3.15;slide.addShape(pptx.ShapeType.rect,{x,y:1.12,w:2.85,h:1.08,fill:{color:'FFFFFF'},line:{color:'D3DDEC'}});slide.addText(k.querySelector('.label')?.textContent||'',{x:x+.16,y:1.28,w:2.5,h:.18,fontSize:8,bold:true,color:'607696',margin:0});slide.addText(k.querySelector('.val')?.textContent||'—',{x:x+.16,y:1.52,w:2.5,h:.32,fontSize:20,bold:true,color:'172A4D',margin:0});slide.addText(k.querySelector('.hint')?.textContent||'',{x:x+.16,y:1.91,w:2.5,h:.16,fontSize:7,color:'607696',margin:0,fit:'shrink'});});
- slide.addText(active?'Devolução':'OTIF e indicadores de serviço',{x:.48,y:2.65,w:5,h:.28,fontSize:15,bold:true,color:'172A4D',margin:0});slide.addText($('#serviceScopeChip')?.textContent||'',{x:8.5,y:2.7,w:4.2,h:.18,fontSize:9,color:'607696',align:'right',margin:0});
- const sourceTable=active?$('#returnContent')?.querySelector('.return-block table'):$('#serviceTable');const rows=[...(sourceTable?.querySelectorAll('tbody tr')||[])].slice(0,8);let tableRows=[...(sourceTable?.querySelectorAll('thead tr')||[])].map(tr=>[...tr.cells].slice(0,active?4:7).map(td=>td.textContent.trim()));tableRows.push(...rows.map(tr=>[...tr.cells].slice(0,active?4:7).map(td=>td.textContent.trim())));if(tableRows.length===0)tableRows=[['Sem dados para o filtro atual']];slide.addTable(tableRows,{x:.48,y:3.08,w:12.35,h:2.7,border:{type:'solid',color:'D3DDEC',pt:1},fontFace:'Aptos',fontSize:9,color:'172A4D',fill:'FFFFFF',margin:.08,autoFit:false,});
- slide.addText('Período apurado: '+($('#returnScopeChip')?.textContent||'Todos os períodos'),{x:.48,y:5.98,w:6.5,h:.2,fontSize:10,bold:true,color:'2148D8',margin:0});slide.addText('Gerado pelo painel de gestão de nível de serviço',{x:.48,y:6.95,w:6,h:.15,fontSize:7,color:'8092AA',margin:0});
- const highlightSlide=pptx.addSlide();highlightSlide.background={color:'F4F7FB'};highlightSlide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:.25,fill:{color:'2148D8'},line:{color:'2148D8'}});highlightSlide.addText('Destaques de devolução',{x:.48,y:.48,w:7,h:.35,fontSize:22,bold:true,color:'172A4D',margin:0});highlightSlide.addText('Período apurado: '+($('#returnScopeChip')?.textContent||'Todos os períodos'),{x:.48,y:.92,w:8,h:.2,fontSize:10,color:'607696',margin:0});
- const findReturnData=title=>{let block=[...($('#returnContent')?.querySelectorAll('.return-block')||[])].find(x=>x.querySelector('h3')?.textContent.trim()===title);return block?{head:[...block.querySelectorAll('thead th')].map(x=>x.textContent.trim()),rows:[...block.querySelectorAll('tbody tr')].slice(0,6).map(tr=>[...tr.cells].map(td=>td.textContent.trim()))}:null};
- const addRanking=(target,title,sourceTitle,x,y,w,h)=>{let data=findReturnData(sourceTitle)||{head:['Sem dados'],rows:[['Nenhum registro no período']]};target.addShape(pptx.ShapeType.rect,{x,y,w,h,fill:{color:'FFFFFF'},line:{color:'D3DDEC',pt:1}});target.addText(title,{x:x+.18,y:y+.16,w:w-.36,h:.22,fontSize:12,bold:true,color:'172A4D',margin:0});target.addTable([data.head,...data.rows],{x:x+.16,y:y+.55,w:w-.32,h:h-.72,border:{type:'solid',color:'E1E8F0',pt:1},fontSize:9,color:'172A4D',fill:'FFFFFF',margin:.08,autoFit:false});};
- addRanking(highlightSlide,'RNs com mais devoluções','Devolução por RN',.55,1.35,5.95,4.95);addRanking(highlightSlide,'GVs com mais devoluções','Devolução por gerente',6.83,1.35,5.95,4.95);
- highlightSlide.addText('Resumo gerado com os filtros ativos no painel',{x:.48,y:6.95,w:6,h:.15,fontSize:7,color:'8092AA',margin:0});
- const clientSlide=pptx.addSlide();clientSlide.background={color:'F4F7FB'};clientSlide.addShape(pptx.ShapeType.rect,{x:0,y:0,w:13.333,h:.25,fill:{color:'2148D8'},line:{color:'2148D8'}});clientSlide.addText('Clientes com mais devoluções',{x:.48,y:.48,w:8,h:.35,fontSize:22,bold:true,color:'172A4D',margin:0});clientSlide.addText('PDVs distintos com maior volume devolvido no período',{x:.48,y:.92,w:8,h:.2,fontSize:10,color:'607696',margin:0});addRanking(clientSlide,'Ranking de clientes','Devolução por PDV',.55,1.35,12.2,4.95);clientSlide.addText('Resumo gerado com os filtros ativos no painel',{x:.48,y:6.95,w:6,h:.15,fontSize:7,color:'8092AA',margin:0});await pptx.writeFile({fileName:'Resumo_Nivel_de_Servico_'+new Date().toISOString().slice(0,10)+'.pptx'});
+/* ===================== PPT resumido (gerado a partir dos dados) ===================== */
+const PPT_C={brand:'2D45E6',brandDark:'1B2FB8',ink:'121A3B',ink2:'3A4670',quiet:'66739A',line:'E3E8F4',page:'F4F6FB',white:'FFFFFF',good:'0A8A70',warn:'B56F06',bad:'C7314A',violet:'8B5CF6',orange:'F08A3C',soft:'EEF1FB'};
+const PPT_FONT='Calibri';
+const pptOtifColor=v=>v===null||v===undefined?PPT_C.quiet:v>=.95?PPT_C.good:v<.85?PPT_C.bad:PPT_C.warn;
+const pptPct=v=>v===null||v===undefined||!isFinite(v)?'—':(v*100).toFixed(1).replace('.',',')+'%';
+const pptNum=v=>NF2.format(Number(v||0));
+function pptNotice(msg,retry){
+ let old=document.getElementById('pptNotice');old?.remove();
+ let n=document.createElement('div');n.id='pptNotice';n.setAttribute('role','status');
+ n.innerHTML='<span></span>'+(retry?'<button type="button">Tentar de novo</button>':'')+'<button type="button" class="x" aria-label="Fechar">×</button>';
+ n.firstChild.textContent=msg;document.body.appendChild(n);
+ n.querySelector('.x').onclick=()=>n.remove();
+ if(retry)n.querySelector('button').onclick=()=>{n.remove();retry()};
+ if(!retry)setTimeout(()=>n.remove(),7000);
 }
-$$('[data-service-tab]').forEach(b=>b.onclick=()=>{$$('[data-service-tab]').forEach(x=>{let on=x===b;x.classList.toggle('active',on);x.setAttribute('aria-selected',String(on))});$$('#service > [id$="Panel"]').forEach(x=>x.hidden=x.id!==b.dataset.serviceTab);if(b.dataset.serviceTab==='serviceReturnsPanel'&&RET_WARM!==VIEW_VER){renderReturns();RET_WARM=VIEW_VER}});
+async function ensurePptx(){
+ let P=()=>window.pptxgen||window.PptxGenJS;
+ if(P())return P();
+ await new Promise(res=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';s.onload=res;s.onerror=res;document.head.appendChild(s);setTimeout(res,15000)});
+ return P()||null;
+}
+/* ---------- modelos de dados (mesmos filtros da tela) ---------- */
+function pptServiceModel(){
+ const F=SERVICE_FILTER,all=serviceData();
+ const base=all.filter(x=>(!F.years.size||F.years.has(x.year))&&(!F.clusters.size||F.clusters.has(x.cluster))&&matchesPdvSearch(x,F.query));
+ const d=base.filter(x=>!F.months.size||F.months.has(Number(x.month)));
+ const agg=r=>{let vis=0,onN=0,ot=0,inN=0,iff=0,oN=0,oOk=0,rn=0,rs=0;for(const x of r){vis+=x.vis;onN+=x.onTimeN;ot+=x.ot;inN+=x.inFullN;iff+=x.iff;oN+=x.otifN;oOk+=x.otifOk;rn+=x.ratingN;rs+=(x.rating||0)*x.ratingN}return {vis,onN,inN,oN,rn,ot:onN?ot/onN:null,iff:inN?iff/inN:null,otif:oN?oOk/oN:null,rating:rn?rs/rn:null,pdvs:new Set(r.map(x=>x.code)).size}};
+ const total=agg(d);
+ const months={};for(const x of d){(months[x.month]||(months[x.month]=[])).push(x)}
+ const monthChart=Object.keys(months).map(Number).sort((a,b)=>a-b).map(m=>{let a=agg(months[m]);return {m,label:monthName(m).slice(0,3),otif:a.otif||0,ot:a.ot||0,iff:a.iff||0}});
+ /* último mês x mês anterior (mês anterior é buscado fora do filtro de mês) */
+ const keyOf=x=>x.year*100+Number(x.month),keys=[...new Set(d.map(keyOf))].sort((a,b)=>a-b),last=keys.at(-1);
+ let cmp=null;
+ if(last){const prevKeys=[...new Set(base.map(keyOf))].filter(k=>k<last).sort((a,b)=>a-b),prev=prevKeys.at(-1);
+  const cur=agg(base.filter(x=>keyOf(x)===last)),pa=prev?agg(base.filter(x=>keyOf(x)===prev)):null;
+  const lab=k=>monthName(k%100)+'/'+Math.floor(k/100);
+  cmp={curLabel:lab(last),prevLabel:prev?lab(prev):null,cur,prev:pa}}
+ const clusters=['Winner','Grower','Alto volume','Basic','Low sales'];
+ const byCluster=clusters.map(c=>({cluster:c,...agg(d.filter(x=>x.cluster===c))})).filter(x=>x.vis>0||x.rn>0);
+ const priority=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif||((a.rating??99)-(b.rating??99))||b.vis-a.vis);
+ const per=new Map();for(const x of d){let o=per.get(x.code)||{code:x.code,name:x.name,cluster:x.cluster,vis:0,onN:0,ot:0,inN:0,iff:0,oN:0,oOk:0,rn:0,rs:0};o.vis+=x.vis;o.onN+=x.onTimeN;o.ot+=x.ot;o.inN+=x.inFullN;o.iff+=x.iff;o.oN+=x.otifN;o.oOk+=x.otifOk;o.rn+=x.ratingN;o.rs+=(x.rating||0)*x.ratingN;per.set(x.code,o)}
+ const MIN=3;let worst=[...per.values()].filter(o=>o.oN>=MIN).map(o=>({...o,otif:o.oOk/o.oN,otv:o.onN?o.ot/o.onN:null,ifv:o.inN?o.iff/o.inN:null,rating:o.rn?o.rs/o.rn:null})).sort((a,b)=>a.otif-b.otif||b.oN-a.oN).slice(0,10);
+ const scope=(F.years.size?[...F.years].sort().join(', '):'Todos os anos')+' · '+(F.months.size?[...F.months].sort((a,b)=>a-b).map(monthName).join(', '):'Todos os meses')+(F.clusters.size?' · '+[...F.clusters].join(', '):'')+(F.query?' · busca "'+F.query+'"':'');
+ return {d,total,monthChart,cmp,byCluster,priority,worst,minVisits:MIN,scope}
+}
+function pptReturnsModel(){
+ const box=$('#returnFilters');if(!box)return null;
+ const cached=returnRowsCached(),all=cached.all,source=cached.source;
+ const v=s=>box.querySelector(s)?.value||'';
+ const from=v('.rf'),to=v('.rt'),motivo=v('.rm'),resp=v('.rr'),gerente=v('.rg'),query=v('.rq'),yr=v('.ryear'),mo=v('.rmonth');
+ const mq=x=>!query||filterText([x.pdv,x.pdvName,x.name].filter(Boolean).join(' ')).includes(filterText(query)),inD=x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!yr||x.date.slice(0,4)===yr)&&(!mo||x.date.slice(5,7)===mo);
+ const base=source.filter(x=>inD(x)&&(!gerente||x.gerente===gerente)&&mq(x)),data=all.filter(x=>inD(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&mq(x));
+ const hl=data.reduce((s,x)=>s+x.hl,0),pdvs=new Set(data.map(x=>x.pdv)),basePdvs=new Set(base.map(x=>x.pdv)),notes=new Set(data.map(x=>x.nota)),rns=new Set(data.map(x=>x.rn));
+ const group=(key,label)=>{let m=new Map();for(const x of data){let k=key(x),o=m.get(k)||{label:label(x),count:0,hl:0,pdvs:new Set,notes:new Set};o.count++;o.hl+=x.hl;o.pdvs.add(x.pdv);o.notes.add(x.nota);m.set(k,o)}return [...m.values()].sort((a,b)=>b.hl-a.hl||b.count-a.count)};
+ const mm=new Map();for(const x of base){let k=x.date.slice(0,7),o=mm.get(k);if(!o)mm.set(k,o={b:new Set,r:new Set,v:0});o.b.add(x.pdv)}for(const x of data){let o=mm.get(x.date.slice(0,7));if(o){o.r.add(x.pdv);o.v+=x.hl}}
+ const months=[...mm.keys()].sort().map(k=>{let o=mm.get(k);return {label:k.slice(5,7)+'/'+k.slice(2,4),rate:o.b.size?o.r.size/o.b.size:0,hl:o.v}});
+ const scope=from||to?(from||'Início')+' a '+(to||'Fim'):(yr||mo)?((mo?monthName(Number(mo)):'Todos os meses')+(yr?' / '+yr:'')):'Todos os períodos';
+ return {n:data.length,total:all.length,hl,pdvs:pdvs.size,basePdvs:basePdvs.size,rate:basePdvs.size?pdvs.size/basePdvs.size:0,notes:notes.size,rns:rns.size,months,
+  byMot:group(x=>x.motivo,x=>x.motivo),byRn:group(x=>x.rn,x=>x.rn),byGer:group(x=>x.gerente,x=>x.gerente),byPdv:group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),scope}
+}
+function pptOffrouteModel(){
+ const box=$('#offrouteFilters');if(!box)return null;
+ if(!box.querySelector('.ory')?.dataset.years)renderOffroute();
+ const y=box.querySelector('.ory').value,m=box.querySelector('.orm').value,q=box.querySelector('.orq').value;
+ const filtered=operationData().filter(x=>scopeMatchesEvent(x)&&(!y||x.year===+y)&&(!m||x.month===+m)&&(!q||matchesPdvSearch(x,q)||filterText(x.pedido).includes(filterText(q))));
+ const outside=filtered.filter(x=>x.outsideRoute===true),known=filtered.filter(x=>x.outsideRoute!==null);
+ const months=new Map(),days=new Map(),per=new Map(),weekday=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+ for(const x of outside){months.set(x.month,(months.get(x.month)||0)+1);let dt=calendarDate(x.orderDate),day=dt?weekday[dt.getUTCDay()]:'Sem data';days.set(day,(days.get(day)||0)+1);let o=per.get(x.code)||{code:x.code,name:x.name,n:0};o.n++;per.set(x.code,o)}
+ return {n:outside.length,share:known.length?outside.length/known.length:null,pdvs:per.size,unknown:filtered.length-known.length,
+  months:[...months.entries()].sort((a,b)=>a[0]-b[0]).map(([k,v])=>({label:monthName(k).slice(0,3),v})),
+  days:[...days.entries()].sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:k,v})),top:[...per.values()].sort((a,b)=>b.n-a.n).slice(0,8),
+  scope:(y||'Todos os anos')+' · '+(m?monthName(Number(m)):'Todos os meses')}
+}
+function pptActionModel(){
+ const all=actionPlanData();if(!all.length)return null;
+ const last=all.reduce((m,x)=>Math.max(m,x.year*100+x.month),0),ly=Math.floor(last/100),lm=last%100;
+ const rows=all.filter(x=>x.year===ly&&x.month===lm),po={Crítica:1,Alta:2,Média:3,Baixa:4};
+ const sorted=rows.slice().sort((a,b)=>po[a.priority]-po[b.priority]||b.score-a.score);
+ return {label:monthName(lm)+'/'+ly,total:rows.length,crit:rows.filter(x=>x.priority==='Crítica').length,high:rows.filter(x=>x.priority==='Alta').length,
+  prog:rows.filter(x=>x.status==='Em andamento').length,done:rows.filter(x=>x.status==='Concluído').length,top:sorted.slice(0,8),
+  byCluster:['Winner','Grower','Alto volume','Basic','Low sales'].map(c=>({label:c,v:rows.filter(x=>x.cluster===c&&(x.priority==='Crítica'||x.priority==='Alta')).length})).filter(x=>x.v>0)}
+}
+/* ---------- texto de destaque automático ---------- */
+function pptInsightList(m){return pptInsight(m).split(/(?<=[.])\s+(?=[A-ZÀ-Ú])/).filter(Boolean)}
+function pptInsight(m){
+ const t=m.total,parts=[];
+ if(t.otif!==null)parts.push('OTIF de '+pptPct(t.otif)+(t.otif>=.95?', dentro da meta de 95%.':t.otif>=.85?', abaixo da meta de 95%.':', crítico (abaixo de 85%).'));
+ if(t.ot!==null&&t.iff!==null)parts.push((t.ot<t.iff?'O prazo (On Time '+pptPct(t.ot)+')':'A completude (In Full '+pptPct(t.iff)+')')+' é o que mais limita o resultado.');
+ const w=m.priority[0];if(w)parts.push('Cluster com maior atenção: '+w.cluster+' ('+pptPct(w.otif)+').');
+ if(m.cmp&&m.cmp.prev&&m.cmp.cur.otif!==null&&m.cmp.prev.otif!==null){let dd=(m.cmp.cur.otif-m.cmp.prev.otif)*100;parts.push('Em '+m.cmp.curLabel+', o OTIF '+(Math.abs(dd)<.05?'ficou estável':(dd>0?'subiu ':'caiu ')+Math.abs(dd).toFixed(1).replace('.',',')+' p.p.')+' contra '+m.cmp.prevLabel+'.')}
+ return parts.join(' ')||'Sem dados suficientes no filtro atual.';
+}
+/* ---------- geração ---------- */
+const PPT_OPTS_KEY='clusterizacao.ppt.opts';
+function pptReadOpts(){let o={service:true,returns:true,offroute:true,action:true};try{Object.assign(o,JSON.parse(localStorage.getItem(PPT_OPTS_KEY)||'{}'))}catch{}return o}
+function pptAskOptions(){
+ return new Promise(res=>{
+  const o=pptReadOpts(),ov=document.createElement('div');ov.className='ppt-modal';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
+  const items=[['service','Nível de serviço (OTIF, clusters e piores PDVs)'],['returns','Devolução'],['offroute','Pedidos fora de rota'],['action','Plano de ação']];
+  ov.innerHTML='<div class="ppt-card"><h3>Gerar PPT resumido</h3><p>Escolha o que entra na apresentação. Os filtros atuais de cada tela serão respeitados.</p>'+items.map(([k,t])=>'<label><input type="checkbox" data-k="'+k+'" '+(o[k]?'checked':'')+'><span>'+t+'</span></label>').join('')+'<div class="ppt-actions"><button type="button" class="btn ghost" data-a="cancel">Cancelar</button><button type="button" class="btn primary" data-a="go">Gerar PPT</button></div></div>';
+  document.body.appendChild(ov);
+  const done=v=>{ov.remove();res(v)};
+  ov.addEventListener('click',e=>{if(e.target===ov)done(null);let a=e.target.dataset?.a;if(a==='cancel')done(null);if(a==='go'){let r={};ov.querySelectorAll('input[data-k]').forEach(i=>r[i.dataset.k]=i.checked);try{localStorage.setItem(PPT_OPTS_KEY,JSON.stringify(r))}catch{}done(r)}});
+  ov.addEventListener('keydown',e=>{if(e.key==='Escape')done(null)});
+  ov.querySelector('[data-a="go"]').focus();
+ });
+}
+async function exportServicePpt(){
+ const btn=$('#exportServicePpt');
+ if(btn&&btn.dataset.busy)return;
+ const opts=await pptAskOptions();if(!opts)return;
+ if(btn){btn.dataset.busy='1';btn.dataset.label=btn.textContent;btn.textContent='Gerando PPT…';btn.disabled=true}
+ const finish=()=>{if(btn){delete btn.dataset.busy;btn.textContent=btn.dataset.label||'Gerar PPT resumido';btn.disabled=false}};
+ try{
+  const Pptx=await ensurePptx();
+  if(!Pptx){pptNotice('Não foi possível carregar o gerador de PPT. Verifique a conexão e tente novamente.',exportServicePpt);finish();return}
+  await new Promise(r=>setTimeout(r,30));
+  await buildServicePpt(Pptx,opts);
+  pptNotice('PPT gerado. Verifique a pasta de downloads.');
+ }catch(e){console.error(e);pptNotice('Não foi possível gerar o PPT: '+(e&&e.message||e),exportServicePpt)}
+ finish();
+}
+async function buildServicePpt(Pptx,opts){
+ const pptx=new Pptx(),C=PPT_C,F=PPT_FONT,charts=pptx.charts||pptx.ChartType;
+ pptx.layout='LAYOUT_WIDE';pptx.author='Disman';pptx.company='Disman Distribuidora';pptx.title='Resumo do nível de serviço';pptx.subject='Resumo do nível de serviço';
+ const logo=document.querySelector('.dev-footer-logo')?.src||null;
+ const today=new Date().toLocaleDateString('pt-BR');
+ pptx.defineSlideMaster({title:'BASE',background:{color:C.page},
+  objects:[{rect:{x:0,y:0,w:13.333,h:.14,fill:{color:C.brand}}},{rect:{x:0,y:7.08,w:13.333,h:.42,fill:{color:C.white},line:{color:C.line,width:.75}}},
+   {text:{text:'Disman Distribuidora · Resumo do nível de serviço · '+today,options:{x:.5,y:7.14,w:8,h:.3,fontFace:F,fontSize:9,color:C.quiet,margin:0}}},
+   ...(logo?[{image:{data:logo,x:11.35,y:7.14,w:1.1,h:.3,sizing:{type:'contain',w:1.1,h:.3}}}]:[])],
+  slideNumber:{x:12.6,y:7.14,w:.5,h:.3,fontFace:F,fontSize:9,color:C.quiet,align:'right'}});
+ const mk=(title,sub)=>{const s=pptx.addSlide({masterName:'BASE'});s.addText(title,{x:.5,y:.32,w:9,h:.5,fontFace:F,fontSize:26,bold:true,color:C.ink,margin:0});if(sub)s.addText(sub,{x:.5,y:.84,w:12.3,h:.3,fontFace:F,fontSize:12,color:C.quiet,margin:0});return s};
+ const card=(s,x,y,w,h,fill)=>s.addShape(pptx.ShapeType.roundRect,{x,y,w,h,rectRadius:.08,fill:{color:fill||C.white},line:{color:C.line,width:.75}});
+ const kpis=(s,items,y)=>{const n=items.length,gap=.2,w=(12.33-gap*(n-1))/n;items.forEach((k,i)=>{const x=.5+i*(w+gap);card(s,x,y,w,1.25);s.addShape(pptx.ShapeType.rect,{x,y:y+.12,w:.06,h:1.01,fill:{color:k.color||C.brand},line:{color:k.color||C.brand}});
+  s.addText(k.label.toUpperCase(),{x:x+.25,y:y+.14,w:w-.4,h:.25,fontFace:F,fontSize:9.5,bold:true,color:C.quiet,margin:0,charSpacing:1});
+  s.addText(k.value,{x:x+.25,y:y+.4,w:w-.4,h:.5,fontFace:F,fontSize:27,bold:true,color:k.vcolor||C.ink,margin:0});
+  s.addText(k.hint||'',{x:x+.25,y:y+.92,w:w-.4,h:.25,fontFace:F,fontSize:9.5,color:C.quiet,margin:0,fit:'shrink'})})};
+ const H=(t,al)=>({text:t,options:{bold:true,color:C.white,fill:{color:C.brand},fontFace:F,fontSize:10.5,align:al||'center',valign:'middle'}});
+ const Cc=(t,o)=>({text:String(t),options:{fontFace:F,fontSize:10.5,color:C.ink2,align:'center',valign:'middle',...(o||{})}});
+ const table=(s,head,rows,o)=>s.addTable([head,...rows],{x:o.x,y:o.y,w:o.w,colW:o.colW,rowH:o.rowH||.34,border:{type:'solid',color:C.line,pt:.75},fill:{color:C.white},margin:[0,.08,0,.08],...(o.extra||{})});
+ const chartBox=(s,x,y,w,h,title)=>{card(s,x,y,w,h);s.addText(title,{x:x+.2,y:y+.12,w:w-.4,h:.3,fontFace:F,fontSize:13,bold:true,color:C.ink,margin:0})};
+ const baseChart={catGridLine:{style:'none'},valGridLine:{color:C.line,size:.5},catAxisLabelFontFace:F,valAxisLabelFontFace:F,catAxisLabelFontSize:10,valAxisLabelFontSize:10,catAxisLabelColor:C.quiet,valAxisLabelColor:C.quiet,legendFontFace:F,legendFontSize:10,legendColor:C.ink2};
+ const sm=(opts.service||opts.action)?pptServiceModel():null;
+ /* ---- capa ---- */
+ {const s=pptx.addSlide();s.background={color:C.brandDark};
+  s.addShape(pptx.ShapeType.ellipse,{x:8.6,y:-2.4,w:7.2,h:7.2,fill:{color:C.brand,transparency:55},line:{color:C.brand,transparency:100}});
+  s.addShape(pptx.ShapeType.ellipse,{x:9.8,y:3.6,w:5.2,h:5.2,fill:{color:C.brand,transparency:70},line:{color:C.brand,transparency:100}});
+  s.addText('NÍVEL DE SERVIÇO',{x:.8,y:2.0,w:8,h:.35,fontFace:F,fontSize:14,bold:true,color:'BFC9FF',charSpacing:4,margin:0});
+  s.addText('Resumo executivo',{x:.8,y:2.4,w:9,h:1,fontFace:F,fontSize:48,bold:true,color:C.white,margin:0});
+  s.addText('OTIF, On Time, In Full, Rating'+(opts.returns?', devoluções':'')+(opts.offroute?', fora de rota':'')+(opts.action?' e plano de ação':''),{x:.8,y:3.5,w:9.5,h:.4,fontFace:F,fontSize:16,color:'DCE3FF',margin:0});
+  s.addText((sm?sm.scope:'')+'\nGerado em '+today,{x:.8,y:5.2,w:9,h:.8,fontFace:F,fontSize:12.5,color:'BFC9FF',margin:0,valign:'top'});
+  s.addText('Disman Distribuidora',{x:.8,y:6.7,w:6,h:.3,fontFace:F,fontSize:12,bold:true,color:C.white,margin:0});}
+ /* ---- resumo ---- */
+ if(opts.service&&sm){
+  const t=sm.total;
+  {const s=mk('Resumo do nível de serviço',sm.scope);
+   kpis(s,[{label:'On Time',value:pptPct(t.ot),hint:fmtInt(t.onN)+' atendimentos válidos',vcolor:pptOtifColor(t.ot),color:C.brand},{label:'In Full',value:pptPct(t.iff),hint:fmtInt(t.inN)+' atendimentos válidos',vcolor:pptOtifColor(t.iff),color:C.good},{label:'OTIF',value:pptPct(t.otif),hint:'Meta 95% · '+fmtInt(t.oN)+' atendimentos',vcolor:pptOtifColor(t.otif),color:C.orange},{label:'Rating médio',value:t.rating===null?'—':t.rating.toFixed(2).replace('.',','),hint:fmtInt(t.rn)+' avaliações',color:C.violet}],1.25);
+   /* comparativo com o mês anterior */
+   if(sm.cmp){const c=sm.cmp,arrow=(a,b,inv)=>{if(a===null||b===null)return {t:'—',col:C.quiet};let dd=(a-b)*100;if(Math.abs(dd)<.05)return {t:'= estável',col:C.quiet};let up=dd>0;return {t:(up?'▲ ':'▼ ')+Math.abs(dd).toFixed(1).replace('.',',')+' p.p.',col:(inv?!up:up)?C.good:C.bad}};
+    s.addText('Último mês ('+c.curLabel+')'+(c.prevLabel?' contra '+c.prevLabel:''),{x:.5,y:2.7,w:6,h:.3,fontFace:F,fontSize:12,bold:true,color:C.ink,margin:0});
+    const items=[['On Time',c.cur.ot,c.prev?.ot],['In Full',c.cur.iff,c.prev?.iff],['OTIF',c.cur.otif,c.prev?.otif]];
+    items.forEach(([lab,a,b],i)=>{const x=.5+i*2.45,ar=c.prev?arrow(a,b):{t:'sem mês anterior',col:C.quiet};card(s,x,3.05,2.25,.85);s.addText(lab,{x:x+.15,y:3.1,w:1,h:.25,fontFace:F,fontSize:9.5,bold:true,color:C.quiet,margin:0});s.addText(pptPct(a),{x:x+.15,y:3.33,w:1.1,h:.45,fontFace:F,fontSize:19,bold:true,color:C.ink,margin:0});s.addText(ar.t,{x:x+1.05,y:3.4,w:1.15,h:.35,fontFace:F,fontSize:10,bold:true,color:ar.col,margin:0,align:'right'})});
+    s.addShape(pptx.ShapeType.roundRect,{x:.5,y:4.1,w:7.15,h:2.75,rectRadius:.08,fill:{color:C.soft},line:{color:C.line,width:.75}});
+    s.addText('Destaques',{x:.7,y:4.2,w:6,h:.3,fontFace:F,fontSize:12,bold:true,color:C.brand,margin:0});
+    s.addText(pptInsightList(sm).map(t=>({text:t,options:{bullet:{indent:14},breakLine:true}})),{x:.7,y:4.6,w:6.75,h:2.15,fontFace:F,fontSize:15,color:C.ink2,margin:0,valign:'top',paraSpaceAfter:9,fit:'shrink'});
+   }else{s.addText(pptInsight(sm),{x:.5,y:2.9,w:7.1,h:3.6,fontFace:F,fontSize:14,color:C.ink2,margin:0,valign:'top'})}
+   chartBox(s,7.85,2.7,4.98,4.15,'OTIF por mês');
+   if(sm.monthChart.length){s.addChart(sm.monthChart.length<=6?charts.BAR:charts.LINE,[{name:'OTIF',labels:sm.monthChart.map(x=>x.label),values:sm.monthChart.map(x=>x.otif)},{name:'In Full',labels:sm.monthChart.map(x=>x.label),values:sm.monthChart.map(x=>x.iff)},{name:'On Time',labels:sm.monthChart.map(x=>x.label),values:sm.monthChart.map(x=>x.ot)}],
+     {...baseChart,x:7.95,y:3.05,w:4.78,h:3.75,...(sm.monthChart.length<=6?{barDir:'col',barGrouping:'clustered',barGapWidthPct:60}:{lineSize:2.5,lineDataSymbolSize:6}),chartColors:[C.brand,C.violet,C.orange],valAxisMinVal:0,valAxisMaxVal:1,valAxisMajorUnit:.25,valAxisLabelFormatCode:'0%',showLegend:true,legendPos:'b'})}
+   else s.addText('Sem dados no período.',{x:8,y:4.5,w:4.7,h:.4,fontFace:F,fontSize:12,color:C.quiet,align:'center'});}
+  /* ---- clusters + onde agir primeiro ---- */
+  {const s=mk('Resultado por cluster','Onde agir primeiro: menor OTIF, depois menor Rating e maior volume de visitas');
+   const w0=sm.priority[0];
+   if(w0){card(s,.5,1.3,12.33,1.15,w0.otif<.85?'FDF1F3':w0.otif<.95?'FFF7E8':'ECFAF6');
+    s.addText('CLUSTER QUE PRECISA DE MAIS ATENÇÃO',{x:.75,y:1.4,w:6,h:.25,fontFace:F,fontSize:9.5,bold:true,color:C.quiet,margin:0,charSpacing:1});
+    s.addText(w0.cluster,{x:.75,y:1.68,w:4,h:.6,fontFace:F,fontSize:28,bold:true,color:pptOtifColor(w0.otif),margin:0});
+    s.addText('OTIF '+pptPct(w0.otif)+'   ·   Rating '+(w0.rating===null?'—':w0.rating.toFixed(2).replace('.',','))+'   ·   '+fmtInt(w0.pdvs)+' PDVs   ·   '+fmtInt(w0.vis)+' visitas',{x:4.6,y:1.78,w:8,h:.4,fontFace:F,fontSize:14,color:C.ink2,margin:0})}
+   const rows=sm.byCluster.map(x=>[Cc(x.cluster,{bold:true,align:'left'}),Cc(fmtInt(x.pdvs)),Cc(pptPct(x.ot),{color:pptOtifColor(x.ot)}),Cc(pptPct(x.iff),{color:pptOtifColor(x.iff)}),Cc(pptPct(x.otif),{bold:true,color:pptOtifColor(x.otif)}),Cc(x.rating===null?'—':x.rating.toFixed(2).replace('.',',')),Cc(fmtInt(x.rn))]);
+   table(s,[H('Cluster','left'),H('PDVs'),H('On Time'),H('In Full'),H('OTIF'),H('Rating'),H('Avaliações')],rows.length?rows:[[Cc('Sem dados',{colspan:7})]],{x:.5,y:2.7,w:7.3,colW:[1.5,.9,1,1,1,.95,.95],rowH:.42});
+   chartBox(s,8.05,2.7,4.78,4.15,'OTIF por cluster');
+   if(sm.priority.length)s.addChart(charts.BAR,[{name:'OTIF',labels:sm.priority.map(x=>x.cluster),values:sm.priority.map(x=>x.otif)}],{...baseChart,x:8.15,y:3.05,w:4.58,h:3.75,barDir:'bar',chartColors:[C.brand],valAxisMinVal:0,valAxisMaxVal:1,valAxisMajorUnit:.25,valAxisLabelFormatCode:'0%',showValue:true,dataLabelFormatCode:'0.0%',dataLabelFontSize:10,dataLabelFontFace:F,dataLabelColor:C.ink,showLegend:false,catAxisOrientation:'maxMin'});
+   s.addText('Faixas: ≥95% dentro da meta · 85–94,9% atenção · <85% crítico',{x:.5,y:6.55,w:7.3,h:.3,fontFace:F,fontSize:9.5,color:C.quiet,margin:0});}
+  /* ---- piores PDVs ---- */
+  {const s=mk('PDVs com menor OTIF','Piores 10 PDVs no filtro atual (mínimo de '+sm.minVisits+' atendimentos válidos para entrar no ranking)');
+   const rows=sm.worst.map((x,i)=>[Cc(i+1+'º',{bold:true}),Cc(x.code+' • '+x.name,{align:'left'}),Cc(x.cluster),Cc(fmtInt(x.oN)),Cc(pptPct(x.otv),{color:pptOtifColor(x.otv)}),Cc(pptPct(x.ifv),{color:pptOtifColor(x.ifv)}),Cc(pptPct(x.otif),{bold:true,color:pptOtifColor(x.otif)}),Cc(x.rating===null?'—':x.rating.toFixed(2).replace('.',','))]);
+   table(s,[H('#'),H('PDV','left'),H('Cluster'),H('Atend.'),H('On Time'),H('In Full'),H('OTIF'),H('Rating')],rows.length?rows:[[Cc('Nenhum PDV com atendimentos suficientes no filtro.',{colspan:8})]],{x:.5,y:1.4,w:12.33,colW:[.6,4.6,1.5,1,1.2,1.2,1.2,1.03],rowH:.46});}
+ }
+ /* ---- devolução ---- */
+ if(opts.returns){const r=pptReturnsModel();
+  if(r){
+   {const s=mk('Devolução','Período: '+r.scope+' · relatório 03.01.47 por PDV, motivo, responsabilidade, RN e gerente');
+    kpis(s,[{label:'Devolução PDV',value:pptPct(r.rate),hint:fmtInt(r.pdvs)+' de '+fmtInt(r.basePdvs)+' PDVs entregues',color:C.brand},{label:'Devolução HL',value:pptNum(r.hl),hint:'Volume devolvido no filtro',color:C.good},{label:'Notas devolvidas',value:fmtInt(r.notes),hint:fmtInt(r.rns)+' RNs envolvidos',color:C.orange},{label:'Linhas de devolução',value:fmtInt(r.n),hint:(r.total?(r.n/r.total*100).toFixed(1).replace('.',','):'0')+'% do relatório',color:C.violet}],1.25);
+    chartBox(s,.5,2.7,6.07,4.15,'Devolução PDV por mês');chartBox(s,6.76,2.7,6.07,4.15,'Devolução HL por mês');
+    if(r.months.length){s.addChart(charts.BAR,[{name:'% PDVs',labels:r.months.map(x=>x.label),values:r.months.map(x=>x.rate)}],{...baseChart,x:.6,y:3.05,w:5.87,h:3.75,barDir:'col',barGapWidthPct:50,catAxisLabelRotate:r.months.length>8?-45:0,chartColors:[C.brand],valAxisMinVal:0,valAxisLabelFormatCode:'0%',showLegend:false,showValue:r.months.length<=8,dataLabelFormatCode:'0.0%',dataLabelFontSize:9,dataLabelFontFace:F});
+     s.addChart(charts.BAR,[{name:'HL',labels:r.months.map(x=>x.label),values:r.months.map(x=>x.hl)}],{...baseChart,x:6.86,y:3.05,w:5.87,h:3.75,barDir:'col',barGapWidthPct:50,catAxisLabelRotate:r.months.length>8?-45:0,chartColors:[C.orange],valAxisMinVal:0,valAxisLabelFormatCode:'#,##0',showLegend:false,showValue:r.months.length<=8,dataLabelFormatCode:'#,##0',dataLabelFontSize:9,dataLabelFontFace:F})}
+    else s.addText('Sem devoluções no período.',{x:.5,y:4.5,w:12.3,h:.4,fontFace:F,fontSize:12,color:C.quiet,align:'center'});}
+   {const s=mk('Destaques de devolução','RNs, gerentes e motivos com maior volume devolvido · Período: '+r.scope);
+    const tb=(x,title,list,lab)=>{card(s,x,1.3,4,5.55);s.addText(title,{x:x+.2,y:1.4,w:3.6,h:.3,fontFace:F,fontSize:13,bold:true,color:C.ink,margin:0});
+     const rows=list.slice(0,8).map(g=>[Cc(g.label,{align:'left'}),Cc(pptNum(g.hl)),Cc(r.hl?pptPct(g.hl/r.hl):'—',{bold:true,color:C.brand})]);
+     table(s,[H(lab,'left'),H('HL'),H('%')],rows.length?rows:[[Cc('Sem dados',{colspan:3})]],{x:x+.15,y:1.85,w:3.7,colW:[1.9,.95,.85],rowH:.5})};
+    tb(.5,'RNs com mais devoluções',r.byRn,'RN');tb(4.67,'Gerentes (GV) com mais devoluções',r.byGer,'Gerente');tb(8.83,'Motivos de devolução',r.byMot,'Motivo');}
+   {const s=mk('Clientes com mais devoluções','PDVs distintos com maior volume devolvido no período · '+r.scope);
+    const rows=r.byPdv.slice(0,10).map((g,i)=>[Cc(i+1+'º',{bold:true}),Cc(g.label,{align:'left'}),Cc(fmtInt(g.notes.size)),Cc(fmtInt(g.count)),Cc(pptNum(g.hl)),Cc(r.hl?pptPct(g.hl/r.hl):'—',{bold:true,color:C.brand})]);
+    table(s,[H('#'),H('PDV','left'),H('Notas'),H('Linhas'),H('Devolução HL'),H('%')],rows.length?rows:[[Cc('Sem devoluções no período.',{colspan:6})]],{x:.5,y:1.4,w:12.33,colW:[.6,5.4,1.2,1.2,2.2,1.73],rowH:.46});}
+  }}
+ /* ---- fora de rota ---- */
+ if(opts.offroute){const o=pptOffrouteModel();
+  if(o){const s=mk('Pedidos fora de rota',o.scope+' · pedidos fora do 1º ou 2º dia útil anterior à entrega padrão cadastrada no Bees');
+   kpis(s,[{label:'Pedidos fora de rota',value:fmtInt(o.n),hint:'Pedidos identificados',color:C.brand},{label:'Participação',value:o.share===null?'—':pptPct(o.share),hint:'Sobre pedidos com agenda identificada',color:C.good},{label:'PDVs',value:fmtInt(o.pdvs),hint:'Com pedidos fora do padrão',color:C.orange},{label:'Sem agenda ou data',value:fmtInt(o.unknown),hint:'Pedidos sem classificação',color:C.violet}],1.25);
+   chartBox(s,.5,2.7,6.07,4.15,'Pedidos fora de rota por mês');chartBox(s,6.76,2.7,6.07,4.15,'PDVs com mais pedidos fora de rota');
+   if(o.months.length)s.addChart(charts.BAR,[{name:'Pedidos',labels:o.months.map(x=>x.label),values:o.months.map(x=>x.v)}],{...baseChart,x:.6,y:3.05,w:5.87,h:3.75,barDir:'col',barGapWidthPct:50,chartColors:[C.brand],valAxisMinVal:0,valAxisLabelFormatCode:'#,##0',showLegend:false,showValue:o.months.length<=8,dataLabelFontSize:9,dataLabelFontFace:F});
+   else s.addText('Nenhum pedido fora de rota no filtro.',{x:.6,y:4.5,w:5.87,h:.4,fontFace:F,fontSize:12,color:C.quiet,align:'center'});
+   const rows=o.top.map((x,i)=>[Cc(i+1+'º',{bold:true}),Cc(x.code+' • '+x.name,{align:'left'}),Cc(fmtInt(x.n),{bold:true,color:C.brand})]);
+   table(s,[H('#'),H('PDV','left'),H('Pedidos')],rows.length?rows:[[Cc('Sem dados',{colspan:3})]],{x:6.9,y:3.2,w:5.8,colW:[.6,4.3,.9],rowH:.4});}}
+ /* ---- plano de ação ---- */
+ if(opts.action){const a=pptActionModel();
+  if(a){const s=mk('Plano de ação','Ações automáticas do mês mais recente: '+a.label+' · priorizadas por criticidade');
+   kpis(s,[{label:'Planos gerados',value:fmtInt(a.total),hint:'Ações por cluster e frente',color:C.brand},{label:'Críticos',value:fmtInt(a.crit),hint:'Prioridade máxima',vcolor:a.crit?C.bad:C.ink,color:C.bad},{label:'Altos',value:fmtInt(a.high),hint:'Prioridade alta',vcolor:a.high?C.warn:C.ink,color:C.orange},{label:'Em andamento / concluídos',value:fmtInt(a.prog)+' / '+fmtInt(a.done),hint:'Status das ações',color:C.good}],1.25);
+   const pc={Crítica:C.bad,Alta:C.warn,Média:C.quiet,Baixa:C.quiet};
+   const rows=a.top.map(x=>[Cc(x.priority,{bold:true,color:pc[x.priority]||C.ink2}),Cc(x.cluster),Cc(x.type,{align:'left'}),Cc(String(x.current).replace('.',',')),Cc(String(x.target).replace('.',',')),Cc(fmtInt(x.affected)),Cc(x.status)]);
+   table(s,[H('Prioridade'),H('Cluster'),H('Frente','left'),H('Atual'),H('Meta'),H('PDVs'),H('Status')],rows.length?rows:[[Cc('Sem ações no período.',{colspan:7})]],{x:.5,y:2.7,w:12.33,colW:[1.3,1.4,3.6,2.2,1.9,.9,1.03],rowH:.46});}}
+ /* ---- encerramento ---- */
+ {const s=pptx.addSlide();s.background={color:C.brandDark};
+  s.addShape(pptx.ShapeType.ellipse,{x:-2.5,y:3.8,w:7,h:7,fill:{color:C.brand,transparency:60},line:{color:C.brand,transparency:100}});
+  s.addText('Como ler este resumo',{x:.8,y:.9,w:9,h:.6,fontFace:F,fontSize:30,bold:true,color:C.white,margin:0});
+  const notes=['On Time: entregas com data prevista no Bees igual à data realizada, sobre os atendimentos com datas válidas.','In Full: volumes marcado e entregue iguais, sobre os atendimentos com volumes válidos.','OTIF: On Time e In Full aprovados na mesma entrega. Meta 95%; atenção entre 85% e 94,9%; crítico abaixo de 85%.','Rating: média das avaliações dos clientes no período.','Os filtros aplicados em cada tela do painel valem para o slide correspondente.'];
+  s.addText(notes.map(t=>({text:t,options:{bullet:true,breakLine:true}})),{x:.8,y:1.9,w:9.5,h:3.4,fontFace:F,fontSize:14,color:'DCE3FF',margin:0,valign:'top',paraSpaceAfter:8});
+  s.addText('Filtros: '+(sm?sm.scope:'—'),{x:.8,y:5.7,w:11,h:.4,fontFace:F,fontSize:12,color:'BFC9FF',margin:0});
+  s.addText('Gerado em '+today+' pelo painel de Clusterização · Disman Distribuidora',{x:.8,y:6.6,w:11,h:.3,fontFace:F,fontSize:11,color:'BFC9FF',margin:0});}
+ await pptx.writeFile({fileName:'Resumo_Nivel_de_Servico_'+new Date().toISOString().slice(0,10)+'.pptx'});
+}
+
 $('#exportServicePpt')?.addEventListener('click',exportServicePpt);
 let returnRenderTimer=0;const scheduleReturnRender=()=>{clearTimeout(returnRenderTimer);returnRenderTimer=setTimeout(renderReturns,120)};['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]'))scheduleReturnRender()}));
 $('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});

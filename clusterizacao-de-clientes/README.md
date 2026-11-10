@@ -22,3 +22,6 @@ Projeto estático preparado para publicação na Vercel.
 - Troca OTIF → Devolução: cálculo da devolução agrupado em uma só passagem e pré-montado em tempo ocioso quando a aba Nível de Serviço abre (≈420 ms → ≈20 ms).
 - Tela de carregamento no mesmo padrão do painel de Metas e Incentivos.
 - Gráfico mensal OTIF/In Full/On Time refeito (colunas OTIF, linhas IF e OT, filtro por clique); devolução mensal em colunas; rosca corrigida; listas de ação compactas; filtros alinhados em grade.
+
+### PPT resumido (revisão 3)
+Gerado direto dos dados (não da tela), respeitando os filtros de cada aba. Ao clicar em "Gerar PPT resumido" abre uma janela para escolher o que entra: Nível de serviço, Devolução, Fora de rota e Plano de ação. Slides: capa, resumo (KPIs, último mês × mês anterior, destaques automáticos e gráfico mensal), resultado por cluster + "onde agir primeiro", 10 PDVs com menor OTIF (mín. 3 atendimentos válidos), devolução (KPIs e gráficos mensais), destaques de devolução (RN, gerente, motivo), clientes com mais devoluções, fora de rota, plano de ação do mês mais recente e encerramento com a leitura dos indicadores. Fonte Calibri, identidade do painel, rodapé com data, logo e número de página. Se a biblioteca não carregar, aparece um aviso com "Tentar de novo".
