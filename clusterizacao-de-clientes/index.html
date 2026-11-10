@@ -988,6 +988,24 @@ td,th{font-variant-numeric:tabular-nums}
 .import-status ul{margin:10px 0 0;padding-left:20px}
 .import-status li{margin:3px 0}
 .import-status .is-sync{margin-top:10px;font-size:12px;opacity:.9}
+
+/* rótulos acompanham o topo/ponta de cada barra */
+.return-bar-row.rb-follow{grid-template-columns:minmax(90px,150px) minmax(0,1fr)}
+.rb-follow .return-bar-track{position:relative;overflow:visible}
+.rb-val{position:absolute;top:50%;transform:translateY(-50%);margin-left:9px;white-space:nowrap;font-weight:800;font-size:12.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+.rb-val small{color:var(--quiet);font-weight:600}
+.return-col{grid-template-rows:minmax(0,1fr) 18px}
+.rc-bar{position:relative}
+.rc-plot{position:absolute;inset:22px 0 0 0;display:flex;align-items:flex-end;justify-content:center}
+.return-cols.vert .return-col{grid-template-rows:minmax(0,1fr) 18px}
+.return-cols.vert .rc-plot{top:44px}
+.rc-bar i{position:relative}
+.rc-val{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:3px;align-self:auto;justify-self:auto}
+.return-cols.vert .rc-val{transform:translateX(-50%) rotate(180deg)}
+.rb-click{cursor:pointer;border-radius:8px;transition:background .15s}
+.rb-click:hover{background:rgba(66,99,242,.08)}
+.rb-click.is-sel{background:rgba(66,99,242,.14);box-shadow:inset 3px 0 0 #4263f2}
+tr.rb-click.is-sel td{font-weight:800}
 </style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
@@ -2094,7 +2112,7 @@ function renderService(){
 }
 let RET_WARM=0;function prewarmReturns(){if(RET_WARM===VIEW_VER)return;let ver=VIEW_VER,go=()=>{if(ver!==VIEW_VER||RET_WARM===ver)return;try{renderReturns();RET_WARM=ver}catch(e){console.warn(e)}};(window.requestIdleCallback||(f=>setTimeout(f,400)))(go,{timeout:1500})}
 
-const RET_FULL=['cliente cancelou','horário de entrega','mapa não carregado'];
+const RET_FULL=['cliente cancelou','horário de entrega','mapa não carregado','financeiro','transportadora','comercial','logística'];
 const retPlain=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const RET_ABBR={ciente:'cliente',cli:'cliente',clt:'cliente',cl:'cliente',dev:'devolução',devol:'devolução',devolucao:'devolução',ent:'entrega',entr:'entrega',mot:'motorista',aus:'ausente',ausen:'ausente',fech:'fechado',estab:'estabelecimento',pgto:'pagamento',prod:'produto',ped:'pedido',avar:'avaria',recus:'recusou',nao:'não',nf:'NF'};
 function cleanReturnLabel(v,prefix,keepCode){let s=norm(v).replace(new RegExp('^'+prefix+'\\s*:\\s*','i'),'').replace(/\bCIA\b\s*/gi,'').replace(/\s+/g,' ').trim();s=s.replace(/^0+(?=\d)/,'').replace(/\s*-\s*/g,' - ').toLocaleLowerCase('pt-BR');if(!s)return 'Não informado';
@@ -2131,18 +2149,18 @@ function renderReturns(){
  const timelineMap=new Map();for(const x of base){let k=periodKey(x),o=timelineMap.get(k);if(!o)timelineMap.set(k,o={b:new Set,r:new Set});o.b.add(retEv(x))}for(const x of data){let o=timelineMap.get(periodKey(x));if(o)o.r.add(retEv(x))}
  const timeline=[...timelineMap.keys()].sort().map(k=>{let o=timelineMap.get(k);return {label:periodLabel(k),rate:o.b.size?o.r.size/o.b.size:0,detail:o.r.size+'/'+o.b.size+' entregas'}});
  $('#returnGranularityLabel').textContent=gran==='day'?'dia':gran==='month'?'mês':'período';$('#returnPdvRate').innerHTML='<div class="return-ring-wrap"><div class="return-ring" style="--rate:'+Math.round(rate*100)+'%"><div class="return-ring-value">'+pct(rate)+'<small>das entregas (PDV/dia)</small></div></div><div class="return-legend"><span>Devoluções <b>'+fmtInt(devEv.size)+'</b></span><span>Entregas (PDV/dia) <b>'+fmtInt(baseEv.size)+'</b></span><span>Sem devolução <b>'+fmtInt(Math.max(0,baseEv.size-devEv.size))+'</b></span></div></div>';
- const maxRate=Math.max(.01,...timeline.map(x=>x.rate));$('#returnTimeline').innerHTML=timeline.length?'<div class="return-bar-list">'+timeline.slice(-18).map(x=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(x.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,x.rate/maxRate*100)+'%"></i></div><span class="return-bar-value">'+pct(x.rate)+' <small>'+x.detail+'</small></span></div>').join('')+'</div>':'<div class="empty">Sem dados no período.</div>';
+ const maxRate=Math.max(.01,...timeline.map(x=>x.rate));$('#returnTimeline').innerHTML=timeline.length?'<div class="return-bar-list">'+timeline.slice(-18).map(x=>'<div class="return-bar-row rb-follow"><span class="return-bar-label">'+esc(x.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,x.rate/maxRate*68)+'%"></i><span class="rb-val" style="left:'+Math.max(3,x.rate/maxRate*68)+'%">'+pct(x.rate)+' <small>'+x.detail+'</small></span></div></div>').join('')+'</div>':'<div class="empty">Sem dados no período.</div>';
  const monthMap=new Map();for(const x of base){let k=x.date.slice(0,7),o=monthMap.get(k);if(!o)monthMap.set(k,o={b:new Set,r:new Set,v:0});o.b.add(retEv(x))}for(const x of data){let o=monthMap.get(x.date.slice(0,7));if(o){o.r.add(retEv(x));o.v+=x.hl}}
  const months=[...monthMap.keys()].sort().map(k=>{let o=monthMap.get(k);return {label:k.slice(5,7)+'/'+k.slice(0,4),rate:o.b.size?o.r.size/o.b.size:0,hl:o.v,detail:o.r.size+'/'+o.b.size+' entregas'}});
  const monthRateMax=Math.max(.01,...months.map(x=>x.rate)),monthHlMax=Math.max(.01,...months.map(x=>x.hl));
- const monthlyBars=(rows,max,key,format)=>{if(!rows.length)return '<div class="empty">Sem dados no período.</div>';let top=rows.reduce((m,x,i)=>x[key]>rows[m][key]?i:m,0);return '<div class="return-cols'+(rows.length>12?' dense':'')+(rows.length>9?' tight':'')+(rows.length>14?' vert':'')+'" style="--n:'+rows.length+'">'+rows.map((x,i)=>'<div class="return-col'+(i===top?' is-top':'')+'" title="'+esc(x.label)+' · '+esc(format(x))+'"><span class="rc-val show">'+format(x)+'</span><div class="rc-bar"><i style="height:'+Math.max(3,x[key]/max*100)+'%"></i></div><span class="rc-lab">'+esc(x.label.replace(/^(\d\d)\/\d\d(\d\d)$/,'$1/$2'))+'</span></div>').join('')+'</div>'};
+ const monthlyBars=(rows,max,key,format)=>{if(!rows.length)return '<div class="empty">Sem dados no período.</div>';let top=rows.reduce((m,x,i)=>x[key]>rows[m][key]?i:m,0);return '<div class="return-cols'+(rows.length>12?' dense':'')+(rows.length>9?' tight':'')+(rows.length>14?' vert':'')+'" style="--n:'+rows.length+'">'+rows.map((x,i)=>'<div class="return-col'+(i===top?' is-top':'')+'" title="'+esc(x.label)+' · '+esc(format(x))+'"><div class="rc-bar"><div class="rc-plot"><i style="height:'+Math.max(3,x[key]/max*100)+'%"><span class="rc-val show">'+format(x)+'</span></i></div></div><span class="rc-lab">'+esc(x.label.replace(/^(\d\d)\/\d\d(\d\d)$/,'$1/$2'))+'</span></div>').join('')+'</div>'};
  $('#returnMonthPdv').innerHTML=monthlyBars(months,monthRateMax,'rate',x=>pct(x.rate));$('#returnMonthHl').innerHTML=monthlyBars(months,monthHlMax,'hl',x=>fmt(x.hl));
- const table=(title,rows,cols)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
- const bars=(title,rows)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">participação no HL devolvido</span></div><div class="return-bar-list">'+rows.slice(0,8).map(r=>'<div class="return-bar-row"><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.hl/(hl||1)*100)+'%"></i></div><span class="return-bar-value">'+fmt(r.hl)+' · '+pctOf(r.hl,hl)+'</span></div>').join('')+'</div></div>';
+ const table=(title,rows,cols,sel)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr'+(sel?' class="rb-click'+(box.querySelector('.'+sel).value===r.label?' is-sel':'')+'" data-rf="'+sel+'" data-v="'+esc(r.label)+'" tabindex="0" title="Clique para filtrar o painel"':'')+'>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
+ const bars=(title,rows,sel)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">participação no HL devolvido</span></div><div class="return-bar-list">'+rows.slice(0,8).map(r=>'<div class="return-bar-row rb-follow'+(sel?' rb-click'+(box.querySelector('.'+sel).value===r.label?' is-sel':''):'')+'"'+(sel?' data-rf="'+sel+'" data-v="'+esc(r.label)+'" role="button" tabindex="0" title="Clique para filtrar o painel"':'')+'><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.hl/(rows[0].hl||1)*68)+'%"></i><span class="rb-val" style="left:'+Math.max(3,r.hl/(rows[0].hl||1)*68)+'%">'+fmt(r.hl)+' · '+pctOf(r.hl,hl)+'</span></div></div>').join('')+'</div></div>';
  if(!data.length){$('#returnContent').innerHTML='<div class="empty">Nenhuma devolução encontrada nos filtros selecionados.</div>';return}
  const byPdv=group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),byMot=group(x=>x.motivo,x=>x.motivo),byResp=group(x=>x.responsabilidade,x=>x.responsabilidade),byRn=group(x=>x.rn,x=>x.rn),byGer=group(x=>x.gerente,x=>x.gerente),criticalPdv=byPdv.filter(x=>x.count>1),criticalRn=byRn.filter(x=>x.hl>=Math.max(1,hl/data.length*3));
  const cols=(name)=>[[name,r=>esc(r.label)],['Devoluções',r=>fmtInt(r.count)],['Devolução HL',r=>fmt(r.hl)],['%',r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']];
- $('#returnContent').innerHTML='<div class="return-visuals">'+bars('Devolução por motivo',byMot)+bars('Devolução por responsabilidade',byResp)+bars('Devolução por RN',byRn)+bars('Devolução por gerente',byGer)+'</div><div class="return-layout">'+table('Devolução por PDV',byPdv,cols('PDV'))+table('Devolução por motivo',byMot,cols('Motivo'))+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'))+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente'))+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico'))+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+'</div>';
+ $('#returnContent').innerHTML='<div class="return-visuals">'+bars('Devolução por motivo',byMot,'rm')+bars('Devolução por responsabilidade',byResp,'rr')+bars('Devolução por RN',byRn)+bars('Devolução por gerente',byGer,'rg')+'</div><div class="return-layout">'+table('Devolução por PDV',byPdv,cols('PDV'))+table('Devolução por motivo',byMot,cols('Motivo'),'rm')+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'),'rr')+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente'))+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico'))+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']])+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']],'rg')+'</div>';
 }
 /* ===================== PPT resumido (gerado a partir dos dados) ===================== */
 const PPT_C={brand:'2D45E6',brandDark:'1B2FB8',ink:'121A3B',ink2:'3A4670',quiet:'66739A',line:'E3E8F4',page:'F4F6FB',white:'FFFFFF',good:'0A8A70',warn:'B56F06',bad:'C7314A',violet:'8B5CF6',orange:'F08A3C',soft:'EEF1FB'};
@@ -2393,6 +2411,8 @@ function syncReturnPeriod(){const box=$('#returnFilters');if(!box)return;const m
  const c=returnRowsCached();let lo='',hi='';for(const list of [c.source,c.all])for(const x of list){const d=x.date;if(!d||(m&&d.slice(5,7)!==m)||(y&&d.slice(0,4)!==y))continue;if(!lo||d<lo)lo=d;if(!hi||d>hi)hi=d}
  rf.value=lo;rt.value=hi}
 ['input','change'].forEach(ev=>$('#returnFilters')?.addEventListener(ev,e=>{if(e.target.matches('[data-return-filter]')){if(ev==='change'&&e.target.matches('.rmonth,.ryear'))syncReturnPeriod();scheduleReturnRender()}}));
+const returnPick=e=>{const t=e.target.closest?.('[data-rf]');if(!t||(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' '))return;e.preventDefault();const sel=$('#returnFilters')?.querySelector('.'+t.dataset.rf);if(!sel)return;sel.value=sel.value===t.dataset.v?'':t.dataset.v;renderReturns()};
+$('#returnContent')?.addEventListener('click',returnPick);$('#returnContent')?.addEventListener('keydown',returnPick);
 $('#clearReturnFilters')?.addEventListener('click',()=>{$$('#returnFilters [data-return-filter]').forEach(x=>x.value='');renderReturns()});
 
 
