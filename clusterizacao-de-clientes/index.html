@@ -1368,8 +1368,9 @@ async function cloudSync(){
     if(blob.size>50*1024*1024)throw new Error('As bases excedem o limite de 50 MB do banco. Permanecem salvas neste navegador.');
     await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
     await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
-    try{let m=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});if(m?.state&&!CLOUD_AGAIN)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}catch{}
     cloudStatus('Dados sincronizados');LAST_SYNC='ok';
+    /* A marca de versão é gravada em segundo plano: não segura o fim da importação. */
+    cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'}).then(async m=>{if(m?.state&&!CLOUD_AGAIN&&!CLOUD_TIMER)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}).catch(()=>{});
    }catch(e){console.error(e);cloudStatus('Falha na sincronização');LAST_SYNC='fail';if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
   }while(CLOUD_AGAIN);
  })().finally(()=>{CLOUD_BUSY=null});
@@ -2834,14 +2835,18 @@ async function cloudOpenPanel(){
  cloudSession=await cloudRefresh();if(!cloudSession){cloudAuthScreen('login','');return}
  let loadingStep='validar sua conta';
  try{
-  let u=await cloudJson(CLOUD_URL+'/auth/v1/user',{headers:cloudHeaders(cloudSession.access_token)});cloudAuthUser=u;
+  /* As três consultas são independentes: rodam juntas (antes eram em fila, somando a latência de cada uma). */
   loadingStep='verificar seu acesso ao painel';
-  let p=await cloudFunction('clusterizacao-admin-users',{action:'get_me'});cloudProfile=p.user;
+  let [u,p,meta]=await Promise.all([
+   cloudJson(CLOUD_URL+'/auth/v1/user',{headers:cloudHeaders(cloudSession.access_token)}),
+   cloudFunction('clusterizacao-admin-users',{action:'get_me'}),
+   cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'})
+  ]);
+  cloudAuthUser=u;cloudProfile=p.user;
   if(!cloudProfile?.active||cloudProfile.deleted_at){cloudLockScreen();return}
   cloudSetUserMenu();
   cloudFunction('clusterizacao-profile',{action:'get'}).then(r=>{if(r?.profile&&cloudProfile){cloudProfile.photo_data_url=r.profile.photo_data_url||null;if(r.profile.name)cloudProfile.name=r.profile.name;cloudSetUserMenu()}}).catch(e=>console.warn('Perfil: foto indisponível.',e));
   loadingStep='consultar as bases salvas';
-  let meta=await cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'});
   if(meta.state?.byte_size>0){
    let mark=meta.state.updated_at+'|'+meta.state.byte_size;
    if(state.files?.length&&await get('cloudmark')===mark){cloudStatus('Dados sincronizados')}
