@@ -1028,6 +1028,17 @@ tr.rb-click.is-sel td{font-weight:800}
 .return-col.rb-click:hover{background:rgba(66,99,242,.08)}
 tr.rb-click{padding:0}
 .return-bar-list{padding-right:6px}
+
+/* ===== seletores do Nível de Serviço mais compactos ===== */
+#serviceFilters.service-filters{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding:12px 16px}
+#serviceFilters.service-filters:before{flex:0 0 100%}
+#serviceFilters .multi-picker{flex:0 0 auto;width:auto;min-width:0}
+#serviceFilters .multi-picker>summary{height:36px;min-height:36px;padding:0 10px;gap:8px;font-size:12.5px}
+#serviceFilters .multi-picker-pop{width:max-content;min-width:180px;max-width:300px;max-height:260px}
+#serviceFilters .multi-picker-pop label{justify-content:flex-start;gap:8px;padding:6px 8px;font-size:12.5px;line-height:1.2}
+#serviceFilters .multi-picker-pop input[type=checkbox]{flex:0 0 auto;width:15px;height:15px;min-width:0!important;min-height:0!important;margin:0;padding:0}
+#serviceFilters .service-filter-search{flex:1 1 200px;min-width:180px!important;height:36px;min-height:36px;font-size:12.5px}
+#serviceFilters .service-filter-actions{flex:0 0 auto;height:36px;min-height:36px;padding:0 14px;font-size:12.5px;margin-left:auto}
 </style>
 </head>
 <body><input id="folderInput" type="file" webkitdirectory directory multiple style="display:none"><div class="app">
