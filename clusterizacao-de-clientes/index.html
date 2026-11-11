@@ -1351,6 +1351,9 @@ function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.on
 function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
 function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
 let LAST_SYNC=null,IMPORT_REPORT=null,LOCAL_REF=null,PERSIST_CACHE={files:null,data:null,json:null},CLOUD_TIMER=null,CLOUD_BUSY=null,CLOUD_AGAIN=false;
+/* Compressão gzip nativa do navegador: dados de CSV reduzem muito, o que cabe no limite de 50 MB do banco e acelera envio e abertura. */
+async function gzipBlob(blob){if(typeof CompressionStream==='undefined')return blob;try{return await new Response(blob.stream().pipeThrough(new CompressionStream('gzip'))).blob()}catch{return blob}}
+async function readStateText(response){let buf=new Uint8Array(await response.arrayBuffer());if(buf[0]===0x1f&&buf[1]===0x8b){if(typeof DecompressionStream==='undefined')throw new Error('Este navegador não consegue abrir as bases compactadas. Use Chrome ou Edge atualizado.');return await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}return new TextDecoder().decode(buf)}
 function payloadJson(){
  /* O trecho pesado (arquivos + bases) só é serializado de novo quando as bases mudam; mudar um parâmetro reaproveita o texto pronto. */
  if(PERSIST_CACHE.files!==state.files||PERSIST_CACHE.data!==state.data||!PERSIST_CACHE.json)PERSIST_CACHE={files:state.files,data:state.data,json:'"files":'+JSON.stringify(state.files)+',"data":'+JSON.stringify(state.data)};
@@ -1365,15 +1368,15 @@ async function cloudSync(){
    try{
     cloudStatus('Salvando no banco');syncNote('busy','Enviando as bases ao banco…');
     let s=await cloudRefresh();if(!s)throw new Error('Sessão expirada');
-    let blob=new Blob([payloadJson()],{type:'application/json'});
-    if(blob.size>50*1024*1024)throw new Error('As bases excedem o limite de 50 MB do banco. Permanecem salvas neste navegador.');
+    let rawBlob=new Blob([payloadJson()],{type:'application/json'}),blob=await gzipBlob(rawBlob);
+    if(blob.size>50*1024*1024)throw new Error('Mesmo compactadas, as bases excedem o limite de 50 MB do banco');
     await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
     let saved=await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
-    syncNote('ok','Gravado no banco em '+syncHour(saved?.updated_at||Date.now())+' ('+(blob.size/1048576).toFixed(1).replace('.',',')+' MB)');
+    syncNote('ok','Gravado no banco em '+syncHour(saved?.updated_at||Date.now())+' ('+(blob.size/1048576).toFixed(1).replace('.',',')+' MB compactado)');
     cloudStatus('Dados sincronizados');LAST_SYNC='ok';
     /* A marca de versão é gravada em segundo plano: não segura o fim da importação. */
     cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'}).then(async m=>{if(m?.state&&!CLOUD_AGAIN&&!CLOUD_TIMER)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}).catch(()=>{});
-   }catch(e){console.error(e);cloudStatus('Falha na sincronização');LAST_SYNC='fail';syncNote('err','Não gravou no banco: '+(e.message||'erro desconhecido')+'. As bases estão só neste equipamento.');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
+   }catch(e){console.error(e);cloudStatus('Falha na sincronização');LAST_SYNC='fail';syncNote('err','Não gravou no banco: '+String(e.message||'erro desconhecido').replace(/[.\s]+$/,'')+'. As bases estão só neste equipamento.');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
   }while(CLOUD_AGAIN);
  })().finally(()=>{CLOUD_BUSY=null});
  return CLOUD_BUSY;
@@ -2860,7 +2863,7 @@ async function cloudOpenPanel(){
     cloudStatus('Carregando bases salvas');cloudLoading(true,'Carregando suas bases','Estamos trazendo os dados salvos do banco.');loadingStep='baixar as bases salvas';
     let response=await fetch(CLOUD_URL+'/storage/v1/object/authenticated/clusterizacao-state/'+encodeURIComponent(meta.state.object_path||'dashboard-state.json'),{headers:cloudHeaders(cloudSession.access_token)});
     if(response.ok){
-     let remote=await response.json();
+     let remote=JSON.parse(await readStateText(response));
      if(remote&&remote.data){
       Object.assign(state,remote);normalizePanelState();
       await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});
