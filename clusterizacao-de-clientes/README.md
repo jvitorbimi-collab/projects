@@ -35,3 +35,10 @@ Ao fim de cada importação aparece, no cartão "Processamento", um resumo: conc
 - **Devolução PDV (%)** = devoluções (PDV/dia) ÷ entregas (PDV/dia) no filtro. PDVs reincidentes/críticos = clientes com devolução em mais de uma data.
 - **Textos de motivo e responsabilidade normalizados**: abreviações expandidas (ex.: "ciente canc." → "Cliente cancelou"), variações com erro de digitação unidas ao rótulo mais frequente e mapa opcional em `state.params.returnLabelMap` (`{"texto em minúsculas":"Rótulo final"}`).
 - **PPT redesenhado**: grade única, cartões de KPI, rankings em barras horizontais no lugar de tabelas densas, tabelas com linhas alternadas e novos slides de motivos/responsabilidade e RNs/gerentes.
+
+## Revisão 5 — indicadores por cidade
+
+- **Cidades normalizadas.** O nome da cidade vem do cadastro (`Cidade`) e do arquivo de pedidos (`Nome Município`). Variações de escrita são unidas por aproximação (maiúsculas/minúsculas, acentos, sufixo de UF como "- PE", "S." por "São", conectores "de/da/do" e um erro de digitação em uma palavra) e o nome final sai com a grafia correta ("SAO JOSE DO EGITO" → "São José do Egito"). Para forçar um nome, use o mapa opcional `state.params.cityMap` (`{"texto em minúsculas":"Nome final"}`), no mesmo padrão do `returnLabelMap`. Duas grafias muito frequentes e parecidas (mais de 30 ocorrências cada) não são unidas automaticamente, por segurança.
+- **OTIF por cidade** (aba Nível de serviço → OTIF): filtro "Cidade", ranking da pior para a melhor, gráfico OTIF/In Full/On Time das 12 principais cidades, mapa de calor cidade × mês e tabela completa (PDVs, atendimentos, OT, IF, OTIF, Rating). Clicar numa cidade filtra o painel.
+- **Devolução por cidade** (aba Devolução): filtro "Cidade", barras de Devolução PDV por cidade, tabela e mapa de calor cidade × mês.
+- **PPT resumido**: novos slides "Nível de serviço por cidade" e "Devolução por cidade", respeitando os filtros.

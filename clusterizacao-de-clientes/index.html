@@ -159,6 +159,22 @@ td{padding:9px 10px;border-bottom:1px solid rgba(38,60,87,.48);white-space:nowra
 @media(max-width:700px){.cloud-user-row{grid-template-columns:1fr}.cloud-auth-card{padding:22px}.cloud-modal-actions>*{flex:1 1 auto}}
 .return-ring{position:relative}.topright{display:none}
 .return-chart-card,.return-block{background:#f8fbff;border-color:#c6d6e8;color:#142441;box-shadow:0 10px 24px rgba(26,53,91,.12)}.return-chart-card h3,.return-block h3{color:#142441}.return-chart-sub,.return-legend,.return-ring-value small,.return-period-note,.return-block .meta{color:#58708f}.return-bar-label{color:#142441}.return-bar-value{color:#142441}.return-bar-track{background:#dce7f3}.return-pct{color:#08795f}.return-ring:after{background:#f8fbff}#serviceReturnsPanel .filters label{color:#142441}#serviceReturnsPanel .filters input,#serviceReturnsPanel .filters select{background:#fff;color:#142441;border-color:#b8cbe0}#serviceReturnsPanel .return-chart-sub,#serviceReturnsPanel .return-period-note{font-weight:600}#serviceReturnsPanel .return-legend b{color:#142441}#serviceReturnsPanel table th{color:#eaf3fc;background:#163554}#serviceReturnsPanel table td{color:#142441}
+
+/* ===== visões por cidade ===== */
+.service-city-grid{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.6fr);gap:12px;align-items:stretch}
+@media(max-width:980px){.service-city-grid{grid-template-columns:1fr}}
+.city-rank-scroll{max-height:420px;overflow:auto;padding-right:4px}
+.service-combo-city{min-height:250px}
+.service-rank .city-filter-row{cursor:pointer}.service-rank .city-filter-row:hover{background:rgba(100,168,255,.08)}
+.city-filter-row.is-sel{background:rgba(100,168,255,.16);box-shadow:inset 3px 0 0 #3558f0}
+tr.city-filter-row{cursor:pointer}tr.city-filter-row:hover td{background:rgba(100,168,255,.08)}
+.city-filter-row small.meta{display:block;font-weight:500;margin:1px 0 3px}
+.city-heat{width:100%;border-collapse:separate;border-spacing:3px;font-size:11px}
+.city-heat th,.city-heat td{padding:7px 6px;text-align:center;border-radius:6px;white-space:nowrap}
+.city-heat thead th{color:var(--muted);font-weight:750}
+.city-heat tbody th{text-align:left;font-weight:700;cursor:pointer}
+.city-heat .h-good{background:rgba(10,138,112,.24)}.city-heat .h-warn{background:rgba(181,111,6,.26)}.city-heat .h-bad{background:rgba(199,49,74,.30)}
+.city-heat .h-none{background:rgba(120,160,195,.08)}
 </style>
 <style>
 #clusterParamsTable { table-layout: fixed; width: 100%; }
@@ -1179,6 +1195,26 @@ Como funciona a clusterização
   </div>
 </div>
 
+<div class="sectiontitle"><span>Nível de serviço por cidade</span><small id="serviceCityCount">—</small></div>
+<div class="service-city-grid">
+  <div class="card chartbox">
+    <div class="cardhead"><h3>OTIF por cidade</h3><span class="meta">da pior para a melhor · clique para filtrar</span></div>
+    <div id="otifCityRank" class="service-rank city-rank-scroll"></div>
+  </div>
+  <div class="card chartbox">
+    <div class="cardhead"><h3>OTIF, In Full e On Time nas principais cidades</h3><span class="meta">12 cidades com mais atendimentos</span></div>
+    <div id="serviceCityCombo" class="service-combo service-combo-city"></div>
+  </div>
+</div>
+<div class="card chartbox" style="margin-top:12px">
+  <div class="cardhead"><h3>OTIF por cidade e mês</h3><span class="meta">mapa de calor · clique no nome para filtrar</span></div>
+  <div id="serviceCityHeat"></div>
+</div>
+<div class="card" style="margin-top:12px">
+  <div class="cardhead"><h3>Indicadores por cidade</h3><span class="meta">OT · IF · OTIF · Rating · clique na linha para filtrar</span></div>
+  <div id="serviceByCity" class="tablewrap" style="max-height:420px;overflow:auto"></div>
+</div>
+
 <details class="card service-secondary" style="margin-top:12px">
   <summary style="cursor:pointer;font-weight:800;display:flex;justify-content:space-between;align-items:center">
     Diagnósticos complementares
@@ -1211,7 +1247,7 @@ Como funciona a clusterização
 
 <div id="serviceReturnsPanel" hidden>
 <div class="hero"><div><h2>Devolução</h2><p>Indicadores do relatório 03.01.47 por PDV, motivo, responsabilidade, RN e gerente.</p></div><div class="health"><span class="healthchip" id="returnScopeChip">Todos os períodos</span></div></div>
-<div class="filters" id="returnFilters"><label>Apuração <select class="rgran" data-return-filter="granularity"><option value="period">Período</option><option value="month">Mês</option><option value="day">Dia</option></select></label><label class="return-month-field">Ano <select class="ryear" data-return-filter="year"><option value="">Todos</option></select></label><label class="return-month-field">Mês <select class="rmonth" data-return-filter="month"><option value="">Todos</option></select></label><label class="return-period-field">De <input class="rf" data-return-filter="from" type="date"></label><label class="return-period-field">Até <input class="rt" data-return-filter="to" type="date"></label><input class="return-search rq" list="returnPdvSuggestions" data-return-filter="query" placeholder="Buscar PDV por código ou nome" aria-label="Buscar PDV nas devoluções"><datalist id="returnPdvSuggestions"></datalist><select class="rm" data-return-filter="motivo"><option value="">Todos os motivos</option></select><select class="rr" data-return-filter="responsabilidade"><option value="">Todas as responsabilidades</option></select><select class="rg" data-return-filter="gerente"><option value="">Todos os gerentes</option></select><select class="rrn" data-return-filter="rn"><option value="">Todos os RNs</option></select><button class="btn ghost" type="button" id="clearReturnFilters">Limpar filtros</button></div>
+<div class="filters" id="returnFilters"><label>Apuração <select class="rgran" data-return-filter="granularity"><option value="period">Período</option><option value="month">Mês</option><option value="day">Dia</option></select></label><label class="return-month-field">Ano <select class="ryear" data-return-filter="year"><option value="">Todos</option></select></label><label class="return-month-field">Mês <select class="rmonth" data-return-filter="month"><option value="">Todos</option></select></label><label class="return-period-field">De <input class="rf" data-return-filter="from" type="date"></label><label class="return-period-field">Até <input class="rt" data-return-filter="to" type="date"></label><input class="return-search rq" list="returnPdvSuggestions" data-return-filter="query" placeholder="Buscar PDV por código ou nome" aria-label="Buscar PDV nas devoluções"><datalist id="returnPdvSuggestions"></datalist><select class="rm" data-return-filter="motivo"><option value="">Todos os motivos</option></select><select class="rr" data-return-filter="responsabilidade"><option value="">Todas as responsabilidades</option></select><select class="rg" data-return-filter="gerente"><option value="">Todos os gerentes</option></select><select class="rrn" data-return-filter="rn"><option value="">Todos os RNs</option></select><select class="rcity" data-return-filter="city"><option value="">Todas as cidades</option></select><button class="btn ghost" type="button" id="clearReturnFilters">Limpar filtros</button></div>
 <div class="kpigrid" id="returnKpis"></div><div class="return-visuals"><div class="card return-chart-card"><h3>PDVs com devolução</h3><div class="return-chart-sub">PDVs com devolução ÷ total de PDVs entregues no período</div><div id="returnPdvRate"></div></div><div class="card return-chart-card"><h3>Evolução por apuração</h3><div class="return-chart-sub">Percentual de PDVs com devolução sobre os PDVs entregues por <span id="returnGranularityLabel">período</span></div><div id="returnTimeline"></div></div><div class="card return-chart-card"><h3>Devolução PDV por mês</h3><div class="return-chart-sub">Percentual de PDVs com devolução sobre os PDVs entregues</div><div id="returnMonthPdv"></div></div><div class="card return-chart-card"><h3>Devolução HL por mês</h3><div class="return-chart-sub">Volume mensal devolvido em HL</div><div id="returnMonthHl"></div></div></div><div id="returnContent"></div>
 </div>
 </section>
@@ -1240,20 +1276,64 @@ Como funciona a clusterização
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const DB='pdv-intelligence-v1', STORE='kv'; let db, state={files:[],data:{},params:{deliveries:{Winner:3,Grower:2,"Alto volume":2,Basic:1,"Low sales":1},nearPct:10,monthlyYear:2026,actionStatus:{}},folderHandle:null,lastUpdate:null};
-const CACHE={pdvByPeriod:new Map(),service:null,operation:null,returns:null,scopeIndex:null,scopeAllowed:null,lastUpdate:null};
+const CACHE={pdvByPeriod:new Map(),cityMap:null,service:null,operation:null,returns:null,scopeIndex:null,scopeAllowed:null,lastUpdate:null};
 const DISPLAY_LIMIT=500;
-function resetCache(){VIEW_VER++;VALID_PDVS=null;REL_MAP=null;DEL_MAP=null;CACHE.pdvByPeriod.clear();CACHE.service=null;CACHE.operation=null;CACHE.returns=null;CACHE.scopeIndex=null;CACHE.scopeAllowed=null;CACHE.lastUpdate=state.lastUpdate;document.querySelectorAll('#globalFilterBar [data-filter-menu]').forEach(menu=>{delete menu.dataset.loaded})}
+function resetCache(){VIEW_VER++;VALID_PDVS=null;REL_MAP=null;DEL_MAP=null;CACHE.pdvByPeriod.clear();CACHE.cityMap=null;CACHE.service=null;CACHE.operation=null;CACHE.returns=null;CACHE.scopeIndex=null;CACHE.scopeAllowed=null;CACHE.lastUpdate=state.lastUpdate;document.querySelectorAll('#globalFilterBar [data-filter-menu]').forEach(menu=>{delete menu.dataset.loaded})}
 const GLOBAL_FILTER={managers:new Set(),sectors:new Set(),cities:new Set(),query:''};
-const SERVICE_FILTER={years:new Set(),months:new Set(),clusters:new Set(),query:''};
+const SERVICE_FILTER={years:new Set(),months:new Set(),clusters:new Set(),cities:new Set(),query:''};
 const FT_CACHE=new Map();
 function filterText(v){let k=typeof v==='string'?v:String(v??''),r=FT_CACHE.get(k);if(r!==undefined)return r;r=norm(k).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');if(FT_CACHE.size>60000)FT_CACHE.clear();FT_CACHE.set(k,r);return r}
+/* ===================== Cidades: normalização por aproximação + grafia correta ===================== */
+const CITY_CONN=new Set(['de','da','do','das','dos','e','d']);
+const CITY_ABBR={s:'sao',sta:'santa',sto:'santo',sra:'senhora',sr:'senhor'};
+const CITY_WORDS='São João José Conceição Assunção Antônio Sebastião Vitória Belém Maceió Brasília Goiânia Petrolândia Afrânio Orocó Cabrobó Jatobá Itaíba Sertânia Custódia Betânia Carnaíba Bodocó Moreilândia Curaçá Glória Lençóis Irecê Piauí Parnaíba Simplício Quixadá Crateús Tauá Maracanaú Eusébio Canindé Tianguá Acaraú Índios Açúcar Pão Água Águas Jaboatão Sirinhaém Tamandaré Itamaracá Lourenço Chã Goitá Nazaré Timbaúba Aliança Vicência Ribeirão Sanharó Saloá Gravatá Tacaimbó Inajá Solidão Caetés Cortês Xexéu Brejão Orobó Félix Sairé Buíque Cambucá Tracunhaém Itambé Férrer Brígida Cícero Camaçari Simões Ilhéus Jequié Eunápolis Valença Coité Luís Caetité Uruçuí Luzilândia Isaías Jaicós Itainópolis Marcolândia União Ceará Paraíba Sertão Saúde Três Icó Açu Várzea Inês Mossoró Caicó Macaíba Santarém Marabá Codó Estância Propriá Simão Esperança Remígio Alagoa Solânea Sapé Piancó Pará Maranhão Goiás Rondônia Amapá Pacatuba Horizonte Poço Orós Cabrália Jaguarão Içara Irará Muniz Salvaterra Arapiraca Pedrão Caém Ourolândia Umburanas Mirangaba Tanquinho Ipirá';
+const CITY_FIX={m:null,get(k){if(!this.m)this.m=new Map(CITY_WORDS.split(' ').map(w=>[filterText(w),w]));return this.m.get(k)}};
+const CITY_UF_SUFFIX=/\s*(?:[-\/,]\s*|\(\s*)(?!ix\b|xi\b|ii\b|iv\b|vi\b)[A-Za-z]{2}\s*\)?\s*$/i;
+function cityStrip(raw){let s=norm(raw).replace(/\s+/g,' '),b=s.replace(CITY_UF_SUFFIX,'');if(b.length>=3)s=b;s=s.replace(/\s+(PE|BA|PI|PB|CE|AL|SE|RN|MA)$/i,(m,u,off)=>off>=3?'':m);return s.trim()}
+function cityTokens(raw){let s=filterText(cityStrip(raw)).replace(/['’`´.]/g,' ').replace(/[^a-z0-9]+/g,' ').trim(),tk=s?s.split(' '):[];if(tk.length>1&&CITY_ABBR[tk[0]])tk[0]=CITY_ABBR[tk[0]];return tk}
+function cityLev(a,b,max){if(Math.abs(a.length-b.length)>max)return max+1;let prev=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let cur=[i],min=i;for(let j=1;j<=b.length;j++){let v=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));cur.push(v);if(v<min)min=v}if(min>max)return max+1;prev=cur}return prev[b.length]}
+/* duas grafias são "a mesma cidade" se forem iguais sem espaços, ou se diferirem em UMA palavra (≥5 letras, mesma inicial, 1 erro; 2 erros se ≥9 letras) */
+function cityClose(a,b){if(a.sig===b.sig)return true;if(a.sig.replace(/ /g,'')===b.sig.replace(/ /g,''))return true;if(a.tk.length!==b.tk.length)return false;let diff=-1;for(let i=0;i<a.tk.length;i++)if(a.tk[i]!==b.tk[i]){if(diff>=0)return false;diff=i}if(diff<0)return true;const x=a.tk[diff],y=b.tk[diff],ml=Math.min(x.length,y.length);if(ml<5||x[0]!==y[0])return false;return cityLev(x,y,ml<=8?1:2)<=(ml<=8?1:2)}
+function cityCap(s){return s?s[0].toLocaleUpperCase('pt-BR')+s.slice(1):s}
+function cityPretty(str,acc){
+ str=norm(str).replace(/(^|\s)[dD]\s+(?=\p{L})/gu,"$1d'");
+ return str.split(/\s+/).filter(Boolean).map((w,i)=>{
+  const lw=w.toLocaleLowerCase('pt-BR'),a=filterText(lw);
+  if(/^(ii|iii|iv|vii|viii|ix|xi|xii|xiii)$/.test(a))return a.toUpperCase();
+  if(i>0&&CITY_CONN.has(a)&&a!=='d')return a;
+  const parts=lw.split(/(['’-])/);
+  return parts.map((p,j)=>{if(p==="'"||p==='’'||p==='-')return p==='’'?"'":p;if(!p)return p;if(p==='d'&&(parts[j+1]==="'"||parts[j+1]==='’'))return 'd';const pa=filterText(p),fix=CITY_FIX.get(pa)||(acc&&acc.get(pa)?cityCap(acc.get(pa)):null);return fix||cityCap(p)}).join('')
+ }).join(' ')
+}
+function cityBuild(){
+ const cnt=new Map(),add=v=>{v=norm(v);if(v)cnt.set(v,(cnt.get(v)||0)+1)};
+ for(const s of state.data.Cadastro||[])for(const r of s.rows||[])add(r['Cidade']);
+ for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows||[])add(r['Nome Município']||r['Nome Municipio']);
+ const keys=new Map();
+ for(const [raw,n] of cnt){const tk=cityTokens(raw).filter(w=>!CITY_CONN.has(w)),sig=tk.join(' ');if(!sig)continue;let o=keys.get(sig);if(!o)keys.set(sig,o={sig,tk,n:0,vars:new Map()});o.n+=n;o.vars.set(raw,n)}
+ const order=[...keys.values()].sort((a,b)=>b.n-a.n||b.sig.length-a.sig.length),canon=[];
+ for(const o of order){let hit=null;for(const c of canon){if(cityClose(o,c)&&!(o.n>=30&&o.n>c.n*.25)){hit=c;break}}if(hit)hit.members.push(o);else{o.members=[o];canon.push(o)}}
+ const map=new Map();
+ for(const c of canon){
+  const vars=new Map();for(const m of c.members)for(const [raw,n] of m.vars)vars.set(raw,n);
+  const acc=new Map();
+  for(const [raw,n] of vars)for(const w of cityStrip(raw).split(/[\s'’-]+/)){const lw=w.toLocaleLowerCase('pt-BR'),a=filterText(lw);if(lw&&lw!==a){const m2=acc.get(a)||new Map();m2.set(lw,(m2.get(lw)||0)+n);acc.set(a,m2)}}
+  const best=new Map([...acc].map(([a,m2])=>[a,[...m2].sort((x,y)=>y[1]-x[1])[0][0]]));
+  const maxN=Math.max(...c.vars.values()),topRaw=[...c.vars].filter(([,n])=>n>=maxN*.25).sort((x,y)=>cityTokens(y[0]).length-cityTokens(x[0]).length||y[1]-x[1])[0][0],name=cityPretty(cityStrip(topRaw),best);
+  for(const raw of vars.keys())map.set(raw,name)
+ }
+ const ov=state.params?.cityMap;if(ov&&typeof ov==='object'){const o=new Map(Object.entries(ov).map(([k,v])=>[filterText(k),norm(v)]));for(const raw of map.keys()){const v=o.get(filterText(raw));if(v)map.set(raw,v)}}
+ return map
+}
+/* nome oficial (corrigido e unificado) de uma cidade escrita de qualquer jeito nos arquivos */
+function cityName(raw){raw=norm(raw);if(!raw)return '';const m=CACHE.cityMap||(CACHE.cityMap=cityBuild());let r=m.get(raw);if(r===undefined){r=cityPretty(cityStrip(raw),null);const ov=state.params?.cityMap?.[filterText(raw)];if(ov)r=norm(ov);m.set(raw,r)}return r}
 function matchesPdvSearch(x,query,extended=false){let q=filterText(query);if(!q)return true;let fields=[x.code,x.name];if(extended)fields.push(x.cidade,x.bairro);if(filterText(fields.join(' ')).includes(q))return true;return /^\d+$/.test(q)&&code(x.code).includes(code(q))}
 function scopeSignature(){return JSON.stringify({m:[...GLOBAL_FILTER.managers].sort(),s:[...GLOBAL_FILTER.sectors].sort(),c:[...GLOBAL_FILTER.cities].sort(),q:GLOBAL_FILTER.query})}
 function scopeActive(){return !!(GLOBAL_FILTER.managers.size||GLOBAL_FILTER.sectors.size||GLOBAL_FILTER.cities.size||GLOBAL_FILTER.query)}
 function scopeIndex(){
  if(CACHE.scopeIndex)return CACHE.scopeIndex;
  let managers=new Map(),sectors=new Map(),cities=new Map(),places=new Map(),byUnit=new Map(),duplicates=new Set();
- for(const src of state.data.Cadastro||[])for(const r of src.rows){let c=code(r['Codigo Cliente']);if(c==='0')continue;let p={code:c,name:norm(r['Nome Fantasia']),cidade:norm(r['Cidade']),bairro:norm(r['Bairro']),setor:norm(r['Cod. Setor'])},k=filterText(src.unit)+'|'+c,prev=places.get(c);byUnit.set(k,p);if(prev&&(filterText(prev.cidade)!==filterText(p.cidade)||filterText(prev.bairro)!==filterText(p.bairro)))duplicates.add(c);else if(!prev)places.set(c,p);if(p.cidade)cities.set(filterText(p.cidade),p.cidade)}
+ for(const src of state.data.Cadastro||[])for(const r of src.rows){let c=code(r['Codigo Cliente']);if(c==='0')continue;let p={code:c,name:norm(r['Nome Fantasia']),cidade:cityName(r['Cidade']),bairro:norm(r['Bairro']),setor:norm(r['Cod. Setor'])},k=filterText(src.unit)+'|'+c,prev=places.get(c);byUnit.set(k,p);if(prev&&(filterText(prev.cidade)!==filterText(p.cidade)||filterText(prev.bairro)!==filterText(p.bairro)))duplicates.add(c);else if(!prev)places.set(c,p);if(p.cidade)cities.set(filterText(p.cidade),p.cidade)}
  for(const x of operationData()){if(x.managerCode)managers.set(code(x.managerCode),[x.managerCode,x.managerName].filter(Boolean).join(' · '));if(x.sectorCode)sectors.set(code(x.sectorCode),[x.sectorCode,x.sectorName].filter(Boolean).join(' · '));if(x.citySource)cities.set(filterText(x.citySource),x.citySource)}
  CACHE.scopeIndex={managers,sectors,cities,places,byUnit,duplicates};return CACHE.scopeIndex;
 }
@@ -1444,7 +1524,7 @@ async function refreshSavedFolder(){let handle=state.folderHandle;if(handle){try
 $('#refreshFolder').onclick=refreshSavedFolder;
 $('#clearData').onclick=async()=>{if(confirm('Remover todas as bases salvas deste painel?')){state.files=[];state.data={};state.lastUpdate=null;resetCache();await persist();renderAll()}};
 let VALID_PDVS=null;
-function validPdvs(){let ref=state.data.Cadastro;if(VALID_PDVS&&VALID_PDVS.ref===ref&&VALID_PDVS.u===state.lastUpdate)return VALID_PDVS.map;let out=new Map();for(let src of ref||[])for(let r of src.rows){let st=norm(r['Status do Cliente']).toUpperCase(),set=norm(r['Cod. Setor']).replace(/\D/g,'');if(st==='A'&&set&&Number(set[0])<9){let c=code(r['Codigo Cliente']);if(c)out.set(c,{code:c,unit:src.unit,name:norm(r['Nome Fantasia']),bairro:norm(r['Bairro']),cidade:norm(r['Cidade']),setor:norm(r['Cod. Setor'])})}}VALID_PDVS={ref,u:state.lastUpdate,map:out};return out}
+function validPdvs(){let ref=state.data.Cadastro;if(VALID_PDVS&&VALID_PDVS.ref===ref&&VALID_PDVS.u===state.lastUpdate)return VALID_PDVS.map;let out=new Map();for(let src of ref||[])for(let r of src.rows){let st=norm(r['Status do Cliente']).toUpperCase(),set=norm(r['Cod. Setor']).replace(/\D/g,'');if(st==='A'&&set&&Number(set[0])<9){let c=code(r['Codigo Cliente']);if(c)out.set(c,{code:c,unit:src.unit,name:norm(r['Nome Fantasia']),bairro:norm(r['Bairro']),cidade:cityName(r['Cidade']),setor:norm(r['Cod. Setor'])})}}VALID_PDVS={ref,u:state.lastUpdate,map:out};return out}
 function isNonProfitable(v){
  let s=String(v??'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
  if(!s)return false;
@@ -1493,7 +1573,7 @@ function operationData(){
  for(let s of state.data['Operação 03.01.47.01']||[]){let pc=productColumns(s.rows[0]);for(let r of s.rows){
   let c=code(r.Cliente),pedido=norm(r.Pedido),ddc=code(r['Cod Puxada']);if(!c||c==='0'||!pedido)continue;
   let orderDate=dateKey(r.Data),key=ddc+'|'+c+'|'+pedido+'|'+orderDate,v=m.get(key);
-  if(!v){let days=schedules.get(ddc+'|'+c)||[],dp=dateParts(r.Data);v={code:c,pedido,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(dp?.m||s.month||monthFromName(s.name)||0),year:Number(dp?.y)||Number(state.params.monthlyYear),orderDate,days,managerCode:norm(r['Gerente Vendas']),managerName:norm(r['Nome Gerente Vendas']),sectorCode:norm(r['Setor']),sectorName:norm(r['Nome Setor']),citySource:norm(r['Nome Município']||r['Nome Municipio']),expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true,motives:new Set(),normalRows:0,deletedRows:0};m.set(key,v)}
+  if(!v){let days=schedules.get(ddc+'|'+c)||[],dp=dateParts(r.Data);v={code:c,pedido,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(dp?.m||s.month||monthFromName(s.name)||0),year:Number(dp?.y)||Number(state.params.monthlyYear),orderDate,days,managerCode:norm(r['Gerente Vendas']),managerName:norm(r['Nome Gerente Vendas']),sectorCode:norm(r['Setor']),sectorName:norm(r['Nome Setor']),citySource:cityName(r['Nome Município']||r['Nome Municipio']),expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true,motives:new Set(),normalRows:0,deletedRows:0};m.set(key,v)}
   let motive=norm(r.Motivo),mk=reasonKey(motive);if(motive&&mk!=='pedido normal')v.motives.add(motive);if(mk.includes('pedido exclu'))v.deletedRows++;else v.normalRows++;
   let marked=norm(r['Volume Marcacao']),delivered=norm(r['Volume Entrega']);if(!marked)v.markedValid=false;else v.marked+=num(marked);if(!delivered)v.deliveredValid=false;else v.deliveredVolume+=num(delivered);
   if(pc.name){let pn=norm(r[pc.name]),pk=pc.cod?norm(r[pc.cod]):'';(v.lines||(v.lines=[])).push({key:[pk,pn].filter(Boolean).join(' · ')||'Produto não identificado',m:marked?num(marked):0,d:delivered?num(delivered):0,del:mk.includes('pedido exclu')})}
@@ -2007,12 +2087,12 @@ function serviceComboChart(rows,mode){
  if(!rows.length)return '<div class="empty">Sem dados para o filtro atual.</div>';
  const W=1000,H=300,L=46,R=14,T=14,B=58,iw=W-L-R,ih=H-T-B,n=rows.length,step=iw/n,bw=Math.max(14,Math.min(58,step*.5));
  const y=v=>T+(1-Math.max(0,Math.min(1,v||0)))*ih,x=i=>L+step*i+step/2;
- const sel=d=>mode==='month'?SERVICE_FILTER.months.has(Number(d.key)):mode==='cluster'?SERVICE_FILTER.clusters.has(d.key):false;
+ const sel=d=>mode==='month'?SERVICE_FILTER.months.has(Number(d.key)):mode==='cluster'?SERVICE_FILTER.clusters.has(d.key):mode==='city'?SERVICE_FILTER.cities.has(d.key):false;
  const anySel=rows.some(sel);
  const grid=[0,.25,.5,.75,1].map(v=>`<line class="cc-grid${v===0?' base':''}" x1="${L}" y1="${y(v)}" x2="${W-R}" y2="${y(v)}"/><text class="cc-ytick" x="${L-9}" y="${y(v)+4}" text-anchor="end">${Math.round(v*100)}%</text>`).join('');
  const cols=rows.map((d,i)=>{const yy=y(d.otif),xx=x(i)-bw/2,hh=Math.max(2,T+ih-yy),on=sel(d),dim=anySel&&!on;
-  const tip=`${esc(d.label)}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
-  return `<g class="combo-item${on?' is-on':''}${dim?' is-dim':''}" data-mode="${mode}" data-key="${d.key??d.label}" data-tip="${tip}">
+  const tip=`${esc(d.full||d.label)}|${pct(d.otif)}|${pct(d.iff)}|${pct(d.ot)}`;
+  return `<g class="combo-item${on?' is-on':''}${dim?' is-dim':''}" data-mode="${mode}" data-key="${esc(d.key??d.label)}" data-tip="${tip}">
    <rect class="cc-hit" x="${L+step*i}" y="${T}" width="${step}" height="${H-T}"/>
    <rect class="bar cc-bar" x="${xx}" y="${yy}" width="${bw}" height="${hh}" rx="6"/>
    <text class="cc-cat" x="${x(i)}" y="${H-B+20}" text-anchor="middle">${esc(d.label)}</text>
@@ -2033,7 +2113,7 @@ let lp=latestPeriod(),clMap=new Map(buildPDVs(lp.y,lp.s).map(x=>[x.code,x.cluste
 let m=new Map();
 for(let x of operationData()){
  if(!scopeMatchesEvent(x)||!x.year||!x.month)continue;
- let k=x.code+'|'+x.month+'|'+x.year,v=m.get(k)||{code:x.code,name:x.name,month:x.month,year:x.year,vis:0,ot:0,onTimeN:0,iff:0,inFullN:0,otif:0,otifN:0};
+ let k=x.code+'|'+x.month+'|'+x.year,v=m.get(k)||{code:x.code,name:x.name,city:scopePlace(x)?.cidade||x.citySource||'Não informada',month:x.month,year:x.year,vis:0,ot:0,onTimeN:0,iff:0,inFullN:0,otif:0,otifN:0};
  v.vis++;
  if(x.onTimeValid){v.onTimeN++;if(x.onTime)v.ot++}
  if(x.inFullValid){v.inFullN++;if(x.inFull)v.iff++}
@@ -2075,6 +2155,8 @@ function bindServiceChartInteractions(){
        if(SERVICE_FILTER.clusters.has(key))SERVICE_FILTER.clusters.delete(key);else SERVICE_FILTER.clusters.add(key);renderService()
      }else if(mode==='month'){
        let n=Number(key);if(SERVICE_FILTER.months.has(n))SERVICE_FILTER.months.delete(n);else SERVICE_FILTER.months.add(n);renderService()
+     }else if(mode==='city'){
+       if(SERVICE_FILTER.cities.has(key))SERVICE_FILTER.cities.delete(key);else SERVICE_FILTER.cities.add(key);renderService()
      }
    };
  });
@@ -2083,18 +2165,24 @@ function bindServiceChartInteractions(){
      let key=el.dataset.cluster;if(SERVICE_FILTER.clusters.has(key))SERVICE_FILTER.clusters.delete(key);else SERVICE_FILTER.clusters.add(key);renderService()
    };
  });
+ $$('#otifCityRank .city-filter-row,#serviceCityHeat .city-filter-row,#serviceByCity .city-filter-row').forEach(el=>{
+   el.onclick=()=>{
+     let key=el.dataset.city;if(SERVICE_FILTER.cities.has(key))SERVICE_FILTER.cities.delete(key);else SERVICE_FILTER.cities.add(key);renderService()
+   };
+ });
 }
 
 function renderService(){
  let d=serviceData();
- let box=$('#serviceFilters'),years=[...new Set(d.map(x=>x.year))].sort((a,b)=>a-b),monthOptions=[...new Set(d.map(x=>x.month))].sort((a,b)=>a-b),clusterOptions=[...new Set(d.map(x=>x.cluster))].sort((a,b)=>a.localeCompare(b,'pt-BR')),clusters=clusterOptions;
- if(!box.dataset.ready||box.dataset.signature!==years.join(',')+'|'+monthOptions.join(',')+'|'+clusters.join(',')){box.innerHTML=`<details class="multi-picker"><summary>Ano <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${years.map(y=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="year" value="${y}" ${SERVICE_FILTER.years.has(y)?'checked':''}>${y}</label>`).join('')}</div></details><details class="multi-picker"><summary>Mês <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${monthOptions.map(m=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="month" value="${m}" ${SERVICE_FILTER.months.has(m)?'checked':''}>${monthName(m)}</label>`).join('')}</div></details><details class="multi-picker"><summary>Cluster <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${clusters.map(c=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="cluster" value="${esc(c)}" ${SERVICE_FILTER.clusters.has(c)?'checked':''}>${esc(c)}</label>`).join('')}</div></details><input class="sq service-filter-search" list="servicePdvSuggestions" placeholder="Buscar PDV por código ou nome" value="${esc(SERVICE_FILTER.query)}"><datalist id="servicePdvSuggestions"></datalist><button class="btn ghost service-filter-actions" type="button">Limpar filtros</button>`;box.dataset.ready='1';box.dataset.signature=years.join(',')+'|'+monthOptions.join(',')+'|'+clusters.join(',');box.onchange=e=>{if(!e.target.matches('[data-service-filter]'))return;let set=e.target.dataset.serviceFilter==='year'?SERVICE_FILTER.years:e.target.dataset.serviceFilter==='month'?SERVICE_FILTER.months:SERVICE_FILTER.clusters,val=e.target.dataset.serviceFilter==='month'?Number(e.target.value):e.target.dataset.serviceFilter==='year'?Number(e.target.value):e.target.value;e.target.checked?set.add(val):set.delete(val);renderService()};box.querySelector('.sq').oninput=e=>{SERVICE_FILTER.query=e.target.value;clearTimeout(box._searchTimer);box._searchTimer=setTimeout(renderService,180)};box.querySelector('.service-filter-actions').onclick=()=>{SERVICE_FILTER.years.clear();SERVICE_FILTER.months.clear();SERVICE_FILTER.clusters.clear();SERVICE_FILTER.query='';renderService()}}
- box.querySelectorAll('.service-filter-count').forEach((el,i)=>{let set=[SERVICE_FILTER.years,SERVICE_FILTER.months,SERVICE_FILTER.clusters][i];el.textContent=set.size?set.size+' selecionado'+(set.size>1?'s':''):'Todos'});
+ let box=$('#serviceFilters'),years=[...new Set(d.map(x=>x.year))].sort((a,b)=>a-b),monthOptions=[...new Set(d.map(x=>x.month))].sort((a,b)=>a-b),clusterOptions=[...new Set(d.map(x=>x.cluster))].sort((a,b)=>a.localeCompare(b,'pt-BR')),clusters=clusterOptions,cityOptions=[...new Set(d.map(x=>x.city))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+ if(!box.dataset.ready||box.dataset.signature!==years.join(',')+'|'+monthOptions.join(',')+'|'+clusters.join(',')+'|'+cityOptions.join(',')){box.innerHTML=`<details class="multi-picker"><summary>Ano <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${years.map(y=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="year" value="${y}" ${SERVICE_FILTER.years.has(y)?'checked':''}>${y}</label>`).join('')}</div></details><details class="multi-picker"><summary>Mês <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${monthOptions.map(m=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="month" value="${m}" ${SERVICE_FILTER.months.has(m)?'checked':''}>${monthName(m)}</label>`).join('')}</div></details><details class="multi-picker"><summary>Cluster <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${clusters.map(c=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="cluster" value="${esc(c)}" ${SERVICE_FILTER.clusters.has(c)?'checked':''}>${esc(c)}</label>`).join('')}</div></details><details class="multi-picker"><summary>Cidade <span class="service-filter-count">Todos</span></summary><div class="multi-picker-pop">${cityOptions.map(c=>`<label class="multi-picker-option"><input type="checkbox" data-service-filter="city" value="${esc(c)}" ${SERVICE_FILTER.cities.has(c)?'checked':''}>${esc(c)}</label>`).join('')}</div></details><input class="sq service-filter-search" list="servicePdvSuggestions" placeholder="Buscar PDV por código ou nome" value="${esc(SERVICE_FILTER.query)}"><datalist id="servicePdvSuggestions"></datalist><button class="btn ghost service-filter-actions" type="button">Limpar filtros</button>`;box.dataset.ready='1';box.dataset.signature=years.join(',')+'|'+monthOptions.join(',')+'|'+clusters.join(',')+'|'+cityOptions.join(',');box.onchange=e=>{if(!e.target.matches('[data-service-filter]'))return;let set=e.target.dataset.serviceFilter==='year'?SERVICE_FILTER.years:e.target.dataset.serviceFilter==='month'?SERVICE_FILTER.months:e.target.dataset.serviceFilter==='city'?SERVICE_FILTER.cities:SERVICE_FILTER.clusters,val=e.target.dataset.serviceFilter==='month'?Number(e.target.value):e.target.dataset.serviceFilter==='year'?Number(e.target.value):e.target.value;e.target.checked?set.add(val):set.delete(val);renderService()};box.querySelector('.sq').oninput=e=>{SERVICE_FILTER.query=e.target.value;clearTimeout(box._searchTimer);box._searchTimer=setTimeout(renderService,180)};box.querySelector('.service-filter-actions').onclick=()=>{SERVICE_FILTER.years.clear();SERVICE_FILTER.months.clear();SERVICE_FILTER.clusters.clear();SERVICE_FILTER.cities.clear();SERVICE_FILTER.query='';renderService()}}
+ box.querySelectorAll('.service-filter-count').forEach((el,i)=>{let set=[SERVICE_FILTER.years,SERVICE_FILTER.months,SERVICE_FILTER.clusters,SERVICE_FILTER.cities][i];el.textContent=set.size?set.size+' selecionado'+(set.size>1?'s':''):'Todos'});
+ box.querySelectorAll('input[data-service-filter]').forEach(i=>{const k=i.dataset.serviceFilter,v=k==='month'||k==='year'?Number(i.value):i.value,s=k==='year'?SERVICE_FILTER.years:k==='month'?SERVICE_FILTER.months:k==='city'?SERVICE_FILTER.cities:SERVICE_FILTER.clusters;i.checked=s.has(v)});
  let suggestions=[...new Map(d.map(x=>[x.code,x.code+' - '+(x.name||'PDV')])).values()];$('#servicePdvSuggestions').innerHTML=suggestions.slice(0,300).map(x=>`<option value="${esc(x)}"></option>`).join('');
- let mo=SERVICE_FILTER.months,cl=SERVICE_FILTER.clusters,q=SERVICE_FILTER.query;d=d.filter(x=>(!SERVICE_FILTER.years.size||SERVICE_FILTER.years.has(x.year))&&(!mo.size||mo.has(Number(x.month)))&&(!cl.size||cl.has(x.cluster))&&matchesPdvSearch(x,q));
+ let mo=SERVICE_FILTER.months,cl=SERVICE_FILTER.clusters,q=SERVICE_FILTER.query;let dNoCity=d.filter(x=>(!SERVICE_FILTER.years.size||SERVICE_FILTER.years.has(x.year))&&(!mo.size||mo.has(Number(x.month)))&&(!cl.size||cl.has(x.cluster))&&matchesPdvSearch(x,q));d=SERVICE_FILTER.cities.size?dNoCity.filter(x=>SERVICE_FILTER.cities.has(x.city)):dNoCity;
  let vis=d.reduce((s,x)=>s+x.vis,0),ot=d.reduce((s,x)=>s+x.ot,0),onN=d.reduce((s,x)=>s+x.onTimeN,0),iff=d.reduce((s,x)=>s+x.iff,0),ifN=d.reduce((s,x)=>s+x.inFullN,0),otif=d.reduce((s,x)=>s+x.otifOk,0),otifN=d.reduce((s,x)=>s+x.otifN,0),rn=d.reduce((s,x)=>s+x.ratingN,0),rs=d.reduce((s,x)=>s+(x.rating||0)*x.ratingN,0);
  let otv=onN?ot/onN:null,ifv=ifN?iff/ifN:null,otifv=otifN?otif/otifN:null,rat=rn?rs/rn:null;
- $('#serviceScopeChip').innerHTML=`<strong>${SERVICE_FILTER.years.size?[...SERVICE_FILTER.years].join(', '):'Todos os anos'}</strong> · ${mo.size?[...mo].sort((a,b)=>a-b).map(monthName).join(', '):'Todos os meses'}${cl.size?' · '+[...cl].join(', '):''}`;
+ $('#serviceScopeChip').innerHTML=`<strong>${SERVICE_FILTER.years.size?[...SERVICE_FILTER.years].join(', '):'Todos os anos'}</strong> · ${mo.size?[...mo].sort((a,b)=>a-b).map(monthName).join(', '):'Todos os meses'}${cl.size?' · '+[...cl].join(', '):''}${SERVICE_FILTER.cities.size?' · '+[...SERVICE_FILTER.cities].join(', '):''}`;
  $('#serviceKpis').innerHTML=[
   ['On Time',otv===null?'—':pct(otv),otv,'Entregas com data prevista Bees igual à data realizada ÷ atendimentos com datas válidas'],
   ['In Full',ifv===null?'—':pct(ifv),ifv,'Atendimentos com volumes marcados e entregues iguais ÷ atendimentos com volumes válidos'],
@@ -2118,6 +2206,24 @@ function renderService(){
  $('#serviceTableCount').textContent=`${fmtInt(d.length)} linhas encontradas`;
  $('#serviceTable').innerHTML='<thead><tr><th>PDV</th><th>Cluster</th><th>Mês</th><th>Visitas</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>'+d.slice(0,DISPLAY_LIMIT).map(x=>`<tr><td>${x.code} • ${esc(x.name)}</td><td><span class="badge ${badgeClass(x.cluster)}">${esc(x.cluster)}</span></td><td>${monthName(x.month)}/${x.year}</td><td>${fmtInt(x.vis)}</td><td>${pct(x.otPct)}</td><td>${pct(x.ifPct)}</td><td><b class="${x.otif>=.95?'pos':x.otif<.85?'neg':'warn'}">${pct(x.otif)}</b></td><td>${x.rating===null?'—':x.rating.toFixed(2)}</td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')+'</tbody>';
 
+ /* ---------- visões por cidade (usam o filtro atual, menos a própria cidade, para poder comparar) ---------- */
+ {
+  const agg=new Map();
+  for(const x of dNoCity){const k=x.city||'Não informada';let o=agg.get(k);if(!o)agg.set(k,o={city:k,codes:new Set(),vis:0,on:0,ot:0,inn:0,iff:0,oN:0,oOk:0,rn:0,rs:0,months:new Map()});
+   o.codes.add(x.code);o.vis+=x.vis;o.on+=x.onTimeN;o.ot+=x.ot;o.inn+=x.inFullN;o.iff+=x.iff;o.oN+=x.otifN;o.oOk+=x.otifOk;o.rn+=x.ratingN;o.rs+=(x.rating||0)*x.ratingN;
+   const mk=x.year*100+Number(x.month);let mm=o.months.get(mk);if(!mm)o.months.set(mk,mm={oN:0,oOk:0});mm.oN+=x.otifN;mm.oOk+=x.otifOk}
+  const byCity=[...agg.values()].map(o=>({city:o.city,pdvs:o.codes.size,vis:o.vis,ot:o.on?o.ot/o.on:null,iff:o.inn?o.iff/o.inn:null,otif:o.oN?o.oOk/o.oN:null,oN:o.oN,rating:o.rn?o.rs/o.rn:null,ratingN:o.rn,months:o.months}));
+  const sel=SERVICE_FILTER.cities,band=v=>v===null?'':v>=.95?'pos':v<.85?'neg':'warn',hband=v=>v===null?'':v>=.95?'h-good':v<.85?'h-bad':'h-warn';
+  $('#serviceCityCount').textContent=fmtInt(byCity.length)+' cidade'+(byCity.length===1?'':'s');
+  const ranked=byCity.filter(x=>x.otif!==null).sort((a,b)=>a.otif-b.otif||b.vis-a.vis);
+  $('#otifCityRank').innerHTML=ranked.length?ranked.map((x,i)=>`<div class="rankrow city-filter-row${sel.has(x.city)?' is-sel':''}" data-city="${esc(x.city)}" title="Clique para filtrar o painel por ${esc(x.city)}"><div><b>${i===0?'⚠ ':''}${esc(x.city)}</b><small class="meta">${fmtInt(x.vis)} atend. · ${fmtInt(x.pdvs)} PDVs</small><div class="rankbar"><i style="width:${Math.min(100,x.otif*100)}%"></i></div></div><b style="text-align:right" class="${band(x.otif)}">${pct(x.otif)}</b></div>`).join(''):'<div class="empty">Sem dados por cidade.</div>';
+  const top=byCity.filter(x=>x.otif!==null).sort((a,b)=>b.vis-a.vis).slice(0,12);
+  $('#serviceCityCombo').innerHTML=serviceComboChart(top.map(x=>({key:x.city,full:x.city,label:x.city.length>12?x.city.slice(0,11)+'…':x.city,otif:x.otif||0,ot:x.ot||0,iff:x.iff||0})),'city');
+  const hm=[...new Set(top.flatMap(o=>[...o.months.keys()]))].sort((a,b)=>a-b).slice(-12);
+  $('#serviceCityHeat').innerHTML=top.length&&hm.length?`<div class="tablewrap"><table class="city-heat"><thead><tr><th>Cidade</th>${hm.map(k=>`<th>${monthName(k%100).slice(0,3)}/${String(Math.floor(k/100)).slice(2)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${top.map(o=>`<tr><th scope="row" class="city-filter-row${sel.has(o.city)?' is-sel':''}" data-city="${esc(o.city)}" title="Clique para filtrar o painel por ${esc(o.city)}">${esc(o.city)}</th>${hm.map(k=>{const m=o.months.get(k),v=m&&m.oN?m.oOk/m.oN:null;return `<td class="${hband(v)}" title="${m?fmtInt(m.oN)+' atendimentos válidos':'Sem atendimentos'}">${v===null?'—':pct(v)}</td>`}).join('')}<td class="${hband(o.otif)}"><b>${pct(o.otif)}</b></td></tr>`).join('')}</tbody></table></div><div class="meta" style="margin-top:8px">Verde ≥95% · âmbar 85–94,9% · vermelho &lt;85%. Mostra as 12 cidades com mais atendimentos.</div>`:'<div class="empty">Sem dados por cidade e mês.</div>';
+  const tbl=byCity.slice().sort((a,b)=>b.vis-a.vis);
+  $('#serviceByCity').innerHTML=tbl.length?`<table><thead><tr><th>Cidade</th><th>PDVs</th><th>Atendimentos</th><th>OT</th><th>IF</th><th>OTIF</th><th>Rating</th><th>Avaliações</th></tr></thead><tbody>${tbl.slice(0,DISPLAY_LIMIT).map(x=>`<tr class="city-filter-row${sel.has(x.city)?' is-sel':''}" data-city="${esc(x.city)}" title="Clique para filtrar o painel por ${esc(x.city)}"><td><b>${esc(x.city)}</b></td><td>${fmtInt(x.pdvs)}</td><td>${fmtInt(x.vis)}</td><td>${x.ot===null?'—':pct(x.ot)}</td><td>${x.iff===null?'—':pct(x.iff)}</td><td>${x.otif===null?'—':`<b class="${band(x.otif)}">${pct(x.otif)}</b><div class="tinybar" style="margin-top:5px"><i style="width:${Math.min(100,x.otif*100)}%"></i></div>`}</td><td><b>${x.rating===null?'—':x.rating.toFixed(2)}</b></td><td>${fmtInt(x.ratingN)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">Sem dados por cidade.</div>';
+ }
  bindServiceChartInteractions();renderServiceImpact(d);
  prewarmReturns();
 }
@@ -2138,19 +2244,20 @@ const retEv=x=>x.pdv+'|'+x.date;
 function retGroup(rows,key,label){let m=new Map();for(const x of rows){let k=key(x),o=m.get(k);if(!o)m.set(k,o={label:label(x),key:k,hl:0,pdvs:new Set,ev:new Set});o.hl+=x.hl;o.pdvs.add(x.pdv);o.ev.add(retEv(x))}return [...m.values()].map(o=>(o.count=o.ev.size,o)).sort((a,b)=>b.hl-a.hl||b.count-a.count)}
 /* une variações com erro de digitação (distância 1) pelo rótulo mais frequente */
 function unifyReturnLabels(rows,field){const cnt=new Map();for(const r of rows)cnt.set(r[field],(cnt.get(r[field])||0)+1);const labels=[...cnt.keys()].sort((a,b)=>cnt.get(b)-cnt.get(a)),map=new Map(),close=(a,b)=>{if(a===b||Math.abs(a.length-b.length)>1||a.length<8)return false;const x=a.toLocaleLowerCase('pt-BR'),y=b.toLocaleLowerCase('pt-BR');let i=0;while(i<x.length&&x[i]===y[i])i++;let j=0;while(j<x.length-i&&j<y.length-i&&x[x.length-1-j]===y[y.length-1-j])j++;return Math.max(x.length,y.length)-i-j<=1};for(const l of labels){if(l==='Não informado'||map.has(l))continue;map.set(l,l);for(const o of labels)if(o!==l&&!map.has(o)&&cnt.get(o)<=cnt.get(l)&&close(l,o))map.set(o,l)}for(const r of rows)r[field]=map.get(r[field])||r[field]}
-function returnSourceRows(){let out=[];for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){let pdv=code(r.Cliente),date=isoDateFromKey(dateKey(r.Data)),delivered=norm(r['Entrega Real'])||norm(r['Data Entrega NF']);if(pdv&&date&&delivered)out.push({date,pdv,pdvName:norm(r['Nome Cliente'])||pdv,gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado'});}return out}
-function devolutionRows(){let out=[];for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){if(!/devolu/i.test(norm(r.Motivo)))continue;let hl=num(r['Volume Marcacao']),pdv=code(r.Cliente),date=isoDateFromKey(dateKey(r.Data)),rnRaw=norm(r.Setor);if(!(hl>0)||!pdv||!date)continue;out.push({date,pdv,pdvName:norm(r['Nome Cliente'])||pdv,nota:norm(r['Nota Fiscal'])||'Sem nota',hl,motivo:cleanReturnLabel(r['Submotivo 2'],'Motivo',true),responsabilidade:cleanReturnLabel(r['Submotivo 1'],'Resp'),gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado',rn:rnRaw?code(rnRaw):'Sem RN'});}return out}
+const retCityFn=()=>{const memo=new Map();return (s,pdv,r)=>{const k=filterText(s.unit)+'|'+pdv;let v=memo.get(k);if(v===undefined){v=scopePlace({unit:s.unit,code:pdv})?.cidade||'';memo.set(k,v)}return v||cityName(r['Nome Município']||r['Nome Municipio'])||'Não informada'}};
+function returnSourceRows(){let out=[],cityOf=retCityFn();for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){let pdv=code(r.Cliente),date=isoDateFromKey(dateKey(r.Data)),delivered=norm(r['Entrega Real'])||norm(r['Data Entrega NF']);if(pdv&&date&&delivered)out.push({date,pdv,pdvName:norm(r['Nome Cliente'])||pdv,city:cityOf(s,pdv,r),gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado'});}return out}
+function devolutionRows(){let out=[],cityOf=retCityFn();for(const s of state.data['Operação 03.01.47.01']||[])for(const r of s.rows){if(!/devolu/i.test(norm(r.Motivo)))continue;let hl=num(r['Volume Marcacao']),pdv=code(r.Cliente),date=isoDateFromKey(dateKey(r.Data)),rnRaw=norm(r.Setor);if(!(hl>0)||!pdv||!date)continue;out.push({date,pdv,pdvName:norm(r['Nome Cliente'])||pdv,city:cityOf(s,pdv,r),nota:norm(r['Nota Fiscal'])||'Sem nota',hl,motivo:cleanReturnLabel(r['Submotivo 2'],'Motivo',true),responsabilidade:cleanReturnLabel(r['Submotivo 1'],'Resp'),gerente:norm(r['Nome Gerente Vendas'])||'Sem gerente informado',rn:rnRaw?code(rnRaw):'Sem RN'});}return out}
 function returnRowsCached(){let key=String(state.lastUpdate||'')+'|'+(state.data['Operação 03.01.47.01']?.length||0);if(CACHE.returns?.key===key)return CACHE.returns;let all=devolutionRows();unifyReturnLabels(all,'motivo');unifyReturnLabels(all,'responsabilidade');let value={key,all,source:returnSourceRows()};CACHE.returns=value;return value}
 function renderReturns(){
  const cached=returnRowsCached(),all=cached.all,source=cached.source,box=$('#returnFilters');if(!box)return;
  const gran=box.querySelector('.rgran').value;box.classList.toggle('return-month-mode',gran==='month');
  const fill=(sel,values,empty)=>{let el=box.querySelector(sel),old=el.value;el.innerHTML='<option value="">'+empty+'</option>'+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true})).map(x=>'<option>'+esc(x)+'</option>').join('');if(values.includes(old))el.value=old};
- fill('.rm',all.map(x=>x.motivo),'Todos os motivos');fill('.rr',all.map(x=>x.responsabilidade),'Todas as responsabilidades');fill('.rg',all.map(x=>x.gerente),'Todos os gerentes');fill('.rrn',all.map(x=>x.rn),'Todos os RNs');
+ fill('.rm',all.map(x=>x.motivo),'Todos os motivos');fill('.rr',all.map(x=>x.responsabilidade),'Todas as responsabilidades');fill('.rg',all.map(x=>x.gerente),'Todos os gerentes');fill('.rrn',all.map(x=>x.rn),'Todos os RNs');fill('.rcity',source.map(x=>x.city).concat(all.map(x=>x.city)),'Todas as cidades');
  fill('.ryear',all.map(x=>x.date.slice(0,4)),'Todos os anos');let monthSelect=box.querySelector('.rmonth'),monthOld=monthSelect.value;monthSelect.innerHTML='<option value="">Todos os meses</option>'+[...new Set(all.map(x=>x.date.slice(5,7)))].sort().map(x=>'<option value="'+x+'">'+monthName(Number(x))+'</option>').join('');if([...monthSelect.options].some(x=>x.value===monthOld))monthSelect.value=monthOld;
  if(cached.sugg===undefined)cached.sugg=[...new Map(source.map(x=>[x.pdv,x.pdv+' - '+(x.pdvName||'PDV')])).values()].slice(0,300).map(x=>'<option value="'+esc(x)+'"></option>').join('');$('#returnPdvSuggestions').innerHTML=cached.sugg;
- const from=box.querySelector('.rf').value,to=box.querySelector('.rt').value,motivo=box.querySelector('.rm').value,resp=box.querySelector('.rr').value,gerente=box.querySelector('.rg').value,rnSel=box.querySelector('.rrn').value,query=box.querySelector('.rq').value,returnYear=box.querySelector('.ryear').value,returnMonth=box.querySelector('.rmonth').value;
+ const from=box.querySelector('.rf').value,to=box.querySelector('.rt').value,motivo=box.querySelector('.rm').value,resp=box.querySelector('.rr').value,gerente=box.querySelector('.rg').value,rnSel=box.querySelector('.rrn').value,cityF=box.querySelector('.rcity').value,query=box.querySelector('.rq').value,returnYear=box.querySelector('.ryear').value,returnMonth=box.querySelector('.rmonth').value;
  const matchQuery=x=>!query||filterText([x.pdv,x.pdvName,x.name].filter(Boolean).join(' ')).includes(filterText(query)),inDates=x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!returnYear||x.date.slice(0,4)===returnYear)&&(!returnMonth||x.date.slice(5,7)===returnMonth);
- const base=source.filter(x=>inDates(x)&&(!gerente||x.gerente===gerente)&&matchQuery(x)),data=all.filter(x=>inDates(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&(!rnSel||x.rn===rnSel)&&matchQuery(x));
+ const baseAll=source.filter(x=>inDates(x)&&(!gerente||x.gerente===gerente)&&matchQuery(x)),dataAll=all.filter(x=>inDates(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&(!rnSel||x.rn===rnSel)&&matchQuery(x)),base=cityF?baseAll.filter(x=>x.city===cityF):baseAll,data=cityF?dataAll.filter(x=>x.city===cityF):dataAll;
  const dates=source.map(x=>x.date).filter(Boolean).sort();box.querySelector('.rf').min=box.querySelector('.rt').min=dates[0]||'';box.querySelector('.rf').max=box.querySelector('.rt').max=dates.at(-1)||'';
  const pctOf=(n,total)=>total?pct(n/total):'—',hl=data.reduce((s,x)=>s+x.hl,0),pdvs=new Set(data.map(x=>x.pdv)),basePdvs=new Set(base.map(x=>x.pdv)),devEv=new Set(data.map(retEv)),baseEv=new Set(base.map(retEv)),rns=new Set(data.map(x=>x.rn)),rate=baseEv.size?devEv.size/baseEv.size:0;
  $('#returnScopeChip').textContent=gran==='month'?((returnMonth?monthName(Number(returnMonth)):'Todos os meses')+(returnYear?' / '+returnYear:'')):from||to?(from||'Início')+' a '+(to||'Fim'):'Todos os períodos';
@@ -2168,10 +2275,19 @@ function renderReturns(){
  $('#returnMonthPdv').innerHTML=monthlyBars(months,monthRateMax,'rate',x=>pct(x.rate));$('#returnMonthHl').innerHTML=monthlyBars(months,monthHlMax,'hl',x=>fmt(x.hl));
  const table=(title,rows,cols,sel)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">percentual sobre o filtro</span></div><div class="tablewrap return-table"><table><thead><tr>'+cols.map(x=>'<th>'+x[0]+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr'+(sel?' class="rb-click'+(box.querySelector('.'+sel).value===String(r.key)?' is-sel':'')+'" data-rf="'+sel+'" data-v="'+esc(String(r.key))+'" tabindex="0" title="Clique para filtrar o painel"':'')+'>'+cols.map(x=>'<td>'+x[1](r)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div></div>';
  const bars=(title,rows,sel)=>'<div class="card return-block"><div class="cardhead"><h3>'+title+'</h3><span class="meta">participação no HL devolvido</span></div><div class="return-bar-list">'+rows.slice(0,8).map(r=>'<div class="return-bar-row rb-follow'+(sel?' rb-click'+(box.querySelector('.'+sel).value===String(r.key)?' is-sel':''):'')+'"'+(sel?' data-rf="'+sel+'" data-v="'+esc(String(r.key))+'" role="button" tabindex="0" title="Clique para filtrar o painel"':'')+'><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.hl/(rows[0].hl||1)*60)+'%"></i><span class="rb-val" style="left:'+Math.max(3,r.hl/(rows[0].hl||1)*60)+'%">'+fmt(r.hl)+' · '+pctOf(r.hl,hl)+'</span></div></div>').join('')+'</div></div>';
+ const cityAgg=new Map(),cityMonth=new Map();
+ for(const x of baseAll){let o=cityAgg.get(x.city);if(!o)cityAgg.set(x.city,o={b:new Set,r:new Set,pb:new Set,pr:new Set,hl:0});o.b.add(retEv(x));o.pb.add(x.pdv);let mk=x.date.slice(0,7),mo2=cityMonth.get(x.city);if(!mo2)cityMonth.set(x.city,mo2=new Map());let c=mo2.get(mk);if(!c)mo2.set(mk,c={b:new Set,r:new Set});c.b.add(retEv(x))}
+ for(const x of dataAll){let o=cityAgg.get(x.city);if(!o)cityAgg.set(x.city,o={b:new Set,r:new Set,pb:new Set,pr:new Set,hl:0});o.r.add(retEv(x));o.pr.add(x.pdv);o.hl+=x.hl;let mk=x.date.slice(0,7),mo2=cityMonth.get(x.city);if(!mo2)cityMonth.set(x.city,mo2=new Map());let c=mo2.get(mk);if(!c)mo2.set(mk,c={b:new Set,r:new Set});c.r.add(retEv(x))}
+ const byCity=[...cityAgg].map(([k,o])=>({key:k,label:k,ev:o.r.size,base:o.b.size,rate:o.b.size?o.r.size/o.b.size:0,hl:o.hl,pdvs:o.pr.size,pdvsBase:o.pb.size})).sort((a,b)=>b.rate-a.rate||b.hl-a.hl);
+ const cityRateMax=Math.max(.01,...byCity.map(x=>x.rate));
+ const cityBars='<div class="card return-block"><div class="cardhead"><h3>Devolução PDV por cidade</h3><span class="meta">devoluções ÷ entregas (PDV/dia) · maiores taxas</span></div><div class="return-bar-list">'+byCity.filter(x=>x.base>0).slice(0,10).map(r=>'<div class="return-bar-row rb-follow rb-click'+(cityF===r.key?' is-sel':'')+'" data-rf="rcity" data-v="'+esc(r.key)+'" role="button" tabindex="0" title="Clique para filtrar o painel"><span class="return-bar-label">'+esc(r.label)+'</span><div class="return-bar-track"><i style="width:'+Math.max(3,r.rate/cityRateMax*50)+'%"></i><span class="rb-val" style="left:'+Math.max(3,r.rate/cityRateMax*50)+'%">'+pct(r.rate)+' <small>'+r.ev+'/'+r.base+' entregas</small></span></div></div>').join('')+'</div></div>';
+ const cityCols=[['Cidade',r=>esc(r.label)],['Devoluções',r=>fmtInt(r.ev)],['Entregas (PDV/dia)',r=>fmtInt(r.base)],['Devolução PDV',r=>'<span class="return-pct">'+pct(r.rate)+'</span>'],['HL',r=>fmt(r.hl)]];
+ const topCities=byCity.filter(x=>x.base>0).sort((a,b)=>b.base-a.base).slice(0,12),hmKeys=[...new Set(topCities.flatMap(o=>[...(cityMonth.get(o.key)?.keys()||[])]))].sort().slice(-12),heatRate=topCities.reduce((m,o)=>Math.max(m,...hmKeys.map(k=>{const c=cityMonth.get(o.key)?.get(k);return c&&c.b.size?c.r.size/c.b.size:0})),.01);
+ const cityHeat='<div class="card return-block" style="margin-top:12px"><div class="cardhead"><h3>Devolução PDV por cidade e mês</h3><span class="meta">12 cidades com mais entregas · quanto mais forte a cor, maior a devolução</span></div>'+(topCities.length&&hmKeys.length?'<div class="tablewrap"><table class="city-heat"><thead><tr><th>Cidade</th>'+hmKeys.map(k=>'<th>'+monthName(Number(k.slice(5,7))).slice(0,3)+'/'+k.slice(2,4)+'</th>').join('')+'<th>Total</th></tr></thead><tbody>'+topCities.map(o=>'<tr><th scope="row" class="rb-click'+(cityF===o.key?' is-sel':'')+'" data-rf="rcity" data-v="'+esc(o.key)+'" tabindex="0" title="Clique para filtrar o painel">'+esc(o.label)+'</th>'+hmKeys.map(k=>{const c=cityMonth.get(o.key)?.get(k),v=c&&c.b.size?c.r.size/c.b.size:null;return '<td style="'+(v===null?'':'background:rgba(199,49,74,'+(Math.min(.6,v/heatRate*.6)).toFixed(2)+')')+'" class="'+(v===null?'h-none':'')+'" title="'+(c?c.r.size+'/'+c.b.size+' entregas':'Sem entregas')+'">'+(v===null?'—':pct(v))+'</td>'}).join('')+'<td><b>'+pct(o.rate)+'</b></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Sem dados por cidade e mês.</div>')+'</div>';
  if(!data.length){$('#returnContent').innerHTML='<div class="empty">Nenhuma devolução encontrada nos filtros selecionados.</div>';return}
  const byPdv=group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),byMot=group(x=>x.motivo,x=>x.motivo),byResp=group(x=>x.responsabilidade,x=>x.responsabilidade),byRn=group(x=>x.rn,x=>x.rn),byGer=group(x=>x.gerente,x=>x.gerente),criticalPdv=byPdv.filter(x=>x.count>1),criticalRn=byRn.filter(x=>x.hl>=Math.max(1,hl/data.length*3));
  const cols=(name)=>[[name,r=>esc(r.label)],['Devoluções',r=>fmtInt(r.count)],['Devolução HL',r=>fmt(r.hl)],['%',r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']];
- $('#returnContent').innerHTML='<div class="return-visuals">'+bars('Devolução por motivo',byMot,'rm')+bars('Devolução por responsabilidade',byResp,'rr')+bars('Devolução por RN',byRn,'rrn')+bars('Devolução por gerente',byGer,'rg')+'</div><div class="return-layout">'+table('Devolução por PDV',byPdv,cols('PDV'),'rq')+table('Devolução por motivo',byMot,cols('Motivo'),'rm')+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'),'rr')+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente'),'rq')+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico'),'rq')+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']],'rrn')+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']],'rg')+'</div>';
+ $('#returnContent').innerHTML='<div class="return-visuals">'+bars('Devolução por motivo',byMot,'rm')+bars('Devolução por responsabilidade',byResp,'rr')+bars('Devolução por RN',byRn,'rrn')+bars('Devolução por gerente',byGer,'rg')+cityBars+'</div><div class="return-layout">'+table('Devolução por cidade',byCity.filter(x=>x.base>0||x.ev>0),cityCols,'rcity')+table('Devolução por PDV',byPdv,cols('PDV'),'rq')+table('Devolução por motivo',byMot,cols('Motivo'),'rm')+table('Devolução por responsabilidade',byResp,cols('Responsabilidade'),'rr')+table('PDVs reincidentes de devolução',criticalPdv,cols('PDV reincidente'),'rq')+table('PDVs críticos de devolução',criticalPdv,cols('PDV crítico'),'rq')+table('RNs críticos de devolução',criticalRn,[["RN",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']],'rrn')+table('Devolução por gerente',byGer,[["Gerente",r=>esc(r.label)],["Devoluções",r=>fmtInt(r.count)],["PDVs",r=>fmtInt(r.pdvs.size)],["Devolução HL",r=>fmt(r.hl)],["%",r=>'<span class="return-pct">'+pctOf(r.hl,hl)+'</span>']],'rg')+'</div>'+cityHeat;
 }
 /* ===================== PPT resumido (gerado a partir dos dados) ===================== */
 const PPT_C={brand:'2D45E6',brandDark:'1B2FB8',ink:'121A3B',ink2:'3A4670',quiet:'66739A',line:'E3E8F4',page:'F4F6FB',white:'FFFFFF',good:'0A8A70',warn:'B56F06',bad:'C7314A',violet:'8B5CF6',orange:'F08A3C',soft:'EEF1FB'};
@@ -2197,7 +2313,7 @@ async function ensurePptx(){
 /* ---------- modelos de dados (mesmos filtros da tela) ---------- */
 function pptServiceModel(){
  const F=SERVICE_FILTER,all=serviceData();
- const base=all.filter(x=>(!F.years.size||F.years.has(x.year))&&(!F.clusters.size||F.clusters.has(x.cluster))&&matchesPdvSearch(x,F.query));
+ const base=all.filter(x=>(!F.years.size||F.years.has(x.year))&&(!F.clusters.size||F.clusters.has(x.cluster))&&(!F.cities.size||F.cities.has(x.city))&&matchesPdvSearch(x,F.query));
  const d=base.filter(x=>!F.months.size||F.months.has(Number(x.month)));
  const agg=r=>{let vis=0,onN=0,ot=0,inN=0,iff=0,oN=0,oOk=0,rn=0,rs=0;for(const x of r){vis+=x.vis;onN+=x.onTimeN;ot+=x.ot;inN+=x.inFullN;iff+=x.iff;oN+=x.otifN;oOk+=x.otifOk;rn+=x.ratingN;rs+=(x.rating||0)*x.ratingN}return {vis,onN,inN,oN,rn,ot:onN?ot/onN:null,iff:inN?iff/inN:null,otif:oN?oOk/oN:null,rating:rn?rs/rn:null,pdvs:new Set(r.map(x=>x.code)).size}};
  const total=agg(d);
@@ -2215,23 +2331,25 @@ function pptServiceModel(){
  const priority=byCluster.filter(x=>x.otif!==null).slice().sort((a,b)=>a.otif-b.otif||((a.rating??99)-(b.rating??99))||b.vis-a.vis);
  const per=new Map();for(const x of d){let o=per.get(x.code)||{code:x.code,name:x.name,cluster:x.cluster,vis:0,onN:0,ot:0,inN:0,iff:0,oN:0,oOk:0,rn:0,rs:0};o.vis+=x.vis;o.onN+=x.onTimeN;o.ot+=x.ot;o.inN+=x.inFullN;o.iff+=x.iff;o.oN+=x.otifN;o.oOk+=x.otifOk;o.rn+=x.ratingN;o.rs+=(x.rating||0)*x.ratingN;per.set(x.code,o)}
  const MIN=3;let worst=[...per.values()].filter(o=>o.oN>=MIN).map(o=>({...o,otif:o.oOk/o.oN,otv:o.onN?o.ot/o.onN:null,ifv:o.inN?o.iff/o.inN:null,rating:o.rn?o.rs/o.rn:null})).sort((a,b)=>a.otif-b.otif||b.oN-a.oN).slice(0,10);
- const scope=(F.years.size?[...F.years].sort().join(', '):'Todos os anos')+' · '+(F.months.size?[...F.months].sort((a,b)=>a-b).map(monthName).join(', '):'Todos os meses')+(F.clusters.size?' · '+[...F.clusters].join(', '):'')+(F.query?' · busca "'+F.query+'"':'');
- return {d,total,monthChart,cmp,byCluster,priority,worst,minVisits:MIN,scope}
+ const cityMap=new Map();for(const x of d){const k=x.city||'Não informada';let o=cityMap.get(k);if(!o)cityMap.set(k,o={city:k,codes:new Set(),vis:0,onN:0,ot:0,inN:0,iff:0,oN:0,oOk:0});o.codes.add(x.code);o.vis+=x.vis;o.onN+=x.onTimeN;o.ot+=x.ot;o.inN+=x.inFullN;o.iff+=x.iff;o.oN+=x.otifN;o.oOk+=x.otifOk}
+ const byCity=[...cityMap.values()].map(o=>({city:o.city,pdvs:o.codes.size,vis:o.vis,oN:o.oN,ot:o.onN?o.ot/o.onN:null,iff:o.inN?o.iff/o.inN:null,otif:o.oN?o.oOk/o.oN:null}));
+ const scope=(F.years.size?[...F.years].sort().join(', '):'Todos os anos')+' · '+(F.months.size?[...F.months].sort((a,b)=>a-b).map(monthName).join(', '):'Todos os meses')+(F.clusters.size?' · '+[...F.clusters].join(', '):'')+(F.cities.size?' · '+[...F.cities].join(', '):'')+(F.query?' · busca "'+F.query+'"':'');
+ return {d,total,monthChart,cmp,byCluster,priority,worst,byCity,minVisits:MIN,scope}
 }
 function pptReturnsModel(){
  const box=$('#returnFilters');if(!box)return null;
  const cached=returnRowsCached(),all=cached.all,source=cached.source;
  const v=s=>box.querySelector(s)?.value||'';
- const from=v('.rf'),to=v('.rt'),motivo=v('.rm'),resp=v('.rr'),gerente=v('.rg'),rnSel=v('.rrn'),query=v('.rq'),yr=v('.ryear'),mo=v('.rmonth');
+ const from=v('.rf'),to=v('.rt'),motivo=v('.rm'),resp=v('.rr'),gerente=v('.rg'),rnSel=v('.rrn'),cityF=v('.rcity'),query=v('.rq'),yr=v('.ryear'),mo=v('.rmonth');
  const mq=x=>!query||filterText([x.pdv,x.pdvName,x.name].filter(Boolean).join(' ')).includes(filterText(query)),inD=x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!yr||x.date.slice(0,4)===yr)&&(!mo||x.date.slice(5,7)===mo);
- const base=source.filter(x=>inD(x)&&(!gerente||x.gerente===gerente)&&mq(x)),data=all.filter(x=>inD(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&(!rnSel||x.rn===rnSel)&&mq(x));
+ const baseAll=source.filter(x=>inD(x)&&(!gerente||x.gerente===gerente)&&mq(x)),dataAll=all.filter(x=>inD(x)&&(!motivo||x.motivo===motivo)&&(!resp||x.responsabilidade===resp)&&(!gerente||x.gerente===gerente)&&(!rnSel||x.rn===rnSel)&&mq(x)),base=cityF?baseAll.filter(x=>x.city===cityF):baseAll,data=cityF?dataAll.filter(x=>x.city===cityF):dataAll;
  const hl=data.reduce((s,x)=>s+x.hl,0),pdvs=new Set(data.map(x=>x.pdv)),basePdvs=new Set(base.map(x=>x.pdv)),devEv=new Set(data.map(retEv)),baseEv=new Set(base.map(retEv)),rns=new Set(data.map(x=>x.rn));
  const group=(key,label)=>retGroup(data,key,label);
  const mm=new Map();for(const x of base){let k=x.date.slice(0,7),o=mm.get(k);if(!o)mm.set(k,o={b:new Set,r:new Set,v:0});o.b.add(retEv(x))}for(const x of data){let o=mm.get(x.date.slice(0,7));if(o){o.r.add(retEv(x));o.v+=x.hl}}
  const months=[...mm.keys()].sort().map(k=>{let o=mm.get(k);return {label:k.slice(5,7)+'/'+k.slice(2,4),rate:o.b.size?o.r.size/o.b.size:0,hl:o.v}});
  const scope=from||to?(from||'Início')+' a '+(to||'Fim'):(yr||mo)?((mo?monthName(Number(mo)):'Todos os meses')+(yr?' / '+yr:'')):'Todos os períodos';
  return {n:devEv.size,baseEv:baseEv.size,hl,pdvs:pdvs.size,basePdvs:basePdvs.size,rate:baseEv.size?devEv.size/baseEv.size:0,rns:rns.size,months,
-  byMot:group(x=>x.motivo,x=>x.motivo),byResp:group(x=>x.responsabilidade,x=>x.responsabilidade),byRn:group(x=>x.rn,x=>x.rn),byGer:group(x=>x.gerente,x=>x.gerente),byPdv:group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),scope}
+  byMot:group(x=>x.motivo,x=>x.motivo),byResp:group(x=>x.responsabilidade,x=>x.responsabilidade),byRn:group(x=>x.rn,x=>x.rn),byGer:group(x=>x.gerente,x=>x.gerente),byPdv:group(x=>x.pdv,x=>x.pdv+' · '+x.pdvName),byCity:(()=>{const m=new Map();for(const x of baseAll){let o=m.get(x.city);if(!o)m.set(x.city,o={label:x.city,b:new Set,r:new Set,hl:0});o.b.add(retEv(x))}for(const x of dataAll){let o=m.get(x.city);if(!o)m.set(x.city,o={label:x.city,b:new Set,r:new Set,hl:0});o.r.add(retEv(x));o.hl+=x.hl}return [...m.values()].map(o=>({label:o.label,count:o.r.size,base:o.b.size,hl:o.hl,rate:o.b.size?o.r.size/o.b.size:0}))})(),scope}
 }
 function pptOffrouteModel(){
  const box=$('#offrouteFilters');if(!box)return null;
@@ -2366,6 +2484,11 @@ async function buildServicePpt(Pptx,opts){
   {const s=mk('PDVs com menor OTIF','Piores 10 PDVs no filtro atual · mínimo de '+sm.minVisits+' atendimentos válidos para entrar no ranking');
    const rows=sm.worst.map((x,i)=>[Cc(i+1+'º',{bold:true}),Cc(trunc(x.code+' • '+x.name,48),{align:'left'}),Cc(x.cluster),Cc(fmtInt(x.oN)),Cc(pptPct(x.otv),{color:pptOtifColor(x.otv)}),Cc(pptPct(x.ifv),{color:pptOtifColor(x.ifv)}),Cc(pptPct(x.otif),{bold:true,color:pptOtifColor(x.otif)}),Cc(x.rating===null?'—':x.rating.toFixed(2).replace('.',','))]);
    table(s,[H('#'),H('PDV','left'),H('Cluster'),H('Atend.'),H('On Time'),H('In Full'),H('OTIF'),H('Rating')],rows.length?rows:[[Cc('Nenhum PDV com atendimentos suficientes no filtro.',{colspan:8})]],{x:LM,y:TOP,w:CW,colW:[.6,4.6,1.5,1,1.1,1.1,1.1,1.13],rowH:.47});}
+  {const s=mk('Nível de serviço por cidade','Piores cidades por OTIF (mín. '+sm.minVisits+' atendimentos válidos) e cidades com mais atendimentos · '+sm.scope);
+   const elig=sm.byCity.filter(x=>x.otif!==null&&x.oN>=sm.minVisits),worstC=elig.slice().sort((a,b)=>a.otif-b.otif||b.oN-a.oN),bigC=sm.byCity.slice().sort((a,b)=>b.vis-a.vis).slice(0,10);
+   rank(s,LM,TOP,4.9,5.4,'OTIF por cidade','Menores OTIFs primeiro',worstC,g=>g.otif,'0.0%',C.brand,g=>g.city);
+   const rows=bigC.map(x=>[Cc(trunc(x.city,26),{bold:true,align:'left'}),Cc(fmtInt(x.pdvs)),Cc(fmtInt(x.vis)),Cc(pptPct(x.ot),{color:pptOtifColor(x.ot)}),Cc(pptPct(x.iff),{color:pptOtifColor(x.iff)}),Cc(pptPct(x.otif),{bold:true,color:pptOtifColor(x.otif)})]);
+   table(s,[H('Cidade','left'),H('PDVs'),H('Atend.'),H('On Time'),H('In Full'),H('OTIF')],rows.length?rows:[[Cc('Sem dados por cidade.',{colspan:6})]],{x:5.7,y:TOP,w:7.03,colW:[2.2,.8,.95,1.0,1.0,1.08],rowH:.46});}
  }
  /* ---- devolução ---- */
  if(opts.returns){const r=pptReturnsModel();
@@ -2383,6 +2506,11 @@ async function buildServicePpt(Pptx,opts){
    {const s=mk('RNs e gerentes com mais devoluções',sub);
     rank(s,LM,TOP,COLW,5.4,'RNs','HL devolvido por RN',r.byRn,g=>g.hl,'#,##0.0',C.violet);
     rank(s,RX,TOP,COLW,5.4,'Gerentes (GV)','HL devolvido por gerente',r.byGer,g=>g.hl,'#,##0.0',C.good);}
+   {const s=mk('Devolução por cidade','Cidades com maior devolução PDV (mín. 5 entregas) e com mais devoluções · '+r.scope);
+    const worstC=r.byCity.filter(x=>x.base>=5).sort((a,b)=>b.rate-a.rate||b.hl-a.hl),bigC=r.byCity.slice().sort((a,b)=>b.count-a.count||b.hl-a.hl).slice(0,10);
+    rank(s,LM,TOP,4.9,5.4,'Devolução PDV por cidade','Maiores taxas primeiro',worstC,g=>g.rate,'0.0%',C.orange,g=>g.label);
+    const rows=bigC.map(x=>[Cc(trunc(x.label,26),{bold:true,align:'left'}),Cc(fmtInt(x.count),{bold:true}),Cc(fmtInt(x.base)),Cc(pptPct(x.rate),{bold:true,color:C.brand}),Cc(pptNum(x.hl))]);
+    table(s,[H('Cidade','left'),H('Devoluções'),H('Entregas'),H('Devolução PDV'),H('HL')],rows.length?rows:[[Cc('Sem devoluções no período.',{colspan:5})]],{x:5.7,y:TOP,w:7.03,colW:[2.4,1.2,1.1,1.3,1.03],rowH:.46});}
    {const s=mk('Clientes com mais devoluções','Top 10 PDVs por volume devolvido · '+r.scope);
     const rows=r.byPdv.slice(0,10).map((g,i)=>[Cc(i+1+'º',{bold:true}),Cc(trunc(g.label,52),{align:'left'}),Cc(fmtInt(g.count),{bold:true}),Cc(pptNum(g.hl)),Cc(r.hl?pptPct(g.hl/r.hl):'—',{bold:true,color:C.brand})]);
     table(s,[H('#'),H('PDV','left'),H('Devoluções'),H('Devolução HL'),H('% do HL')],rows.length?rows:[[Cc('Sem devoluções no período.',{colspan:5})]],{x:LM,y:TOP,w:CW,colW:[.7,6.0,1.7,2.0,1.73],rowH:.47});
@@ -2443,7 +2571,7 @@ function renderServiceImpact(visible){
  const pass=x=>metric==='onTime'?x.onTime:metric==='inFull'?x.inFull:x.otif;
  const eligible=rows.filter(valid),failed=eligible.filter(x=>!pass(x)),ok=eligible.length-failed.length,label=({otif:'OTIF',onTime:'On Time',inFull:'In Full'})[metric];
  const byUnit=new Map(),byCode=new Map(),duplicate=new Set(),unitKey=x=>norm(x).toLocaleLowerCase('pt-BR');
- for(const src of state.data.Cadastro||[])for(const r of src.rows){let c=code(r['Codigo Cliente']);if(!c||c==='0')continue;let place={city:norm(r['Cidade']),bairro:norm(r['Bairro'])},k=unitKey(src.unit)+'|'+c;byUnit.set(k,place);let prev=byCode.get(c);if(prev&&(prev.city!==place.city||prev.bairro!==place.bairro))duplicate.add(c);else if(!prev)byCode.set(c,place)}
+ for(const src of state.data.Cadastro||[])for(const r of src.rows){let c=code(r['Codigo Cliente']);if(!c||c==='0')continue;let place={city:cityName(r['Cidade']),bairro:norm(r['Bairro'])},k=unitKey(src.unit)+'|'+c;byUnit.set(k,place);let prev=byCode.get(c);if(prev&&(prev.city!==place.city||prev.bairro!==place.bairro))duplicate.add(c);else if(!prev)byCode.set(c,place)}
  const location=x=>byUnit.get(unitKey(x.unit)+'|'+x.code)||(!duplicate.has(x.code)?byCode.get(x.code):null)||{city:x.citySource||'',bairro:''};
  const safe=x=>cloudEsc(String(x||'')),pctParent=(n,total)=>total?pct(n/total):'—';
  const nodes=new Map();let nextId=0;
