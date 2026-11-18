@@ -3130,7 +3130,7 @@ async function cloudRequestAccess(name,email){
 function cloudRenderUsersTab(){renderUsers()}
 
 /* ===== Resumo para o Painel da Diretoria (somente leitura; mesmos cálculos das telas Nível de serviço e Devoluções) ===== */
-const NS_DIR_URL=CLOUD_URL+'/functions/v1/diretoria-publicar';let _nsT=null,_nsSig='';
+const NS_DIR_URL=CLOUD_URL+'/functions/v1/diretoria-publicar';let _nsT=null,_nsSig='',_nsBusy=false;
 function nsBuild(){
  const all=serviceData();if(!all.length)return null;
  const ano=Math.max(...all.map(x=>x.year)),d=all.filter(x=>x.year===ano);
@@ -3147,15 +3147,18 @@ function nsBuild(){
  return {periodo:String(ano)+' (acumulado do ano)',otif:{acumulado:tot(d),aberto:meses},otifCidade,
   devolucoes:{pct:P(devEv.size,baseEv.size),valor:null,pdv:{qtd:devEv.size,pct:P(devEv.size,baseEv.size)},hl:{valor:Math.round(hl*100)/100,pct:null},motivos,cidades:cidD}};
 }
-function nsAgendar(){
- clearTimeout(_nsT);if(!cloudSession)return;
- _nsT=setTimeout(async()=>{try{
+async function nsPublicar(){
+ if(_nsBusy||!cloudSession)return;_nsBusy=true;
+ try{
   const d=nsBuild();if(!d)return;const sig=JSON.stringify(d);if(sig===_nsSig)return;
   const s=await cloudRefresh();if(!s)return;
   const r=await fetch(NS_DIR_URL,{method:'POST',headers:{apikey:CLOUD_KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({secao:'nivel_servico',dados:d,origemEm:new Date().toISOString()})});
   if(r.ok)_nsSig=sig;else console.warn('Resumo da diretoria não publicado ('+r.status+')');
- }catch(e){console.warn('Resumo da diretoria:',e.message)}},20000);
+ }catch(e){console.warn('Resumo da diretoria:',e.message)}finally{_nsBusy=false}
 }
+function nsAgendar(){clearTimeout(_nsT);if(!cloudSession)return;_nsT=setTimeout(nsPublicar,20000)}
+/* O painel carrega os dados do banco sem passar por renderAll(): este vigia tenta a cada 15 s até a primeira publicação. */
+setInterval(()=>{if(!_nsSig&&cloudSession&&state&&state.data&&Object.keys(state.data).length)nsPublicar()},15000);
 function renderAll(){VIEW_VER++;let tab=document.querySelector('.nav button.active')?.dataset.tab||'import';renderTab(tab);try{nsAgendar()}catch(e){console.warn(e)}}
 </script>
 <footer class="dev-footer">
