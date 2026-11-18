@@ -3129,7 +3129,34 @@ async function cloudRequestAccess(name,email){
 }
 function cloudRenderUsersTab(){renderUsers()}
 
-function renderAll(){VIEW_VER++;let tab=document.querySelector('.nav button.active')?.dataset.tab||'import';renderTab(tab)}
+/* ===== Resumo para o Painel da Diretoria (somente leitura; mesmos cálculos das telas Nível de serviço e Devoluções) ===== */
+const NS_DIR_URL=CLOUD_URL+'/functions/v1/diretoria-publicar';let _nsT=null,_nsSig='';
+function nsBuild(){
+ const all=serviceData();if(!all.length)return null;
+ const ano=Math.max(...all.map(x=>x.year)),d=all.filter(x=>x.year===ano);
+ const P=(n,t)=>t?Math.round(n/t*10000)/100:null;
+ const tot=r=>({otif:P(r.reduce((s,x)=>s+x.otifOk,0),r.reduce((s,x)=>s+x.otifN,0)),onTime:P(r.reduce((s,x)=>s+x.ot,0),r.reduce((s,x)=>s+x.onTimeN,0)),inFull:P(r.reduce((s,x)=>s+x.iff,0),r.reduce((s,x)=>s+x.inFullN,0)),pedidos:r.reduce((s,x)=>s+x.otifN,0)});
+ const meses=[...new Set(d.map(x=>x.month))].sort((a,b)=>a-b).map(m=>({mes:monthName(m)+'/'+String(ano).slice(2),...tot(d.filter(x=>x.month===m))}));
+ const cid=new Map();for(const x of d){let a=cid.get(x.city);if(!a)cid.set(x.city,a=[]);a.push(x)}
+ const otifCidade=[...cid].map(([c,r])=>({cidade:c,...tot(r)})).filter(x=>x.pedidos>0).sort((a,b)=>b.pedidos-a.pedidos).slice(0,40);
+ const R=returnRowsCached(),dev=R.all.filter(x=>x.date.slice(0,4)===String(ano)),src=R.source.filter(x=>x.date.slice(0,4)===String(ano));
+ const baseEv=new Set(src.map(retEv)),devEv=new Set(dev.map(retEv)),hl=dev.reduce((s,x)=>s+x.hl,0);
+ const gp=(rows,key)=>{const m=new Map();for(const x of rows){const k=key(x);let o=m.get(k);if(!o)m.set(k,o={hl:0,ev:new Set});o.hl+=x.hl;o.ev.add(retEv(x))}return m};
+ const motivos=[...gp(dev,x=>x.motivo)].map(([k,o])=>({motivo:k,pct:P(o.hl,hl),valor:null,qtd:o.ev.size})).sort((a,b)=>b.pct-a.pct).slice(0,15);
+ const baseCid=gp(src,x=>x.city),cidD=[...gp(dev,x=>x.city)].map(([k,o])=>{const b=baseCid.get(k);return {cidade:k,pct:b?P(o.ev.size,b.ev.size):null,valor:null,pdv:o.ev.size,hl:Math.round(o.hl*100)/100}}).sort((a,b)=>(b.pct||0)-(a.pct||0)).slice(0,40);
+ return {periodo:String(ano)+' (acumulado do ano)',otif:{acumulado:tot(d),aberto:meses},otifCidade,
+  devolucoes:{pct:P(devEv.size,baseEv.size),valor:null,pdv:{qtd:devEv.size,pct:P(devEv.size,baseEv.size)},hl:{valor:Math.round(hl*100)/100,pct:null},motivos,cidades:cidD}};
+}
+function nsAgendar(){
+ clearTimeout(_nsT);if(!cloudSession)return;
+ _nsT=setTimeout(async()=>{try{
+  const d=nsBuild();if(!d)return;const sig=JSON.stringify(d);if(sig===_nsSig)return;
+  const s=await cloudRefresh();if(!s)return;
+  const r=await fetch(NS_DIR_URL,{method:'POST',headers:{apikey:CLOUD_KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({secao:'nivel_servico',dados:d,origemEm:new Date().toISOString()})});
+  if(r.ok)_nsSig=sig;else console.warn('Resumo da diretoria não publicado ('+r.status+')');
+ }catch(e){console.warn('Resumo da diretoria:',e.message)}},20000);
+}
+function renderAll(){VIEW_VER++;let tab=document.querySelector('.nav button.active')?.dataset.tab||'import';renderTab(tab);try{nsAgendar()}catch(e){console.warn(e)}}
 </script>
 <footer class="dev-footer">
   <div class="dev-signature">Desenvolvido por José Vitor - Gerente de operações</div>
