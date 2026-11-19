@@ -42,3 +42,9 @@ Ao fim de cada importação aparece, no cartão "Processamento", um resumo: conc
 - **OTIF por cidade** (aba Nível de serviço → OTIF): filtro "Cidade", ranking da pior para a melhor, gráfico OTIF/In Full/On Time das 12 principais cidades, mapa de calor cidade × mês e tabela completa (PDVs, atendimentos, OT, IF, OTIF, Rating). Clicar numa cidade filtra o painel.
 - **Devolução por cidade** (aba Devolução): filtro "Cidade", barras de Devolução PDV por cidade, tabela e mapa de calor cidade × mês.
 - **PPT resumido**: novos slides "Nível de serviço por cidade" e "Devolução por cidade", respeitando os filtros.
+
+## Desempenho de abertura e navegação (revisão 6)
+
+- **Base de operações enxuta.** O arquivo 03.01.47.01 tem dezenas de colunas que o painel não lê. Só as colunas usadas são guardadas (as de produto são identificadas antes do corte e registradas em `pc`). Vale para novas importações e, ao abrir, para bases já salvas neste navegador (a versão enxuta é regravada em segundo plano). Na nuvem a base encolhe na próxima gravação feita por um gestor. Conferido: os resultados de operação, clusterização, devolução e todas as abas ficam idênticos.
+- **Cálculo.** Normalização de códigos, motivos e rótulos de devolução passou a ser memorizada (a aba Nível de Serviço deixou de refazer essas contas).
+- **Abertura.** A biblioteca de Excel só é carregada depois que o painel abre (a de PowerPoint já era sob demanda). O HTML passou de `no-store` para `no-cache`, que revalida e evita baixar de novo quando nada mudou.

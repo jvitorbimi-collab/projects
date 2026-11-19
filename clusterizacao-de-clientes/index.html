@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestão de nível de serviço | Disman</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js" defer></script>
 <style>
 :root{
   --bg:#07101d;--bg2:#0a1423;--panel:#0e1a2b;--panel2:#122239;--panel3:#162942;
@@ -1404,7 +1402,7 @@ function updateGlobalFilterCounts(){
  let clear=document.getElementById('globalClear');if(clear)clear.hidden=!scopeActive();
 }
 
-function normalizePanelState(){state.files=Array.isArray(state.files)?state.files:[];state.data=state.data&&typeof state.data==='object'?state.data:{};let p=state.params&&typeof state.params==='object'?state.params:{};state.params={...p,deliveries:{Winner:3,Grower:2,'Alto volume':2,Basic:1,'Low sales':1,...(p.deliveries||{})},nearPct:Number.isFinite(+p.nearPct)?+p.nearPct:10,monthlyYear:Number.isFinite(+p.monthlyYear)?+p.monthlyYear:2026,actionStatus:p.actionStatus&&typeof p.actionStatus==='object'?p.actionStatus:{}}}
+function normalizePanelState(){state.files=Array.isArray(state.files)?state.files:[];state.data=state.data&&typeof state.data==='object'?state.data:{};let p=state.params&&typeof state.params==='object'?state.params:{};state.params={...p,deliveries:{Winner:3,Grower:2,'Alto volume':2,Basic:1,'Low sales':1,...(p.deliveries||{})},nearPct:Number.isFinite(+p.nearPct)?+p.nearPct:10,monthlyYear:Number.isFinite(+p.monthlyYear)?+p.monthlyYear:2026,actionStatus:p.actionStatus&&typeof p.actionStatus==='object'?p.actionStatus:{}};slimStateLater()}
 const NF0=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:0}),NF2=new Intl.NumberFormat('pt-BR',{maximumFractionDigits:2});
 function fmtInt(v){return NF0.format(Number(v||0))}
 function latestPeriod(){let best=null;const add=(y,m)=>{if(!y||!m)return;let s=m<=6?1:2;if(!best||y>best.y||(y===best.y&&s>best.s))best={y,s}};for(let x of operationData())add(x.year,x.month);for(let src of state.data.Volume||[])for(let r of src.rows){let p=dateParts(r['Data']||r['Data      ']);if(p)add(p.y,p.m)}return best||{y:2025,s:2}}
@@ -1436,11 +1434,40 @@ function scatterSVG(rows){
 
 const MONTHS={janeiro:1,fevereiro:2,março:3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
 const norm=s=>String(s??'').trim(); const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); const NUM_FAST=/^-?\d+(?:,\d+)?$/; const num=v=>{if(typeof v==='number')return v; let s=norm(v); if(NUM_FAST.test(s)){let n=parseFloat(s.replace(',','.'));return isFinite(n)?n:0} s=s.replace(/\s/g,''); if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.'); else if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.'); let n=parseFloat(s);return isFinite(n)?n:0}
-const code=v=>{let s=norm(v).replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/,'');return s||'0'}; const pct=v=>isFinite(v)?(v*100).toFixed(1)+'%':'—'; const fmt=v=>NF2.format(Number(v||0));
+const _codeM=new Map();const code=v=>{if(typeof v==='string'){let h=_codeM.get(v);if(h!==undefined)return h;let s=v.trim().replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/,'')||'0';if(_codeM.size>60000)_codeM.clear();_codeM.set(v,s);return s}let s=norm(v).replace(/\.0+$/,'').replace(/\D/g,'').replace(/^0+/,'');return s||'0'}; const pct=v=>isFinite(v)?(v*100).toFixed(1)+'%':'—'; const fmt=v=>NF2.format(Number(v||0));
 let _riT=0;function renderImportSoon(force){let n=performance.now();if(force||n-_riT>150){_riT=n;renderImport()}}
 function openDB(){return new Promise((res,rej)=>{let r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
 function put(k,v){return new Promise((res,rej)=>{let t=db.transaction(STORE,'readwrite').objectStore(STORE).put(v,k);t.onsuccess=res;t.onerror=()=>rej(t.error)})}
 function get(k){return new Promise(res=>{let t=db.transaction(STORE).objectStore(STORE).get(k);t.onsuccess=()=>res(t.result);t.onerror=()=>res(null)})}
+
+/* Excel (xlsx-js-style) é carregado depois que o painel abre, fora do caminho crítico da abertura. */
+const XLSX_SRC='https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';let XLSX_P=null;
+function ensureXlsx(){if(typeof XLSX!=='undefined'&&XLSX.utils)return Promise.resolve(true);return XLSX_P||(XLSX_P=new Promise(res=>{let sc=document.createElement('script');sc.src=XLSX_SRC;sc.onload=()=>res(typeof XLSX!=='undefined');sc.onerror=()=>{XLSX_P=null;res(false)};document.head.appendChild(sc)}))}
+function loadLibsIdle(){(window.requestIdleCallback||(f=>setTimeout(f,800)))(()=>{ensureXlsx()},{timeout:4000})}
+/* ---------- enxugamento da base de operações ----------
+   O arquivo 03.01.47.01 traz dezenas de colunas que o painel nunca lê. Guardar só as usadas deixa o download, a abertura
+   e a memória bem menores, sem mudar nenhum cálculo. As colunas de produto são identificadas antes do corte e gravadas em src.pc. */
+const OP_KEEP=new Set(['Cod Puxada','Cliente','Nome Cliente','Pedido','Data','Data Entrega NF','Entrega Real','Visita Otif','Motivo','Submotivo 1','Submotivo 2','Volume Marcacao','Volume Entrega','Gerente Vendas','Nome Gerente Vendas','Setor','Nome Setor','Nome Município','Nome Municipio','Nota Fiscal'].map(x=>canonHeader(x)));
+function slimOpSource(src){
+ if(!src||src.slim||!Array.isArray(src.rows))return 0;
+ if(!src.rows.length){src.slim=1;return 0}
+ const first=src.rows[0],keys=Object.keys(first),pc=productColumns(first);
+ const keep=keys.filter(k=>OP_KEEP.has(canonHeader(k.replace(/__\d+$/,'')))||k===pc.name||k===pc.cod);
+ src.pc={name:pc.name,cod:pc.cod};src.slim=1;
+ if(keep.length>=keys.length)return 0;
+ const n=keep.length,rows=src.rows,out=new Array(rows.length);
+ for(let i=0;i<rows.length;i++){const r=rows[i],o={};for(let j=0;j<n;j++){const k=keep[j],v=r[k];if(v!==undefined)o[k]=v}out[i]=o}
+ src.rows=out;return 1;
+}
+function slimState(){let ch=0;for(const src of state.data?.['Operação 03.01.47.01']||[])ch+=slimOpSource(src);if(ch){PERSIST_CACHE={files:null,data:null,json:null};if(typeof CACHE!=='undefined')resetCache()}return ch}
+let _slimT=0;
+function slimStateLater(){
+ const ref=state.data;if(!ref||_slimT)return;
+ if(!(ref['Operação 03.01.47.01']||[]).some(x=>x&&!x.slim))return;
+ const ch=slimState();if(!ch)return;
+ /* grava a versão enxuta neste navegador, em segundo plano (só se nada mudou nesse meio-tempo) */
+ _slimT=setTimeout(async()=>{_slimT=0;try{if(state.data===ref&&db){await put('state',{files:state.files,data:state.data,params:state.params,lastUpdate:state.lastUpdate});LOCAL_REF={files:state.files,data:state.data}}}catch(e){console.warn(e)}},4000);
+}
 let LAST_SYNC=null,IMPORT_REPORT=null,LOCAL_REF=null,PERSIST_CACHE={files:null,data:null,json:null},CLOUD_TIMER=null,CLOUD_BUSY=null,CLOUD_AGAIN=false;
 /* Compressão gzip nativa do navegador: dados de CSV reduzem muito, o que cabe no limite de 50 MB do banco e acelera envio e abertura. */
 async function gzipBlob(blob){if(typeof CompressionStream==='undefined')return blob;try{return await new Response(blob.stream().pipeThrough(new CompressionStream('gzip'))).blob()}catch{return blob}}
@@ -1512,7 +1539,7 @@ $$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.class
 async function* walk(dir,path=''){for await(const [name,h] of dir.entries()){if(h.kind==='directory')yield* walk(h,path+name+'/');else yield {h,path:path+name}}}
 function unitFromName(name){let b=name.replace(/\.(csv|xlsx|xls)$/i,'').replace(/\([^)]*\)$/,'');let parts=b.split('.'); if(parts.length>1){let last=parts[parts.length-1].trim(); if(last&&!/^\d+$/.test(last))return last.replace(/parâmetros|parametros/i,'').trim()||'Petrolina'} let m=b.match(/(?:-|\.)([A-Za-zÀ-ÿ ]+)(?:-|$)/);return m?m[1].trim():b.split(/[-_]/)[0].trim()}
 function monthFromName(n){let l=n.toLowerCase();for(let k in MONTHS)if(l.includes(k))return MONTHS[k];return null}
-async function parseFile(file){let ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){let ab=await file.arrayBuffer();let bytes=new Uint8Array(ab),txt='';try{txt=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(e){txt=new TextDecoder('windows-1252').decode(bytes)}txt=txt.replace(/^\uFEFF/,'').replace(/\u0000/g,'');let lines=txt.split(/\r?\n/).filter(x=>x.trim()!=='');if(!lines.length)return {sheets:{CSV:[]}};let sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';let rawHeads=csvLine(lines[0],sep).map(norm),seen={};let heads=rawHeads.map(h=>{seen[h]=(seen[h]||0)+1;return seen[h]===1?h:h+'__'+seen[h]});let hn=heads.length,out=new Array(lines.length-1);for(let li=1;li<lines.length;li++){let r=csvLine(lines[li],sep),o={};for(let i=0;i<hn;i++)o[heads[i]]=r[i]??'';out[li-1]=o}return {sheets:{CSV:out}}}let ab=await file.arrayBuffer();let wb=XLSX.read(ab,{type:'array',cellDates:true});let sheets={};for(let s of wb.SheetNames)sheets[s]=XLSX.utils.sheet_to_json(wb.Sheets[s],{defval:''});return {sheets}}
+async function parseFile(file){let ext=file.name.split('.').pop().toLowerCase();if(ext==='csv'){let ab=await file.arrayBuffer();let bytes=new Uint8Array(ab),txt='';try{txt=new TextDecoder('utf-8',{fatal:true}).decode(bytes)}catch(e){txt=new TextDecoder('windows-1252').decode(bytes)}txt=txt.replace(/^\uFEFF/,'').replace(/\u0000/g,'');let lines=txt.split(/\r?\n/).filter(x=>x.trim()!=='');if(!lines.length)return {sheets:{CSV:[]}};let sep=(lines[0].match(/;/g)||[]).length>(lines[0].match(/,/g)||[]).length?';':',';let rawHeads=csvLine(lines[0],sep).map(norm),seen={};let heads=rawHeads.map(h=>{seen[h]=(seen[h]||0)+1;return seen[h]===1?h:h+'__'+seen[h]});let hn=heads.length,out=new Array(lines.length-1);for(let li=1;li<lines.length;li++){let r=csvLine(lines[li],sep),o={};for(let i=0;i<hn;i++)o[heads[i]]=r[i]??'';out[li-1]=o}return {sheets:{CSV:out}}}let ab=await file.arrayBuffer();if(typeof XLSX==='undefined')await ensureXlsx();let wb=XLSX.read(ab,{type:'array',cellDates:true});let sheets={};for(let s of wb.SheetNames)sheets[s]=XLSX.utils.sheet_to_json(wb.Sheets[s],{defval:''});return {sheets}}
 function csvLine(s,sep){if(s.indexOf('"')<0)return s.split(sep);let a=[],c='',q=false;for(let i=0;i<s.length;i++){let x=s[i];if(x==='"'){if(q&&s[i+1]==='"'){c+='"';i++}else q=!q}else if(x===sep&&!q){a.push(c);c=''}else c+=x}a.push(c);return a}
 function canonHeader(s){return norm(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9%?]+/g,'')}
 function detect(p,name){let all=Object.entries(p.sheets);for(let [sn,rows] of all){if(!rows.length)continue;let h=Object.keys(rows[0]).map(norm),hc=h.map(canonHeader);let has=(...x)=>x.every(y=>h.includes(y)),hasc=(...x)=>x.every(y=>hc.includes(canonHeader(y)));
@@ -1526,8 +1553,8 @@ if(has('Cluster','Vol Min (HL)','Vol Max (HL)','Rel Min','Cresc Min','Prioridade
 if(has('Cliente','Visita','Visita OT','Visita IF'))return {type:'Nível mensal',rows,month:monthFromName(name)};
 if(has('Data da Avaliação','Avaliação','Classificação','Cod PDV'))return {type:'Rating',rows};
 }return {type:null,rows:[]}}
-async function importFolder(handle){startImportReport();state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
-async function importFileList(fileList){startImportReport();state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
+async function importFolder(handle){startImportReport();state.folderHandle=handle;state.files=[];state.data={};let entries=[];for await(let e of walk(handle))if(/\.(csv|xlsx|xls)$/i.test(e.path))entries.push(e);let i=0;for(let e of entries){let rec={name:e.path,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let file=await e.h.getFile(),p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(i/entries.length*100)+'%';$('#progText').textContent=`${i} de ${entries.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();slimState();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
+async function importFileList(fileList){startImportReport();state.folderHandle=null;state.files=[];state.data={};let files=[...fileList].filter(f=>/\.(csv|xlsx|xls)$/i.test(f.name));let i=0;for(let file of files){let display=file.webkitRelativePath||file.name;let rec={name:display,status:'Processando',time:'',type:'',rows:0,unit:''};state.files.push(rec);renderImportSoon();try{let p=await parseFile(file),d=detect(p,file.name);rec.type=d.type||'Não reconhecido';rec.unit=unitFromName(file.name);rec.rows=d.rows.length;rec.time=new Date().toLocaleTimeString('pt-BR');if(!d.type){rec.status='Alerta'}else if(d.type==='Nível mensal'&&!d.month){rec.status='Alerta';rec.type+=' • mês não identificado'}else{rec.status='Importado';(state.data[d.type]??=[]).push({unit:rec.unit,name:file.name,month:d.month,rows:d.rows})}}catch(err){rec.status='Erro';rec.type=String(err.message||err)}i++;$('#progBar').style.width=(files.length?i/files.length*100:0)+'%';$('#progText').textContent=`${i} de ${files.length}`;renderImportSoon()}state.lastUpdate=new Date().toISOString();slimState();resetCache();let saveErr=null;try{await persist()}catch(e){saveErr=e;console.error(e)}renderAll();finishImport(saveErr)}
 const folderInput=$('#folderInput');
 folderInput.onchange=async e=>{if(e.target.files?.length)await importFileList(e.target.files);e.target.value=''};
 async function chooseFolder(){try{if(window.showDirectoryPicker){let handle=await window.showDirectoryPicker({mode:'read'});await importFolder(handle)}else{folderInput.value='';folderInput.click()}}catch(e){if(e?.name!=='AbortError')alert('Não foi possível abrir o seletor de pastas. Abra o painel no Chrome ou Edge e tente novamente.')}}
@@ -1569,7 +1596,7 @@ function validOrderDatesRaw(expected){
  while(out.length<2){d.setUTCDate(d.getUTCDate()-1);let day=d.getUTCDay(),iso=d.toISOString().slice(0,10);if(day!==0&&day!==6&&!holidays.has(iso))out.push(String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear())}
  return out;
 }
-function reasonKey(v){return norm(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+const _rkM=new Map();function reasonKey(v){let n=norm(v),h=_rkM.get(n);if(h!==undefined)return h;h=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(_rkM.size>20000)_rkM.clear();_rkM.set(n,h);return h}
 function productColumns(sample){
  let keys=Object.keys(sample||{}),canon=keys.map(k=>[canonHeader(k),k]),pick=fn=>(canon.find(([c])=>fn(c))||[])[1];
  let name=pick(c=>['produto','nomeproduto','descricaoproduto','descproduto','descricaodoproduto','item','nomeitem','descricaoitem','material','descricaomaterial','sku'].includes(c))||pick(c=>c.includes('produto')&&!/(cod|id|^cd)/.test(c));
@@ -1581,7 +1608,7 @@ function operationData(){
  let schedules=new Map();
  for(let s of state.data.Entregas||[])for(let r of s.rows){let days=[['Mon','SEG'],['Tue','TER'],['Wed','QUA'],['Thu','QUI'],['Fri','SEX'],['Sat','SÁB'],['Sun','DOM']].filter(([k])=>['FREE','FLEX'].includes(norm(r[k]).toUpperCase())).map(x=>x[1]);schedules.set(code(r.DDC_ID)+'|'+code(r.ERP_POC_ID),days)}
  let m=new Map();
- for(let s of state.data['Operação 03.01.47.01']||[]){let pc=productColumns(s.rows[0]);for(let r of s.rows){
+ for(let s of state.data['Operação 03.01.47.01']||[]){let pc=s.pc||productColumns(s.rows[0]);for(let r of s.rows){
   let c=code(r.Cliente),pedido=norm(r.Pedido),ddc=code(r['Cod Puxada']);if(!c||c==='0'||!pedido)continue;
   let orderDate=dateKey(r.Data),key=ddc+'|'+c+'|'+pedido+'|'+orderDate,v=m.get(key);
   if(!v){let days=schedules.get(ddc+'|'+c)||[],dp=dateParts(r.Data);v={code:c,pedido,unit:s.unit,name:norm(r['Nome Cliente']),month:Number(dp?.m||s.month||monthFromName(s.name)||0),year:Number(dp?.y)||Number(state.params.monthlyYear),orderDate,days,managerCode:norm(r['Gerente Vendas']),managerName:norm(r['Nome Gerente Vendas']),sectorCode:norm(r['Setor']),sectorName:norm(r['Nome Setor']),citySource:cityName(r['Nome Município']||r['Nome Municipio']),expected:beesExpectedDate(r.Data,days),actual:dateKey(norm(r['Entrega Real'])||norm(r['Data Entrega NF'])),marked:0,deliveredVolume:0,markedValid:true,deliveredValid:true,motives:new Set(),normalRows:0,deletedRows:0};m.set(key,v)}
@@ -1704,7 +1731,7 @@ function finishImport(saveErr){
 }
 function exportClusterizedXlsx(){
  const box=$('#clusterFilters');if(!box||!box.querySelector('.fy')){alert('Abra a tela de Clusterização para exportar.');return}
- if(typeof XLSX==='undefined'||!XLSX.utils){alert('Não foi possível carregar o recurso de Excel. Atualize a página e tente novamente.');return}
+ if(typeof XLSX==='undefined'||!XLSX.utils){ensureXlsx().then(ok=>ok?exportClusterizedXlsx():alert('Não foi possível carregar o recurso de Excel. Atualize a página e tente novamente.'));return}
  const year=Number(box.querySelector('.fy').value),sem=Number(box.querySelector('.fs').value),cluster=box.querySelector('.fc').value,zero=box.querySelector('.fz')?.value||'hide',localQuery=box.querySelector('.fq').value.trim();
  const pdvs=currentFiltered('#clusterFilters');if(!pdvs.length){alert('Não há PDVs para exportar com os filtros atuais.');return}
  try{
@@ -2243,7 +2270,8 @@ let RET_WARM=0;function prewarmReturns(){if(RET_WARM===VIEW_VER)return;let ver=V
 const RET_FULL=['cliente cancelou','horário de entrega','mapa não carregado','financeiro','transportadora','comercial','logística'];
 const retPlain=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const RET_ABBR={ciente:'cliente',cli:'cliente',clt:'cliente',cl:'cliente',dev:'devolução',devol:'devolução',devolucao:'devolução',ent:'entrega',entr:'entrega',mot:'motorista',aus:'ausente',ausen:'ausente',fech:'fechado',estab:'estabelecimento',pgto:'pagamento',prod:'produto',ped:'pedido',avar:'avaria',recus:'recusou',nao:'não',nf:'NF'};
-function cleanReturnLabel(v,prefix,keepCode){let s=norm(v).replace(new RegExp('^'+prefix+'\\s*:\\s*','i'),'').replace(/\bCIA\b\s*/gi,'').replace(/\s+/g,' ').trim();s=s.replace(/^0+(?=\d)/,'').replace(/\s*-\s*/g,' - ').toLocaleLowerCase('pt-BR');if(!s)return 'Não informado';
+let _crlM=new Map(),_crlRef=null;function cleanReturnLabel(v,prefix,keepCode){let ref=state.params?.returnLabelMap;if(_crlRef!==ref||_crlM.size>20000){_crlM=new Map();_crlRef=ref}let mk=prefix+(keepCode?'1':'0')+'|'+norm(v),hit=_crlM.get(mk);if(hit!==undefined)return hit;hit=cleanReturnLabelRaw(v,prefix,keepCode);_crlM.set(mk,hit);return hit}
+function cleanReturnLabelRaw(v,prefix,keepCode){let s=norm(v).replace(new RegExp('^'+prefix+'\\s*:\\s*','i'),'').replace(/\bCIA\b\s*/gi,'').replace(/\s+/g,' ').trim();s=s.replace(/^0+(?=\d)/,'').replace(/\s*-\s*/g,' - ').toLocaleLowerCase('pt-BR');if(!s)return 'Não informado';
  let code=(s.match(/^(\d+)\s*-/)||[])[1]||'';s=s.replace(/^\d+\s*-\s*(?:-\s*)*/,'').replace(/[\s(\-–:]+$/,'').trim();if(!s)return 'Não informado';
  s=s.replace(/\b(ciente|cliente|cli|clt|cl)\.?\s+canc(?:elou|elado|elamento|\.)?(?=\s|$|\W)/g,'cliente cancelou').replace(/\bcanc(?:\.|\b)(?!elou|elado)/g,'cancelado').replace(/\.(?=\s|$)/g,'').replace(/\s+/g,' ').trim();
  s=s.replace(/[\p{L}]+/gu,w=>RET_ABBR[w]??w);
@@ -3062,7 +3090,7 @@ async function cloudOpenPanel(){
   state.folderHandle=await get('folder');
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password&&!viaTorre()){cloudAuthScreen('change','');return}
-  document.querySelector('.nav button[data-tab="'+(state.files?.length?'cluster':'import')+'"]').click();updateHeader();document.body.classList.add('cloud-ready');cloudLoading(false);
+  document.querySelector('.nav button[data-tab="'+(state.files?.length?'cluster':'import')+'"]').click();updateHeader();document.body.classList.add('cloud-ready');cloudLoading(false);loadLibsIdle();
  }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=[e.message,e.details,e.hint,e.code?'Código '+e.code:''].filter(Boolean).join(' · ')||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
 }
 function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
