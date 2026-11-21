@@ -743,6 +743,7 @@ td b{color:var(--ink)}
 .nav button[data-tab="import"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%2015V4M7.5%208.5%2012%204l4.5%204.5M4%2015v3a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-3'/%3E%3C/svg%3E")}
 .nav button[data-tab="cluster"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Crect%20x='3.5'%20y='3.5'%20width='7'%20height='7'%20rx='1.6'/%3E%3Crect%20x='13.5'%20y='3.5'%20width='7'%20height='7'%20rx='1.6'/%3E%3Crect%20x='3.5'%20y='13.5'%20width='7'%20height='7'%20rx='1.6'/%3E%3Crect%20x='13.5'%20y='13.5'%20width='7'%20height='7'%20rx='1.6'/%3E%3C/svg%3E")}
 .nav button[data-tab="analysis"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M5%2020V11M12%2020V4M19%2020v-6'/%3E%3C/svg%3E")}
+.nav button[data-tab="volumes"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M5%2020V11M12%2020V4M19%2020v-6'/%3E%3C/svg%3E")}
 .nav button[data-tab="service"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M2.5%206.5h11v9.5h-11zM13.5%2010h4l3%203v3h-7'/%3E%3Ccircle%20cx='7'%20cy='17.8'%20r='1.9'/%3E%3Ccircle%20cx='17'%20cy='17.8'%20r='1.9'/%3E%3C/svg%3E")}
 .nav button[data-tab="offroute"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Ccircle%20cx='6'%20cy='18.5'%20r='2'/%3E%3Ccircle%20cx='18'%20cy='5.5'%20r='2'/%3E%3Cpath%20d='M8%2018.5h7.2a3.2%203.2%200%200%200%200-6.4H8.8a3.2%203.2%200%200%201%200-6.4H16'/%3E%3C/svg%3E")}
 .nav button[data-tab="action"]:before{--ic:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='black'%20stroke-width='1.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M10%206.5h10M10%2012h10M10%2017.5h10M3.8%206.4l1.3%201.3%202.2-2.4M3.8%2011.9l1.3%201.3%202.2-2.4M3.8%2017.4l1.3%201.3%202.2-2.4'/%3E%3C/svg%3E")}
@@ -1047,6 +1048,7 @@ tr.rb-click{padding:0}
 <div class="nav">
 <button class="active" data-tab="cluster" data-icon="02"><span>Clusterização</span></button>
 <button data-tab="analysis" data-icon="03"><span>Análise de Entregas</span></button>
+<button data-tab="volumes" data-icon="03"><span>Volumes</span></button>
 <button data-tab="service" data-icon="04"><span>Nível de Serviço</span></button>
 <button data-tab="offroute" data-icon="05"><span>Fora de rota</span></button>
 <button data-tab="action" data-icon="06"><span>Plano de Ação</span></button>
@@ -1157,6 +1159,15 @@ Como funciona a clusterização
 </section>
 
 
+<section id="volumes" class="tab">
+<div class="hero"><div><h2>Volumes</h2><p>Volume entregue em HL por mês, por cidade e os maiores PDVs de cada cidade. Mesma base da clusterização (bases de volume e operação) e cidades normalizadas.</p></div><div class="health"><span class="healthchip" id="volumeScope"></span></div></div>
+<div class="filters" id="volumeFilters"><label>Ano <select class="vly"></select></label><label>Cidade <select class="vlc"></select></label><label>PDVs por cidade <select class="vln"><option value="5">5 maiores</option><option value="10" selected>10 maiores</option><option value="20">20 maiores</option></select></label><label>Buscar PDV <input class="vlq" placeholder="Código, nome, bairro ou cidade"></label></div>
+<div class="toolbar"><button class="btn" type="button" id="exportVolumes">Exportar volumes em Excel</button></div>
+<div class="kpigrid" id="volumeKpis"></div>
+<div class="grid g2" style="margin-top:14px"><div class="card chartbox"><div class="cardhead"><h3>Volume por mês (HL)</h3></div><div id="volumeMonths"></div></div><div class="card chartbox"><div class="cardhead"><h3>Volume por cidade (HL)</h3><span class="meta">12 maiores</span></div><div id="volumeCityBars"></div></div></div>
+<div class="sectiontitle"><span>Volume por mês e comparação com o ano anterior</span></div><div class="tablecard"><div class="tablewrap"><table id="volumeMonthTable"></table></div></div>
+<div class="sectiontitle"><span>Volume por cidade e mês (HL)</span><small id="volumeCityCount"></small></div><div class="tablecard"><div class="tablewrap" style="max-height:460px;overflow:auto"><table id="volumeCityTable" class="city-heat"></table></div></div>
+<div class="sectiontitle"><span>Maiores PDVs por cidade</span><small>clique na cidade para abrir</small></div><div id="volumeTop"></div></section>
 <section id="service" class="tab">
 <div class="hero service-hero"><div><h2>Nível de serviço</h2><p>Indicadores de OTIF, On Time, In Full, Rating e devoluções.</p></div><div class="health"><span class="healthchip" id="serviceScopeChip">Todos os períodos</span><button class="btn secondary ppt-export" type="button" id="exportServicePpt">Gerar PPT resumido</button></div></div>
 
@@ -1285,9 +1296,9 @@ Como funciona a clusterização
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const DB='pdv-intelligence-v1', STORE='kv'; let db, state={files:[],data:{},params:{deliveries:{Winner:3,Grower:2,"Alto volume":2,Basic:1,"Low sales":1},nearPct:10,monthlyYear:2026,actionStatus:{}},folderHandle:null,lastUpdate:null};
-const CACHE={pdvByPeriod:new Map(),cityMap:null,service:null,operation:null,returns:null,scopeIndex:null,scopeAllowed:null,lastUpdate:null};
+const CACHE={pdvByPeriod:new Map(),cityMap:null,service:null,operation:null,returns:null,volumes:null,scopeIndex:null,scopeAllowed:null,lastUpdate:null};
 const DISPLAY_LIMIT=500;
-function resetCache(){VIEW_VER++;VALID_PDVS=null;REL_MAP=null;DEL_MAP=null;CACHE.pdvByPeriod.clear();CACHE.cityMap=null;CACHE.service=null;CACHE.operation=null;CACHE.returns=null;CACHE.scopeIndex=null;CACHE.scopeAllowed=null;CACHE.lastUpdate=state.lastUpdate;document.querySelectorAll('#globalFilterBar [data-filter-menu]').forEach(menu=>{delete menu.dataset.loaded})}
+function resetCache(){VIEW_VER++;VALID_PDVS=null;REL_MAP=null;DEL_MAP=null;CACHE.pdvByPeriod.clear();CACHE.cityMap=null;CACHE.service=null;CACHE.operation=null;CACHE.returns=null;CACHE.volumes=null;CACHE.scopeIndex=null;CACHE.scopeAllowed=null;CACHE.lastUpdate=state.lastUpdate;document.querySelectorAll('#globalFilterBar [data-filter-menu]').forEach(menu=>{delete menu.dataset.loaded})}
 const GLOBAL_FILTER={managers:new Set(),sectors:new Set(),cities:new Set(),query:''};
 const SERVICE_FILTER={years:new Set(),months:new Set(),clusters:new Set(),cities:new Set(),query:''};
 const FT_CACHE=new Map();
@@ -1530,7 +1541,7 @@ async function cloudHandlePasswordRecovery(){
 }
 function cloudLoading(show,title,text){let old=document.getElementById('cloudLoading');if(!show){old?.remove();return}if(old){if(title)old.querySelector('h2').textContent=title;if(text)old.querySelector('p').textContent=text;return}let overlay=document.createElement('div');overlay.id='cloudLoading';overlay.className='login-loading';overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');overlay.innerHTML='<div class="login-loading-card"><div class="login-loading-symbol" aria-hidden="true"><span></span><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M7 7l3 3M17 7l-3 3M7 17l3-3M17 17l-3-3"/></svg></div><span class="login-loading-eyebrow">GESTÃO DE NÍVEL DE SERVIÇO</span><h2>'+(title||'Carregando seu painel')+'</h2><p>'+(text||'Só um instante. Estamos preparando seus dados.')+'</p><div class="login-loading-track" aria-hidden="true"><i></i></div><small>Seu painel já vai abrir.</small></div>';document.body.appendChild(overlay)}
 async function init(){if(/[#&]torre_codigo=([A-Za-z0-9_-]{20,100})/.test(location.hash)){const m=/[#&]torre_codigo=([A-Za-z0-9_-]{20,100})/.exec(location.hash);return iniciarPelaTorre(m[1])}cloudLoading(true);try{await openDB();let s=await get('state');if(s)Object.assign(state,s);let pm=await get('params');if(pm&&pm.params)Object.assign(state,{params:pm.params,lastUpdate:pm.lastUpdate??state.lastUpdate});normalizePanelState();LOCAL_REF=s?{files:state.files,data:state.data}:null;state.folderHandle=await get('folder');if(await cloudHandlePasswordRecovery()){cloudLoading(false);return}await cloudOpenPanel()}catch(e){console.error(e);cloudLoading(false);cloudAuthScreen('login','Não foi possível iniciar o painel. Atualize a página e tente novamente.')}}
-$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');$('#globalFilterBar').hidden=['service','import','users'].includes(b.dataset.tab);let m={import:['Importação e Configurações','Importe bases, ajuste parâmetros e gerencie acessos'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','OTIF, On Time, In Full, Rating e devoluções'],offroute:['Fora de rota','Pedidos fora dos dias padrão'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Usuários, perfis e acessos']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab,true)});
+$$('.nav button').forEach(b=>b.onclick=()=>{$$('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.tab').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.tab).classList.add('active');$('#globalFilterBar').hidden=['service','import','users'].includes(b.dataset.tab);let m={import:['Importação e Configurações','Importe bases, ajuste parâmetros e gerencie acessos'],cluster:['Clusterização','Classificação dinâmica e memória de cálculo'],analysis:['Análise de Entregas','Excessos, adequação e oportunidades de atendimento'],service:['Nível de Serviço','OTIF, On Time, In Full, Rating e devoluções'],volumes:['Volumes','Volume por mês, por cidade e maiores PDVs'],offroute:['Fora de rota','Pedidos fora dos dias padrão'],action:['Plano de Ação','Ações automáticas por mês, cluster e prioridade'],users:['Gestão de usuários','Usuários, perfis e acessos']};$('#pageTitle').textContent=m[b.dataset.tab][0];$('#pageSub').textContent=m[b.dataset.tab][1];renderTab(b.dataset.tab,true)});
 (function(){const app=document.querySelector('.app'),btn=document.getElementById('sideToggle'),KEY='clusterizacao.side.collapsed';
  const apply=c=>{app.classList.toggle('collapsed',c);btn.setAttribute('aria-expanded',String(!c));btn.title=c?'Expandir menu':'Recolher menu';btn.setAttribute('aria-label',btn.title+' lateral');
   $$('.nav button').forEach(b=>{if(c)b.title=b.textContent.trim();else b.removeAttribute('title')})};
@@ -2670,6 +2681,57 @@ function renderOffroute(){
  $('#exportOffroute').onclick=()=>{if(!outside.length){alert('Não há pedidos fora de rota para exportar.');return}let data=outside.map(x=>({'Código PDV':x.code,'PDV':x.name,'Pedido':x.pedido,'Data pedido':x.orderDate,'Entrega padrão':x.expected,'Dias padrão para pedido':x.standardDates.join(' / '),'Dias FREE/FLEX':x.days.join(', '),'Motivos':x.motives.join(', ')||'Pedido Normal'})),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Fora de rota');XLSX.writeFile(wb,'pedidos-fora-de-rota.xlsx')};
 }
 
+// ---------- Volumes: HL por mês, cidade e PDV (mesma base da clusterização: operação + base de volume) ----------
+function volumeBase(){
+ const key=String(state.lastUpdate||'')+'|'+String(state.params.monthlyYear)+'|'+(state.data.Volume||[]).length+'|'+(state.data['Operação 03.01.47.01']||[]).length;
+ if(CACHE.volumes&&CACHE.volumes.key===key)return CACHE.volumes.rows;
+ const m=new Map();
+ const add=(c,unit,name,cityRaw,y,mo,v,p)=>{if(!c||c==='0'||!y||mo<1||mo>12)return;const k=c+'|'+y+'|'+mo;let o=m.get(k);if(!o){const pl=scopePlace({unit,code:c});o={code:c,name:(pl&&pl.name)||name||c,bairro:(pl&&pl.bairro)||'',cidade:(pl&&pl.cidade)||cityRaw||'Não informada',year:y,month:mo,vol:0,orders:0};m.set(k,o)}o.vol+=v;o.orders+=p};
+ for(const x of operationData())add(x.code,x.unit,x.name,x.citySource,x.year,x.month,Number(x.deliveredVolume)||0,1);
+ for(const s of state.data.Volume||[])for(const r of s.rows){const mm=norm(r['Data']||r['Data      ']).match(DATE_RE);if(!mm)continue;add(code(r['Cód. Cliente']),s.unit,'','',+mm[3],+mm[2],num(r.Volume),num(r.Pedidos))}
+ const rows=[...m.values()];CACHE.volumes={key,rows};return rows;
+}
+function renderVolumes(){
+ const box=$('#volumeFilters'),ys=periods(),y=box.querySelector('.vly'),c=box.querySelector('.vlc'),nSel=box.querySelector('.vln'),q=box.querySelector('.vlq'),oldY=y.value;
+ if(y.dataset.years!==ys.join(',')){y.innerHTML=ys.map(n=>'<option value="'+n+'">'+n+'</option>').join('');y.value=ys.includes(+oldY)?oldY:String(ys.includes(+state.params.monthlyYear)?state.params.monthlyYear:ys.at(-1)||'');y.dataset.years=ys.join(',')}
+ box.querySelectorAll('input,select').forEach(el=>bindFilter(el,renderVolumes));
+ const f1=v=>Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}),hlP=(v,o)=>o>0?f1(v/o):'—';
+ const scoped=volumeBase().filter(x=>scopeMatchesPdv(x)),yr=+y.value,inYear=scoped.filter(x=>x.year===yr);
+ // cidades do ano, da maior para a menor
+ const cv=new Map();for(const x of inYear)cv.set(x.cidade,(cv.get(x.cidade)||0)+x.vol);
+ const cityList=[...cv.entries()].sort((a,b)=>b[1]-a[1]).map(e=>e[0]),oldC=c.value;
+ const sig=cityList.join('|');if(c.dataset.sig!==sig){c.innerHTML='<option value="">Todas as cidades</option>'+cityList.map(k=>'<option value="'+esc(k)+'">'+esc(k)+'</option>').join('');c.dataset.sig=sig;c.value=cityList.includes(oldC)?oldC:''}
+ const pass=x=>(!c.value||x.cidade===c.value)&&(!q.value||matchesPdvSearch(x,q.value,true));
+ const rows=inYear.filter(pass),prevRows=scoped.filter(x=>x.year===yr-1&&pass(x));
+ const total=rows.reduce((a,x)=>a+x.vol,0),orders=rows.reduce((a,x)=>a+x.orders,0),prevTotal=prevRows.reduce((a,x)=>a+x.vol,0);
+ const pdvSet=new Set(rows.filter(x=>x.vol>0).map(x=>x.code)),cityAgg=new Map();
+ for(const x of rows){let o=cityAgg.get(x.cidade);if(!o)cityAgg.set(x.cidade,o={cidade:x.cidade,vol:0,orders:0,pdvs:new Map(),months:Array(13).fill(0)});o.vol+=x.vol;o.orders+=x.orders;o.months[x.month]+=x.vol;let p=o.pdvs.get(x.code);if(!p)o.pdvs.set(x.code,p={code:x.code,name:x.name,bairro:x.bairro,vol:0,orders:0,months:new Set()});p.vol+=x.vol;p.orders+=x.orders;if(x.vol>0)p.months.add(x.month)}
+ const cities=[...cityAgg.values()].sort((a,b)=>b.vol-a.vol);
+ $('#volumeScope').textContent=f1(total)+' HL em '+yr;
+ const delta=prevTotal>0?total/prevTotal-1:null,top1=cities[0];
+ $('#volumeKpis').innerHTML=[['Volume em '+yr,f1(total)+' HL',delta===null?'Sem '+(yr-1)+' para comparar':(delta>=0?'+':'')+(delta*100).toFixed(1).replace('.',',')+'% sobre '+(yr-1)],['Cidades',fmtInt(cities.length),'Com volume no filtro'],['PDVs com volume',fmtInt(pdvSet.size),'No ano'],['HL por pedido',hlP(total,orders),fmtInt(orders)+' pedidos'],['Maior cidade',top1?esc(top1.cidade):'—',top1?f1(top1.vol)+' HL · '+(total>0?(top1.vol/total*100).toFixed(1).replace('.',','):'0')+'% do total':'Sem dados']].map(x=>'<div class="card kpi"><div class="label">'+x[0]+'</div><div class="val">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>').join('');
+ const bars=(items)=>{const max=Math.max(1,...items.map(i=>i.value));return '<div class="bars">'+items.map(i=>'<div class="barrow"><span>'+esc(i.label)+'</span><div class="bartrack"><div class="barfill" style="width:'+Math.max(2,i.value/max*100)+'%"></div></div><b>'+f1(i.value)+'</b></div>').join('')+'</div>'};
+ const mv=Array(13).fill(0),mp=Array(13).fill(0),mo=Array(13).fill(0),mPdv=Array.from({length:13},()=>new Set());
+ for(const x of rows){mv[x.month]+=x.vol;mo[x.month]+=x.orders;if(x.vol>0)mPdv[x.month].add(x.code)}for(const x of prevRows)mp[x.month]+=x.vol;
+ const monthsWith=[...Array(12).keys()].map(i=>i+1).filter(i=>mv[i]>0||mp[i]>0);
+ $('#volumeMonths').innerHTML=monthsWith.length?bars(monthsWith.map(i=>({label:monthName(i),value:mv[i]}))):'<div class="empty">Sem volume no filtro.</div>';
+ $('#volumeCityBars').innerHTML=cities.length?bars(cities.slice(0,12).map(o=>({label:o.cidade,value:o.vol}))):'<div class="empty">Sem volume no filtro.</div>';
+ $('#volumeMonthTable').innerHTML='<thead><tr><th>Mês</th><th>Volume (HL)</th><th>'+(yr-1)+' (HL)</th><th>Variação</th><th>PDVs</th><th>Pedidos</th><th>HL/pedido</th></tr></thead><tbody>'+monthsWith.map(i=>{const d=mp[i]>0?mv[i]/mp[i]-1:null;return '<tr><td>'+monthName(i)+'</td><td><b>'+f1(mv[i])+'</b></td><td>'+(mp[i]>0?f1(mp[i]):'—')+'</td><td>'+(d===null?'—':(d>=0?'+':'')+(d*100).toFixed(1).replace('.',',')+'%')+'</td><td>'+fmtInt(mPdv[i].size)+'</td><td>'+fmtInt(mo[i])+'</td><td>'+hlP(mv[i],mo[i])+'</td></tr>'}).join('')+(monthsWith.length?'<tr><td><b>Total</b></td><td><b>'+f1(total)+'</b></td><td>'+(prevTotal>0?f1(prevTotal):'—')+'</td><td>'+(delta===null?'—':(delta>=0?'+':'')+(delta*100).toFixed(1).replace('.',',')+'%')+'</td><td>'+fmtInt(pdvSet.size)+'</td><td>'+fmtInt(orders)+'</td><td>'+hlP(total,orders)+'</td></tr>':'<tr><td colspan="7">Sem volume no filtro.</td></tr>')+'</tbody>';
+ // cidade x mês, com intensidade pelo volume da célula
+ const cellMax=Math.max(1,...cities.flatMap(o=>o.months.slice(1)));
+ $('#volumeCityCount').textContent=fmtInt(cities.length)+' cidade'+(cities.length===1?'':'s');
+ $('#volumeCityTable').innerHTML='<thead><tr><th>Cidade</th>'+[...Array(12).keys()].map(i=>'<th>'+monthName(i+1).slice(0,3)+'</th>').join('')+'<th>Total (HL)</th><th>% do total</th><th>PDVs</th><th>HL/pedido</th></tr></thead><tbody>'+cities.map(o=>'<tr><th scope="row">'+esc(o.cidade)+'</th>'+o.months.slice(1).map((v,i)=>'<td style="background:rgba(108,168,255,'+(v>0?(.10+.55*Math.sqrt(v/cellMax)).toFixed(2):0)+')" title="'+esc(o.cidade)+' · '+monthName(i+1)+': '+f1(v)+' HL">'+(v>0?fmtInt(v):'—')+'</td>').join('')+'<td><b>'+f1(o.vol)+'</b></td><td>'+(total>0?(o.vol/total*100).toFixed(1).replace('.',','):'0')+'%</td><td>'+fmtInt(o.pdvs.size)+'</td><td>'+hlP(o.vol,o.orders)+'</td></tr>').join('')+(cities.length?'':'<tr><td colspan="17">Sem volume no filtro.</td></tr>')+'</tbody>';
+ // maiores PDVs por cidade
+ const topN=+nSel.value||10,topOf=o=>[...o.pdvs.values()].filter(p=>p.vol>0).sort((a,b)=>b.vol-a.vol).slice(0,topN);
+ $('#volumeTop').innerHTML=cities.length?cities.map((o,i)=>{const t=topOf(o),sumTop=t.reduce((a,p)=>a+p.vol,0);return '<details class="card" style="margin-bottom:8px"'+(cities.length===1||c.value?' open':'')+'><summary style="cursor:pointer;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline"><b>'+esc(o.cidade)+'</b><span class="meta">'+f1(o.vol)+' HL · '+fmtInt(o.pdvs.size)+' PDVs · os '+fmtInt(t.length)+' maiores somam '+(o.vol>0?(sumTop/o.vol*100).toFixed(1).replace('.',','):'0')+'% da cidade</span></summary><div class="tablewrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>PDV</th><th>Bairro</th><th>Volume (HL)</th><th>% da cidade</th><th>Pedidos</th><th>HL/pedido</th><th>Meses com volume</th></tr></thead><tbody>'+t.map((p,k)=>'<tr><td>'+(k+1)+'</td><td>'+esc(p.code+' • '+p.name)+'</td><td>'+esc(p.bairro||'—')+'</td><td><b>'+f1(p.vol)+'</b></td><td>'+(o.vol>0?(p.vol/o.vol*100).toFixed(1).replace('.',','):'0')+'%</td><td>'+fmtInt(p.orders)+'</td><td>'+hlP(p.vol,p.orders)+'</td><td>'+fmtInt(p.months.size)+'</td></tr>').join('')+'</tbody></table></div></details>'}).join(''):'<div class="empty">Sem volume no filtro.</div>';
+ $('#exportVolumes').onclick=()=>{if(!cities.length){alert('Não há volumes para exportar.');return}
+  const wb=XLSX.utils.book_new(),mn=i=>monthName(i);
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(monthsWith.map(i=>({'Mês':mn(i),'Volume (HL)':+mv[i].toFixed(2),[(yr-1)+' (HL)']:+mp[i].toFixed(2),'PDVs':mPdv[i].size,'Pedidos':mo[i],'HL/pedido':mo[i]>0?+(mv[i]/mo[i]).toFixed(3):''}))),'Por mês');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cities.map(o=>{const r={'Cidade':o.cidade};for(let i=1;i<=12;i++)r[mn(i)]=+o.months[i].toFixed(2);r['Total (HL)']=+o.vol.toFixed(2);r['% do total']=total>0?+(o.vol/total*100).toFixed(2):0;r['PDVs']=o.pdvs.size;r['Pedidos']=o.orders;r['HL/pedido']=o.orders>0?+(o.vol/o.orders).toFixed(3):'';return r})),'Por cidade e mês');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cities.flatMap(o=>topOf(o).map((p,k)=>({'Cidade':o.cidade,'Posição':k+1,'Código PDV':p.code,'PDV':p.name,'Bairro':p.bairro,'Volume (HL)':+p.vol.toFixed(2),'% da cidade':o.vol>0?+(p.vol/o.vol*100).toFixed(2):0,'Pedidos':p.orders,'HL/pedido':p.orders>0?+(p.vol/p.orders).toFixed(3):'','Meses com volume':p.months.size})))),'Maiores PDVs por cidade');
+  XLSX.writeFile(wb,'volumes-'+yr+'.xlsx')};
+}
+
 function actionDefaultStatus(year,month){
  let n=new Date(),cy=n.getFullYear(),cm=n.getMonth()+1;
  if(year<cy||(year===cy&&month<cm))return 'Concluído';
@@ -2884,7 +2946,7 @@ function renderTab(tab,reuse){
  $('#globalFilterBar').hidden=['service','import','users'].includes(tab);
  if(reuse&&VIEW_DONE[tab]===viewKey()&&tab!=='import'&&tab!=='users'){updateHeader();return}
  VIEW_DONE[tab]=viewKey();
- if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='offroute')renderOffroute();else if(tab==='action')renderAction();else if(tab==='users')cloudRenderUsersTab();
+ if(tab==='import')renderImport();else if(tab==='cluster')renderCluster();else if(tab==='analysis')renderAnalysis();else if(tab==='service')renderService();else if(tab==='volumes')renderVolumes();else if(tab==='offroute')renderOffroute();else if(tab==='action')renderAction();else if(tab==='users')cloudRenderUsersTab();
  updateHeader();
 
  setTimeout(applyHelp,0);
