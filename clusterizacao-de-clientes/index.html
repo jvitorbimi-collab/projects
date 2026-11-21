@@ -2744,9 +2744,9 @@ async function syncVolumeSummary(force){
   for(const x of volumeBase()){if(!(x.vol>0))continue;const k=x.cidade+'|'+x.year+'|'+x.month;let o=agg.get(k);if(!o)agg.set(k,o={cidade:x.cidade,ano:x.year,mes:x.month,hl:0,pedidos:0,pdvs:new Set()});o.hl+=x.vol;o.pedidos+=x.orders;o.pdvs.add(x.code)}
   const rows=[...agg.values()].map(o=>({cidade:o.cidade,ano:o.ano,mes:o.mes,hl:Math.round(o.hl*1000)/1000,pedidos:Math.round(o.pedidos),pdvs:o.pdvs.size}));
   if(!rows.length)return;
-  await cloudFunction('clusterizacao-volumes',{action:'save',rows});
+  for(let i=0;i<rows.length;i+=1500)await cloudFunction('clusterizacao-volumes',{action:'save',rows:rows.slice(i,i+1500),reset:i===0,final:i+1500>=rows.length,total:rows.length});
   await put('volmark',sig);
- }catch(e){console.warn('Resumo de volume por cidade não enviado ao OBZ.',e)}
+ }catch(e){console.warn('Resumo de volume por cidade não enviado ao OBZ.',e);try{cloudStatus('Volume por cidade não enviado ao OBZ: '+(e&&e.message||e))}catch(_){}}
  finally{VOL_SYNC_BUSY=false}
 }
 
