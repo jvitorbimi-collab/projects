@@ -1502,7 +1502,7 @@ async function cloudSync(){
     await cloudJson(CLOUD_URL+'/storage/v1/object/clusterizacao-state/dashboard-state.json',{method:'POST',headers:{...cloudHeaders(s.access_token),'Content-Type':'application/json','x-upsert':'true'},body:blob});
     let saved=await cloudFunction('clusterizacao-admin-users',{action:'save_state_meta',byte_size:blob.size});
     syncNote('ok','Gravado no banco em '+syncHour(saved?.updated_at||Date.now())+' ('+(blob.size/1048576).toFixed(1).replace('.',',')+' MB compactado)');
-    cloudStatus('Dados sincronizados');LAST_SYNC='ok';
+    cloudStatus('Dados sincronizados');LAST_SYNC='ok';setTimeout(()=>syncVolumeSummary(true),800);
     /* A marca de versão é gravada em segundo plano: não segura o fim da importação. */
     cloudFunction('clusterizacao-admin-users',{action:'get_state_meta'}).then(async m=>{if(m?.state&&!CLOUD_AGAIN&&!CLOUD_TIMER)await put('cloudmark',m.state.updated_at+'|'+m.state.byte_size)}).catch(()=>{});
    }catch(e){console.error(e);cloudStatus('Falha na sincronização');LAST_SYNC='fail';syncNote('err','Não gravou no banco: '+String(e.message||'erro desconhecido').replace(/[.\s]+$/,'')+'. As bases estão só neste equipamento.');if(document.getElementById('cloudAuthOverlay')===null&&typeof toast==='function')toast('Os dados ficaram salvos neste navegador, mas não foram sincronizados: '+e.message);CLOUD_AGAIN=false}
@@ -2732,6 +2732,24 @@ function renderVolumes(){
   XLSX.writeFile(wb,'volumes-'+yr+'.xlsx')};
 }
 
+/* Resumo de volume por cidade para o OBZ: cidade x ano x mês (HL, pedidos e PDVs), gravado no banco por quem pode gravar bases. */
+let VOL_SYNC_BUSY=false;
+async function syncVolumeSummary(force){
+ if(VOL_SYNC_BUSY||!cloudSession||!cloudCanWrite()||!state.files?.length)return;
+ const sig=String(state.lastUpdate||'')+'|'+(state.data.Volume||[]).length+'|'+(state.data['Operação 03.01.47.01']||[]).length+'|'+JSON.stringify(state.params?.cityMap||{});
+ if(!force&&await get('volmark')===sig)return;
+ VOL_SYNC_BUSY=true;
+ try{
+  const agg=new Map();
+  for(const x of volumeBase()){if(!(x.vol>0))continue;const k=x.cidade+'|'+x.year+'|'+x.month;let o=agg.get(k);if(!o)agg.set(k,o={cidade:x.cidade,ano:x.year,mes:x.month,hl:0,pedidos:0,pdvs:new Set()});o.hl+=x.vol;o.pedidos+=x.orders;o.pdvs.add(x.code)}
+  const rows=[...agg.values()].map(o=>({cidade:o.cidade,ano:o.ano,mes:o.mes,hl:Math.round(o.hl*1000)/1000,pedidos:Math.round(o.pedidos),pdvs:o.pdvs.size}));
+  if(!rows.length)return;
+  await cloudFunction('clusterizacao-volumes',{action:'save',rows});
+  await put('volmark',sig);
+ }catch(e){console.warn('Resumo de volume por cidade não enviado ao OBZ.',e)}
+ finally{VOL_SYNC_BUSY=false}
+}
+
 function actionDefaultStatus(year,month){
  let n=new Date(),cy=n.getFullYear(),cm=n.getMonth()+1;
  if(year<cy||(year===cy&&month<cm))return 'Concluído';
@@ -3152,7 +3170,7 @@ async function cloudOpenPanel(){
   state.folderHandle=await get('folder');
   document.getElementById('cloudAuthOverlay')?.remove();
   if(cloudProfile.must_change_password&&!viaTorre()){cloudAuthScreen('change','');return}
-  document.querySelector('.nav button[data-tab="'+(state.files?.length?'cluster':'import')+'"]').click();updateHeader();document.body.classList.add('cloud-ready');cloudLoading(false);loadLibsIdle();
+  document.querySelector('.nav button[data-tab="'+(state.files?.length?'cluster':'import')+'"]').click();updateHeader();document.body.classList.add('cloud-ready');cloudLoading(false);loadLibsIdle();setTimeout(()=>syncVolumeSummary(),4000);
  }catch(e){console.error('Falha em cloudOpenPanel:',loadingStep,e);if(e.status===403){cloudLockScreen();return}let detail=[e.message,e.details,e.hint,e.code?'Código '+e.code:''].filter(Boolean).join(' · ')||'erro desconhecido';cloudAuthScreen('login','Falha ao '+loadingStep+': '+detail)}
 }
 function cloudCanCreateRole(role){return cloudRoot()||CLOUD_RANK[role]<CLOUD_RANK[cloudProfile?.role]}
